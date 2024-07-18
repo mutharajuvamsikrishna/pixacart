@@ -163,7 +163,11 @@ const productVariantsSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    prod_quantity:{ 
+        type: Number,
+         default:0
+    },
 });
 
 

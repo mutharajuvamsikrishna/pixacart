@@ -349,6 +349,16 @@ HELPER.sendNotification = async (notiMsg, token) => {
   }
   return resp;
 };
+HELPER.deductSizeInventory = async (prod_id, size_id, qty) => {
+  if (prod_id && size_id) {
+    // Example: Update size inventory in the product collection
+    await productsModel.findOneAndUpdate(
+      { _id: prod_id, 'sizes.id': size_id },
+      { $inc: { 'sizes.$.quantity': qty } }
+    );
+  }
+};
+
 
 HELPER.deductInventory = async (prod_vid, qty) => {
   if (prod_vid) {

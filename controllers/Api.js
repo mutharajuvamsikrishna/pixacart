@@ -1809,7 +1809,10 @@ API.orderPlaceOLD = async (req, res) => {
                     await pids.save().then(async (subOrder) => {
                         
                         await helper.deductInventory(element.vid, - element.qty);
-
+                        if (element.size && element.size.quantity > 0) {
+                          await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                        }
+                      
                         if(payModeArr.includes(req.body.payment_mode)){
 
                           let totalAmt = element.subtotal;

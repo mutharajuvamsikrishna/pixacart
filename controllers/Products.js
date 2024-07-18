@@ -131,89 +131,118 @@ PRODUCTS.create_product = async (req, res) => {
 //     }
 // };
 PRODUCTS.create_product_variants = async (req, res) => {
-    let postData = {};
-    postData.prod_id = req.body.prod_id;
-    postData.pro_subtitle = req.body.pro_subtitle;
-    postData.pro_sku = req.body.pro_sku;
-    postData.prod_unitprice = req.body.pro_unitprice;
-    postData.prod_strikeout_price = req.body.pro_strikeout_price;
-    postData.prod_purchase_price = req.body.pro_purchase_price;
-    postData.prod_quantity = req.body.pro_quantity;
-    postData.prod_discount = req.body.pro_discount;
-    postData.prod_discount_type = req.body.pro_discount_type;
-    postData.status = 1;
+    try {
+        let postData = {
+            prod_id: req.body.prod_id,
+            pro_subtitle: req.body.pro_subtitle,
+            pro_sku: req.body.pro_sku,
+            prod_unitprice: req.body.pro_unitprice,
+            prod_strikeout_price: req.body.pro_strikeout_price,
+            prod_purchase_price: req.body.pro_purchase_price,
+            prod_quantity: req.body.pro_quantity,
+            prod_discount: req.body.pro_discount,
+            prod_discount_type: req.body.pro_discount_type,
+            status: 1,
+            updatedAt: Date.now()
+        };
 
-    // Handle color attributes
-    if (req.body.prod_attributes) {
-        req.body.prod_attributes['Colorname'] = helper.colorlist(req.body.prod_attributes.Color);
-        postData.prod_attributes = JSON.stringify(req.body.prod_attributes);
-    }
-
-    // Handle size attributes
-    if (req.body.sizes && req.body.quantities) {
-        let sizeArray = [];
-        req.body.sizes.forEach((size, index) => {
-            sizeArray.push({
-                size: size,
-                quantity: req.body.quantities[index] || 0
-            });
-        });
-        postData.prod_sizes = sizeArray;
-    }
-
-    // Handle image uploads
-    if (req.files) {
-        for (let i = 0; i < req.files.length; i++) {
-            await helper.createThumb(req.files[i], 64, 64, "./public/uploads/products/");
+        // Handle color attributes
+        if (req.body.prod_attributes) {
+            req.body.prod_attributes['Colorname'] = helper.colorlist(req.body.prod_attributes.Color);
+            postData.prod_attributes = JSON.stringify(req.body.prod_attributes);
         }
-    }
 
-    let uid = await helper.uid(req);
+        let uid = await helper.uid(req);
+        postData.prod_sellerid = uid;
 
-    if (req.body.prod_vid && req.body.prod_vid != 0) {
-        postData.updatedAt = Date.now();
-        await productsVariantsModel.findOneAndUpdate(
-            { _id: req.body.prod_vid, prod_id: postData.prod_id },
-            postData
-        ).then(async result => {
-            if (req.files) {
-                let imageInsert = [];
-                for (let i = 0; i < req.files.length; i++) {
-                    let imagesData = {
-                        'prod_id': req.body.prod_id,
-                        'prod_variant_id': req.body.prod_vid,
-                        'user_id': uid,
-                        'image_name': req.files[i].filename
-                    };
-                    imageInsert.push(imagesData);
+        if (req.body.prod_vid && req.body.prod_vid != 0) {
+            // Updating existing product variant
+            const existingVariant = await productsVariantsModel.findOne({ _id: req.body.prod_vid, prod_id: postData.prod_id });
+
+            if (existingVariant) {
+                // Merge existing attributes with new attributes
+                const existingAttributes = existingVariant.prod_attributes ? JSON.parse(existingVariant.prod_attributes) : {};
+                const updatedAttributes = { ...existingAttributes, ...req.body.prod_attributes };
+                postData.prod_attributes = JSON.stringify(updatedAttributes);
+
+                // Merge existing sizes with new sizes
+                let existingSizes = existingVariant.prod_sizes || [];
+                if (req.body.sizes && Array.isArray(req.body.sizes)) {
+                    let newSizes = req.body.sizes.map((size, index) => ({
+                        size: size,
+                        quantity: req.body.quantities[index] || 0
+                    }));
+
+                    // Merge logic
+                    newSizes.forEach(newSize => {
+                        const existingIndex = existingSizes.findIndex(size => size.size === newSize.size);
+                        if (existingIndex !== -1) {
+                            existingSizes[existingIndex].quantity = newSize.quantity;
+                            existingSizes[existingIndex].size = newSize.size;
+                        } else {
+                            existingSizes.push(newSize); // Add new size if it doesn't exist
+                        }
+                    });
+                        
                 }
-                productsThumbModel.insertMany(imageInsert);
+
+                postData.prod_sizes = existingSizes;
+
+                await productsVariantsModel.findOneAndUpdate(
+                    { _id: req.body.prod_vid, prod_id: postData.prod_id },
+                    postData
+                ).then(async result => {
+                    if (req.files) {
+                        let imageInsert = [];
+                        for (let i = 0; i < req.files.length; i++) {
+                            let imagesData = {
+                                'prod_id': req.body.prod_id,
+                                'prod_variant_id': req.body.prod_vid,
+                                'user_id': uid,
+                                'image_name': req.files[i].filename
+                            };
+                            imageInsert.push(imagesData);
+                        }
+                        productsThumbModel.insertMany(imageInsert);
+                    }
+                    res.status(200).json({ status: 1, message: 'Product variant Updated Successfully!', 'data': req.body.id });
+                }).catch(err => {
+                    res.status(500).json({ status: 0, message: 'Something went wrong in update product.', data: err.message });
+                });
+            } else {
+                res.status(404).json({ status: 0, message: 'Product variant not found.', data: null });
             }
-            res.status(200).json({ status: 1, message: 'Product variant Updated Successfully!', 'data': req.body.id });
-        }).catch(err => {
-            res.status(500).json({ status: 0, message: 'Something went wrong in update product.', data: err.message });
-        });
-    } else {
-        postData.prod_sellerid = await helper.uid(req);
-        await productsVariantsModel.create(postData).then(creatRes => {
-            if (req.files) {
-                let imageInsert = [];
-                for (let i = 0; i < req.files.length; i++) {
-                    let imagesData = {
-                        'prod_id': req.body.prod_id,
-                        'prod_variant_id': creatRes._id,
-                        'user_id': uid,
-                        'image_name': req.files[i].filename
-                    };
-                    imageInsert.push(imagesData);
+        } else {
+            // Creating new product variant
+            if (req.body.sizes && Array.isArray(req.body.sizes)) {
+                postData.prod_sizes = req.body.sizes.map((size, index) => ({
+                    size: size,
+                    quantity: req.body.quantities[index] || 0
+                }));
+            }
+
+            await productsVariantsModel.create(postData).then(creatRes => {
+                if (req.files) {
+                    let imageInsert = [];
+                    for (let i = 0; i < req.files.length; i++) {
+                        let imagesData = {
+                            'prod_id': req.body.prod_id,
+                            'prod_variant_id': creatRes._id,
+                            'user_id': uid,
+                            'image_name': req.files[i].filename
+                        };
+                        imageInsert.push(imagesData);
+                    }
+                    productsThumbModel.insertMany(imageInsert);
                 }
-                productsThumbModel.insertMany(imageInsert);
-            }
-            res.status(200).json({ status: 1, message: 'Product variant Added Successfully!', 'data': creatRes });
-        }).catch(err => {
-            let m = err.code == 11000 ? 'Please provide unique SKU.' : 'Something went wrong in insert product.';
-            res.status(500).json({ status: 0, message: m, data: err.message });
-        });
+                res.status(200).json({ status: 1, message: 'Product variant Added Successfully!', 'data': creatRes });
+            }).catch(err => {
+                let m = err.code == 11000 ? 'Please provide unique SKU.' : 'Something went wrong in insert product.';
+                res.status(500).json({ status: 0, message: m, data: err.message });
+            });
+        }
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Something went wrong.', data: err.message });
     }
 };
 
@@ -262,7 +291,6 @@ PRODUCTS.deleteProductVariantThumb = async (req, res) => {
     }
     
 };
-
 
 PRODUCTS.create_category = async (req, res)  => {
     
