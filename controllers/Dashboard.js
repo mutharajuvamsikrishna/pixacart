@@ -14,6 +14,7 @@ const ordersModel  = mongoose.model('orders');
 const currenciesModel   = mongoose.model('currencies');
 const notificationsModel  = mongoose.model('notifications');
 const { orderProducts } = require('../models/DatabaseModel');
+const CourierService = require('../models/DatabaseModel').courierServices;
 const {validationResult} = require('express-validator');
 //const API        = require('../controllers/Api');
 const config     = require('../config/config');
@@ -58,6 +59,13 @@ DASHBOARD.category = async (req, res) => {
             pageTitle : 'Categories List'
     });
 };
+
+// DASHBOARD.CourierService = async (req, res) => {
+//     res.render('backend/courier_services', {
+//             viewTitle : 'Courier Service',
+//             pageTitle : 'Courier Service List'
+//     });
+// };
 
 DASHBOARD.sub_category = async (req, res) => {
     let  cateList = await categoryModel.find({status: 1}).exec();

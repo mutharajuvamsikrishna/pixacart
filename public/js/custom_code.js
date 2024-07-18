@@ -213,7 +213,7 @@ $(document).ready(function(){
         let HTML =`<select id="swal-input1" class="swal2-input">`;
         HTML +=`<option value="" selected="" disabled="">---Select---</option>`;
                 courier.forEach(function(value, key){
-                HTML +=` <option value="${value._id}">${value.courier_name}</option>`;
+                HTML +=` <option value="${value._id}">${value.service_name}</option>`;
             });
         HTML +=`</select>
             <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;
@@ -309,7 +309,7 @@ $(document).on('click', '.AddTrackingDetail' ,async function(e) {
         let HTML =`<select id="swal-input1" class="swal2-input">`;
         HTML +=`<option value="" selected="" disabled="">---Select---</option>`;
                 courier.forEach(function(value, key){
-                HTML +=` <option value="${value._id}">${value.courier_name}</option>`;
+                HTML +=` <option value="${value._id}">${value.service_name}</option>`;
             });
         HTML +=`</select>
             <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;

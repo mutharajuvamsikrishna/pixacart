@@ -13,9 +13,12 @@ const controllers = {
     api         : require('../controllers/Api'),
     settings    : require('../controllers/Settings'),
     support     : require('../controllers/Support'),
+    courier_service: require('../controllers/courierServiceController'),
 }
 const validationRules   =  require('./ValidationRules');
 
+router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
+router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let folder   = (file.fieldname).split('_');
@@ -87,7 +90,7 @@ router.get('/admin/withdraw-request-list',controllers.middleware.authenticate, c
 //POST Request Admin
 router.post('/admin/processWithdrawRequest',upload.array(),controllers.admin.processWithdrawRequest);
 
-
+router.get('/dashboard/courier_service_list',controllers.middleware.authenticate, controllers.courier_service.getAllCourierServices);
 //GET Request Dashboard
 router.get('/dashboard',controllers.middleware.authenticate, controllers.dashboard.dashboard);
 router.get('/dashboard/category',controllers.middleware.authenticate, controllers.dashboard.category);
