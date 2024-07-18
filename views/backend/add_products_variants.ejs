@@ -105,22 +105,22 @@
                                         <% if (prodDetails.sizes && prodDetails.quantities) {
                                             for (let i = 0; i < prodDetails.sizes.length; i++) { %>
                                                 <div class="size-quantity-row">
-                                                    <div class="row">
+                                                    <div >
                                                         <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
                                                             <div class="form-group">
-                                                                <label for="size" class="col-form-label">Attribute Name</label>
-                                                                <input class="form-control require size-input" type="text" placeholder="Attribute Name" name="sizes[<%= prodDetails.sizes[i] %>]" value="<%= prodDetails.sizes[i] %>">
+                                                                <label for="size" class="col-form-label">Size</label>
+                                                                <input class="form-control require size-input" type="text" placeholder="Size" name="sizes[<%= prodDetails.sizes[i] %>]" value="<%= prodDetails.sizes[i] %>">
                                                             </div>
                                                         </div>
                                                         <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
-                                                            <div class="form-group">
+                                                            <div class="form-group" style="margin-bottom: 0;">
                                                                 <label for="quantity" class="col-form-label">Quantity</label>
                                                                 <input class="form-control require quantity-input" type="number" placeholder="Quantity" name="quantities[<%= prodDetails.sizes[i] %>]" value="<%= prodDetails.quantities[i] %>">
                                                             </div>
                                                         </div>
                                                         <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                            <div class="form-group">
-                                                                <button type="button" class="btn btn-danger btn-sm remove-size-quantity">Remove</button>
+                                                            <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                                                                <button type="button" class="btn btn-danger btn-sm remove-size-quantity" style="margin-top: 24px;">Remove</button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -128,7 +128,7 @@
                                             <% }
                                         } %>
                                     </div>
-                                    <button type="button" class="btn btn-primary btn-sm mt-2 mb-2" id="addSizeQuantity">Add AttributeName & Quantity</button>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2 mb-2" id="addSizeQuantity">Add Size & Quantity</button>
                                     <hr class="mt-4 mb-4">
                                     <hr class="mt-4 mb-4">
                                     <h5 class="form-title mb-1">Product Price & Stock</h5>
@@ -172,7 +172,7 @@
                                                 <input class="form-control require" type="number" placeholder="Quantity" name="pro_quantity" id="pro_quantity" value="<%= prodDetails.prod_quantity ? prodDetails.prod_quantity : 0 %>" min="0">
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> 
                                     <hr class="mt-4 mb-4">
                                     <h5 class="form-title mb-1">Upload Product Images</h5>
                                     <div class="row">
@@ -224,17 +224,17 @@
 <%- include('../partials/footer'); %>
 
 <script>
-    // Function to handle dynamic addition and removal of size & quantity inputs
+    
     $(document).ready(function() {
-        // Add size and quantity fields dynamically
+       
         $('#addSizeQuantity').click(function() {
             var row = `
                 <div class="size-quantity-row">
                     <div class="row">
                         <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
                             <div class="form-group">
-                                <label for="size" class="col-form-label">Attribute Name</label>
-                                <input class="form-control require size-input" type="text" placeholder="Attribute Name" name="sizes[]" value="">
+                                <label for="size" class="col-form-label">Size</label>
+                                <input class="form-control require size-input" type="text" placeholder="Size" name="sizes[]" value="">
                             </div>
                         </div>
                         <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
