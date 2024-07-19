@@ -26,7 +26,7 @@
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4><%=viewTitle%></h4>
+                            <!-- <h4><%=viewTitle%></h4> -->
                         </div>
                         <div class="card-body">
                             <form action="create_product_variant" method="post" autocomplete="off" data-redirect="dashboard/products">
@@ -46,6 +46,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                   
                                     <div class="row">
                                         <% let proAttr = prodDetails.prod_attributes ? JSON.parse(prodDetails.prod_attributes) : []; %>
                                         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
@@ -76,7 +77,29 @@
                                         <% }); %>
                                         <% } %>
                                     </div>
-                                    <h5 class="form-title mb-1">Product Attribute & Quantities</h5>
+                                    <!-- Added Attribute Name and Quantity -->
+                                        <h5 class="form-title mb-1">Attribute Name & Quantity</h5>
+                                    <div class="row">
+                                        <% if (prodDetails.prod_sizes) {
+                                            prodDetails.prod_sizes.forEach(function(sizeQuantity, index) { %>
+                                            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                                <div class="form-group">
+                                                    <label for="size_<%= index %>" class="col-form-label">Attribute Name</label>
+                                                    <input class="form-control require" type="text" placeholder="Attribute Name" name="prod_sizes[<%= index %>][size]" id="size_<%= index %>" value="<%= sizeQuantity.size %>">
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                                <div class="form-group">
+                                                    <label for="quantity_<%= index %>" class="col-form-label">Quantity</label>
+                                                    <input class="form-control require" type="number" placeholder="Quantity" name="prod_sizes[<%= index %>][quantity]" id="quantity_<%= index %>" value="<%= sizeQuantity.quantity %>">
+                                                </div>
+                                            </div>
+                                        <% });
+                                        } %>
+                                    </div>
+
+                                     <!-- Ended -->
+                                    <h5 class="form-title mb-1">AttributeName & Quantities</h5>
                                     <div id="sizeQuantityContainer">
                                         <!-- Existing size-quantity rows will be populated here dynamically -->
                                         <% if (prodDetails.sizes && prodDetails.quantities) {
@@ -84,7 +107,7 @@
                                                 <div class="size-quantity-row">
                                                     <div >
                                                         <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
-                                                            <div class="form-group" style="margin-bottom: 0;">
+                                                            <div class="form-group">
                                                                 <label for="size" class="col-form-label">Size</label>
                                                                 <input class="form-control require size-input" type="text" placeholder="Size" name="sizes[<%= prodDetails.sizes[i] %>]" value="<%= prodDetails.sizes[i] %>">
                                                             </div>
@@ -105,7 +128,6 @@
                                             <% }
                                         } %>
                                     </div>
-                                    
                                     <button type="button" class="btn btn-primary btn-sm mt-2 mb-2" id="addSizeQuantity">Add Size & Quantity</button>
                                     <hr class="mt-4 mb-4">
                                     <hr class="mt-4 mb-4">
@@ -207,28 +229,28 @@
        
         $('#addSizeQuantity').click(function() {
             var row = `
-    <div class="size-quantity-row">
-        <div class="row align-items-center" style="align-items: center;">
-            <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="size" class="col-form-label">Size</label>
-                    <input class="form-control require size-input" type="text" placeholder="Size" name="sizes[]" value="">
+                <div class="size-quantity-row">
+                    <div class="row">
+                        <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
+                            <div class="form-group">
+                                <label for="size" class="col-form-label">Size</label>
+                                <input class="form-control require size-input" type="text" placeholder="Size" name="sizes[]" value="">
+                            </div>
+                        </div>
+                        <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
+                            <div class="form-group">
+                                <label for="quantity" class="col-form-label">Quantity</label>
+                                <input class="form-control require quantity-input" type="number" placeholder="Quantity" name="quantities[]" value="">
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-danger btn-sm remove-size-quantity">Remove</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="quantity" class="col-form-label">Quantity</label>
-                    <input class="form-control require quantity-input" type="number" placeholder="Quantity" name="quantities[]" value="">
-                </div>
-            </div>
-            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
-                    <button type="button" class="btn btn-danger btn-sm remove-size-quantity" style="margin-top: 24px;">Remove</button>
-                </div>
-            </div>
-        </div>
-    </div>
-`;
+            `;
             $('#sizeQuantityContainer').append(row);
         });
 
@@ -238,3 +260,4 @@
         });
     });
 </script>
+

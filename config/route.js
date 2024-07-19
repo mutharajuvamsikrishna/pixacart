@@ -1,6 +1,7 @@
 const router    = require('express').Router();
 const multer    = require('multer');
 const path      = require('path');
+const nodemailer = require('nodemailer');
 const controllers = {
     auth        : require('../controllers/Auth'),
     admin       : require('../controllers/Admin'),
@@ -68,7 +69,35 @@ function checkFileType(file, cb) {
         }
     }
 //at the save function 
+router.post('/api/send-email', async (req, res) => {
+  const { to, subject, text ,html} = req.body;
 
+  // Create a transporter
+  const transporter = nodemailer.createTransport({
+      service: 'gmail', // or any other email service
+      auth: {
+          user: 'santhakumar4343@gmail.com',
+          pass: 'jinu kzpv lhqj bpkm'
+      }
+  });
+
+  // Email options
+  const mailOptions = {
+      from: 'santhakumar4343@gmail.com',
+      to: to,
+      subject: subject,
+      text: text,
+      html: html
+  };
+
+  try {
+      await transporter.sendMail(mailOptions);
+      res.json({ status: 1, message: 'Email sent successfully!' });
+  } catch (error) {
+      console.error("Email error: ", error);
+      res.status(500).json({ status: 0, message: 'Failed to send email.' });
+  }
+});
 //const {check} = require('express-validator');
 router.use(['/login', '/register','/forgot-pws'], controllers.middleware.sessionChecker);
 

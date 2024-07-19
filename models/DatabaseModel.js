@@ -93,6 +93,81 @@ const productSchema = new mongoose.Schema({
 
 
 const productVariantsSchema = new mongoose.Schema({
+    prod_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'products',
+        required: true
+    },
+    prod_sellerid: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        required: true
+    },
+    pro_subtitle: {
+        type: String,
+        default: null,
+        required: true
+    },
+    pro_sku: {
+        type: String,
+        unique: true,
+        default: null,
+        required: true
+    },
+    prod_attributes: {
+        type: String,
+        default: null
+    },
+    prod_unitprice: {
+        type: Number,
+        default: 0,
+        get: getPrice
+    },
+    prod_purchase_price: {
+        type: Number,
+        default: 0,
+        get: getPrice
+    },
+    prod_strikeout_price: {
+        type: Number,
+        default: 0,
+        get: getPrice
+    },
+    prod_discount: {
+        type: Number,
+        default: 0
+    },
+    prod_discount_type: {
+        type: String,
+        default: null
+    },
+    prod_sizes: [{
+        size: {
+            type: String,
+            required: true
+        },
+        quantity: {
+            type: Number,
+            default: 0
+        }
+    }],
+    status: {
+        type: Number,
+        default: 0
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    },
+    prod_quantity:{ 
+        type: Number,
+         default:0
+    },
+
     prod_id :{ type: mongoose.Schema.Types.ObjectId,
                 ref: 'products',
                 required:true
@@ -114,6 +189,7 @@ const productVariantsSchema = new mongoose.Schema({
     status :{type: Number, default:0},
     createdAt :{type: Date, default: Date.now},
     updatedAt :{type: Date, default: Date.now}
+
 });
 
 

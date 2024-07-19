@@ -129,31 +129,33 @@ DASHBOARD.add_product = async (req, res) => {
 DASHBOARD.add_product_variants = async (req, res) => {
     var prod_id = req.params.id;
     let prod_vid = (req.params.vid) ? req.params.vid : '';
-    let prodDetails ={};
+    let prodDetails = {};
     let prodThumbs = [];
     let viewTitle = 'Add Product Variant';
     let pageTitle = 'products';
- 
-    let prodCate = await productsModel.findOne({_id : prod_id},{prod_cate : 1}).lean().exec();
-    let attributesData = await attributesModel.find({attribute_cate : prodCate.prod_cate, status : 1}).exec();
-    if(prod_vid){
-        prodDetails = await productsVariantsModel.findOne({_id : prod_vid}).lean().exec();
-        prodThumbs = await productsThumbModel.find({prod_variant_id : prod_vid  }).lean().exec();
+
+    let prodCate = await productsModel.findOne({ _id: prod_id }, { prod_cate: 1 }).lean().exec();
+    let attributesData = await attributesModel.find({ attribute_cate: prodCate.prod_cate, status: 1 }).exec();
+
+    if (prod_vid) {
+        prodDetails = await productsVariantsModel.findOne({ _id: prod_vid }).lean().exec();
+        prodThumbs = await productsThumbModel.find({ prod_variant_id: prod_vid }).lean().exec();
         
         viewTitle = 'Edit Product Variant';
         pageTitle = 'products';
     }
- 
+
     res.render('backend/add_products_variants', {
-            viewTitle : viewTitle,
-            pageTitle : pageTitle,
-            prod_id   : prod_id,
-            prod_vid   : prod_vid,
-            prodDetails : prodDetails ,
-            prodThumbs : prodThumbs ,
-            attributesData : attributesData
-    }); 
+        viewTitle: viewTitle,
+        pageTitle: pageTitle,
+        prod_id: prod_id,
+        prod_vid: prod_vid,
+        prodDetails: prodDetails,
+        prodThumbs: prodThumbs,
+        attributesData: attributesData
+    });
 };
+
  
 
 DASHBOARD.product_wishlist = async (req, res) => {

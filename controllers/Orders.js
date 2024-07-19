@@ -336,7 +336,10 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 updateData.cancel_reason = 'Canceled By Seller';
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
-
+                if (element.size && element.size.quantity > 0) {
+                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                  }
+                
                 let totalAmt = orderDetails.prod_subtotal
                 let debitCharge = ( parseFloat(totalAmt) * parseFloat(cancelingCharge) / 100 ).toFixed(2);
 
@@ -360,7 +363,10 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 updateData.cancel_reason = 'Canceled By Seller';
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
-
+                if (element.size && element.size.quantity > 0) {
+                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                  }
+                
                 let totalAmt = orderDetails.prod_subtotal
                 let debitCharge = ( parseFloat(totalAmt) * parseFloat(cancelingCharge) / 100 ).toFixed(2);
 
@@ -462,6 +468,9 @@ ORDERS.returnRequestAccept = async (req, res) => {
                 }  
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
+                if (element.size && element.size.quantity > 0) {
+                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                  }
                 
                 await orderProducts.findOneAndUpdate({ "_id": id },updateData, {new: true}).then(async (result) =>{
                     let insertNoti = new notificationsModel({   noti_status : orderStatus,
