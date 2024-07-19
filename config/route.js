@@ -1,6 +1,7 @@
 const router    = require('express').Router();
 const multer    = require('multer');
 const path      = require('path');
+const nodemailer = require('nodemailer');
 const controllers = {
     auth        : require('../controllers/Auth'),
     admin       : require('../controllers/Admin'),
@@ -13,9 +14,12 @@ const controllers = {
     api         : require('../controllers/Api'),
     settings    : require('../controllers/Settings'),
     support     : require('../controllers/Support'),
+    courier_service: require('../controllers/courierServiceController'),
 }
 const validationRules   =  require('./ValidationRules');
 
+router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
+router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let folder   = (file.fieldname).split('_');
@@ -65,7 +69,35 @@ function checkFileType(file, cb) {
         }
     }
 //at the save function 
+router.post('/api/send-email', async (req, res) => {
+  const { to, subject, text ,html} = req.body;
 
+  // Create a transporter
+  const transporter = nodemailer.createTransport({
+      service: 'gmail', // or any other email service
+      auth: {
+          user: 'santhakumar4343@gmail.com',
+          pass: 'jinu kzpv lhqj bpkm'
+      }
+  });
+
+  // Email options
+  const mailOptions = {
+      from: 'santhakumar4343@gmail.com',
+      to: to,
+      subject: subject,
+      text: text,
+      html: html
+  };
+
+  try {
+      await transporter.sendMail(mailOptions);
+      res.json({ status: 1, message: 'Email sent successfully!' });
+  } catch (error) {
+      console.error("Email error: ", error);
+      res.status(500).json({ status: 0, message: 'Failed to send email.' });
+  }
+});
 //const {check} = require('express-validator');
 router.use(['/login', '/register','/forgot-pws'], controllers.middleware.sessionChecker);
 
@@ -87,7 +119,7 @@ router.get('/admin/withdraw-request-list',controllers.middleware.authenticate, c
 //POST Request Admin
 router.post('/admin/processWithdrawRequest',upload.array(),controllers.admin.processWithdrawRequest);
 
-
+router.get('/dashboard/courier_service_list',controllers.middleware.authenticate, controllers.courier_service.getAllCourierServices);
 //GET Request Dashboard
 router.get('/dashboard',controllers.middleware.authenticate, controllers.dashboard.dashboard);
 router.get('/dashboard/category',controllers.middleware.authenticate, controllers.dashboard.category);
