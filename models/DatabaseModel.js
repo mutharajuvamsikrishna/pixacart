@@ -93,6 +93,7 @@ const productSchema = new mongoose.Schema({
 
 
 const productVariantsSchema = new mongoose.Schema({
+
     prod_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'products',

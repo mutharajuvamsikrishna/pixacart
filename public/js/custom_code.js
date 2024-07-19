@@ -421,7 +421,7 @@ $(document).on('click', '.AddTrackingDetail', async function(e) {
                         });
 
                         // Now send the email with tracking details
-                        await sendEmailToCourier(courierEmail, result.value.trackingid, allCheckedOrderID, courierServiceName);
+                        await sendEmailToCourier(courierEmail, result.value.trackingid, ids, courierServiceName);
                     } else {
                         showNotifications("error", dataResponse.message);
                     }
