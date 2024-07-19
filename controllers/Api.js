@@ -1207,7 +1207,62 @@ API.categorList = async (req, res) => {
         }else{
             prod_images.push(config.DEFAULT_IMAGE); 
             thumb_images.push(config.DEFAULT_IMAGE);
-        }
+        }async function getProductDetails(req, result) {
+          returnedProducts = [];
+          for (const element of result) {
+              let variant = await productsVariantsModel.findOne({ status: 1, prod_id: element._id });
+              if (variant) {
+                  let prodData = {
+                      "_id": element._id,
+                      "prod_name": element.prod_name,
+                      "prod_unit": element.prod_unit,
+                      "status": element.status,
+                      "featured": element.featured,
+                      "rating_average": (element.average_rating) ? element.average_rating : "0.0",
+                      "rating_user_count": (element.rating_user_count) ? element.rating_user_count : null,
+                      "count_views": element.count_views,
+                      "isLiked": await API.isLikedCheck(variant._id, req.verifyUser.id),
+                      "variant_id": variant._id,
+                      "pro_subtitle": variant.pro_subtitle,
+                      "prod_sellerid": variant.prod_sellerid,
+                      "prod_unitprice": variant.prod_unitprice,
+                      "prod_strikeout_price": variant.prod_strikeout_price,
+                      "prod_discount": variant.prod_discount.toFixed(2),
+                      "prod_discount_type": variant.prod_discount_type,
+                      "prod_quantity": variant.prod_quantity,
+                      "prod_attributes": variant.prod_attributes,
+                      "prod_sizes": variant.prod_sizes, // Add this line to include sizes
+                      "prod_image": '',
+                      "thumb_image": '',
+                  };
+      
+                  let resultt = await productsThumbModel.find({ prod_variant_id: variant._id, prod_id: element._id, user_id: element.prod_sellerid }).limit(1).select('image_name');
+                  let prod_images = [];
+                  let thumb_images = [];
+                  if (resultt.length > 0) {
+                      for (let i = 0; i < resultt.length; i++) {
+                          if (resultt[i].image_name != null) {
+                              prod_images.push(config.APP_URL + 'uploads/products/' + resultt[i].image_name);
+                              let fileArr = resultt[i].image_name.split('.');
+                              thumb_images.push(config.APP_URL + 'uploads/products/' + fileArr[0] + '_thumb.' + fileArr[1]);
+                          } else {
+                              prod_images.push(config.DEFAULT_IMAGE);
+                              thumb_images.push(config.DEFAULT_IMAGE);
+                          }
+                      }
+                  } else {
+                      prod_images.push(config.DEFAULT_IMAGE);
+                      thumb_images.push(config.DEFAULT_IMAGE);
+                  }
+                  prodData["prod_image"] = prod_images;
+                  prodData["thumb_image"] = thumb_images;
+      
+                  returnedProducts.push(prodData);
+              }
+          }
+          return returnedProducts;
+      }
+      
         variant["prod_image"]  = prod_images;
         variant["thumb_image"] = thumb_images;
         returnedVariants.push(variant);
