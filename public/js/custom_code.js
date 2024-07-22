@@ -40,7 +40,7 @@ $(document).ready(function(){
     })
 
     $(document).on('click', '.editAttribute', function () {
-        let _this = $(this);
+        let _this =   $(this);
 
         let f 		= 	new FormData();
         let url 	=	_this.attr('data-url');
