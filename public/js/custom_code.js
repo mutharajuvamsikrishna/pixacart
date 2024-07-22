@@ -361,6 +361,116 @@ $(document).on('click', '.viewInvoice' ,async function(e) {
 //     }
 // });
 
+// $(document).on('click', '.AddTrackingDetail', async function(e) {
+//     e.preventDefault();
+//     let _this = $(this);
+//     let action = _this.attr('action');
+//     let url = _this.attr('url');
+//     let ids = _this.attr('data-order-id'); // Get the order ID from the button
+
+//     if (ids) {
+//         let allCheckedOrderID = [];
+//         allCheckedOrderID.push(ids); // Add the order ID to the array
+
+//         let courier = JSON.parse($('#courierServices').val());
+
+//         let HTML = `<select id="swal-input1" class="swal2-input">`;
+//         HTML += `<option value="" selected disabled>---Select---</option>`;
+//         courier.forEach(function(value) {
+//             HTML += `<option value="${value._id}" data-email="${value.email}">${value.service_name}</option>`;
+//         });
+//         HTML += `</select>
+//                  <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;
+
+//         Swal.fire({
+//             title: 'Select Courier Service',
+//             showCancelButton: true,
+//             html: HTML,
+//             focusConfirm: false,
+//             preConfirm: () => {
+//                 const courierId = document.getElementById('swal-input1').value;
+//                 const trackingid = document.getElementById('swal-input2').value;
+
+//                 if (!courierId) {
+//                     Swal.showValidationMessage(`Please select a courier service`);
+//                 } else if (!trackingid) {
+//                     Swal.showValidationMessage(`Please enter tracking ID`);
+//                 }
+
+//                 return { courierId: courierId, trackingid: trackingid };
+//             }
+//         }).then(async (result) => {
+//             if (result.isConfirmed) {
+//                 let courierEmail = $(`#swal-input1 option[value="${result.value.courierId}"]`).data('email');
+//                 let courierServiceName = $(`#swal-input1 option[value="${result.value.courierId}"]`).text();
+
+//                 // Prepare the FormData for the AJAX call
+//                 let f = new FormData();
+//                 f.set('order_ids', allCheckedOrderID);
+//                 f.set('status', action);
+//                 f.set('courier_service', result.value.courierId);
+//                 f.set('tracking_id', result.value.trackingid);
+
+//                 // Send data to your server and update the UI
+//                 try {
+//                     const dataResponse = await xhr(f, url);
+//                     if (dataResponse.status === 1) {
+//                         showNotifications("success", dataResponse.message);
+//                         dataTableObj.forEach(function(k) {
+//                             k.ajax.reload();
+//                         });
+
+//                         // Now send the email with tracking details
+//                         await sendEmailToCourier(courierEmail, result.value.trackingid, ids, courierServiceName);
+//                     } else {
+//                         showNotifications("error", dataResponse.message);
+//                     }
+//                 } catch (error) {
+//                     console.error("Error in sending order details: ", error);
+//                     showNotifications("error", 'An error occurred while processing the request.');
+//                 }
+//             }
+//         });
+//     } else {
+//         showNotifications("error", 'Order ID is missing');
+//     }
+// });
+
+// // Function to send email to the courier service
+// async function sendEmailToCourier(email, trackingId, orderIds, courierServiceName) {
+//     const emailData = {
+//         to: email,
+//         subject: `Product to Deliver`,
+//         html: `
+//             <p>Hello Deliver Partner (${courierServiceName}),</p>
+//             <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
+//             <p>Order ID(s): ${orderIds.join(', ')}</p>
+//             <p>Thank you for your service!</p>
+//             <p><a href="http://yourwebsite.com/mark-delivered?trackingId=${trackingId}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+//             <p>Best regards,<br>PixaCart</p>
+//         `,
+//     };
+
+//     try {
+//         const response = await $.ajax({
+//             type: "POST",
+//             url: "/api/send-email",
+//             data: JSON.stringify(emailData),
+//             contentType: "application/json",
+//             dataType: "json",
+//         });
+
+//         if (response.status === 1) {
+//             showNotifications("success", "Email sent successfully!");
+//         } else {
+//             showNotifications("error", "Failed to send email.");
+//         }
+//     } catch (error) {
+//         console.error("Email sending error: ", error);
+//         showNotifications("error", 'An error occurred while sending the email.');
+//     }
+// }
+
 $(document).on('click', '.AddTrackingDetail', async function(e) {
     e.preventDefault();
     let _this = $(this);
@@ -421,7 +531,7 @@ $(document).on('click', '.AddTrackingDetail', async function(e) {
                         });
 
                         // Now send the email with tracking details
-                        await sendEmailToCourier(courierEmail, result.value.trackingid, ids, courierServiceName);
+                        await sendEmailToCourier(courierEmail, result.value.trackingid, allCheckedOrderID, courierServiceName);
                     } else {
                         showNotifications("error", dataResponse.message);
                     }
@@ -436,17 +546,16 @@ $(document).on('click', '.AddTrackingDetail', async function(e) {
     }
 });
 
-// Function to send email to the courier service
 async function sendEmailToCourier(email, trackingId, orderIds, courierServiceName) {
     const emailData = {
         to: email,
-        subject: `Product to Deliver`,
+        subject: 'Product to Deliver',
         html: `
             <p>Hello Deliver Partner (${courierServiceName}),</p>
             <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
             <p>Order ID(s): ${orderIds.join(', ')}</p>
             <p>Thank you for your service!</p>
-            <p><a href="http://yourwebsite.com/mark-delivered?trackingId=${trackingId}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
             <p>Best regards,<br>PixaCart</p>
         `,
     };

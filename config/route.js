@@ -175,6 +175,7 @@ router.post('/seller/updateSellerStatus',upload.array(),controllers.seller.updat
 
 
 //POST Request ORDERS
+router.get('/orders/markDelivered', controllers.orders.markOrderAsDelivered);
 router.post('/orders/updateOrderStatus',upload.array(),controllers.orders.updateOrderStatus);
 router.post('/orders/generateLabel',upload.array(),controllers.orders.generateLabel);
 router.post('/orders/returnRequestAccept',upload.array(),controllers.orders.returnRequestAccept);

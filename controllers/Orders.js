@@ -229,8 +229,32 @@ ORDERS.sellerOrdersList = async (req, res) => {
         res.status(401).json({ status : 0, message : 'error '+ err });
       }
   };
-  
 
+  
+  ORDERS.markOrderAsDelivered = async (req, res) => {
+    try {
+        const orderId = req.query.orderId;
+        if (!orderId) {
+            res.status(400).json({ status: 0, message: 'Order ID is missing.' });
+            return;
+        }
+
+        const order = await orderProducts.findOne({ '_id': orderId });
+        if (!order) {
+            res.status(404).json({ status: 0, message: 'Order not found.' });
+            return;
+        }
+
+        // Update order status to delivered
+        order.trackingDetails.delivered = new Date();
+        order.order_status = 1; // Assuming 1 is the status code for delivered
+        await order.save();
+
+        res.json({ status: 1, message: 'Order marked as delivered successfully.' });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Error: ' + err.message });
+    }
+};
   ORDERS.updateOrderStatus = async (req, res) => {
       try{
     if(!req.body.order_ids){
