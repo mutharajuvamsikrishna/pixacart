@@ -1,0 +1,36 @@
+ const assignModalBody = (data: any) => {
+    const [tabValue, setTabValue] = useState(0);
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+      setTabValue(newValue);
+    };
+
+    return (
+      <MDBox display="flex" flexDirection="column" gap={1}>
+        <MDTypography variant="body1" color="dark">
+          {data?.firstname} {data?.lastname}
+        </MDTypography>
+        <MDTypography variant="h4" color="dark">
+          Roles & Permissions
+        </MDTypography>
+        <Box>
+          <Tabs value={tabValue} onChange={handleTabChange} aria-label="roles and permissions tabs">
+            {rolesData.map((tab, index) => (
+              <Tab key={index} label={tab.label} />
+            ))}
+          </Tabs>
+          {rolesData.map((tab, index) => (
+            <Box
+              key={index}
+              role="tabpanel"
+              hidden={tabValue !== index}
+              id={`tabpanel-${index}`}
+              aria-labelledby={`tab-${index}`}
+            >
+              {tabValue === index && <Box p={1}>{tab.content}</Box>}
+            </Box>
+          ))}
+        </Box>
+      </MDBox>
+    );
+  };

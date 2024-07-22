@@ -1,0 +1,182 @@
+<%- include('../partials/header'); %> 
+<!-- Container Start -->
+<div class="page-wrapper">
+    <div class="main-content">
+        <!-- Page Title Start -->
+        <div class="row">
+            <div class="col xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="page-title-wrapper">
+                    <div class="page-title-box">
+                        <h4 class="page-title"><%=viewTitle%></h4>
+                    </div>
+                    <div class="breadcrumb-list">
+                        <ul>
+                            <li class="breadcrumb-link">
+                                <a href="index.html"><i class="fas fa-home mr-2"></i>Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-link active"><%=viewTitle%></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+<!-- From Start -->
+<div class="from-wrapper">
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><%=viewTitle%></h4>
+                    <!--p class="card-desc">Here are examples of form add <code>.separate-form</code> tag with inputs.</p-->
+                </div>
+                <div class="card-body">
+                    <form action="create_product_variant" method="post" autocomplete="off" data-redirect="dashboard/products">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <h5 class="from-title mb-1">Product Variation info</h5>
+                            <div class="row">
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Product Variation Title</label>
+                                        <input class="form-control require" type="text" placeholder="Product Variation Title" name="pro_subtitle" id="pro_subtitle" value="<%= prodDetails.pro_subtitle ? prodDetails.pro_subtitle : '' %>">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Product SKU</label>
+                                        <input class="form-control require" type="text" placeholder="Product SKU" name="pro_sku" id="pro_SKU" value="<%= prodDetails.pro_sku ? prodDetails.pro_sku : '' %>">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <% let proAttr = prodDetails.prod_attributes ? JSON.parse(prodDetails.prod_attributes) : []; %>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="city" class="col-form-label">Color </label>
+                                        <select class="form-control" name="prod_attributes[Color]" id="select2_colorpicker" data-select="<%= proAttr['Color'] ? proAttr['Color'] : '' %>">
+                                                <option value="" selected="" >---Select---</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <% if (attributesData) {  
+                                    attributesData.forEach(function(attribute) {  %>
+                                
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="city" class="col-form-label"><%=attribute.attribute_name%> </label>
+                                        <select class="select2 form-control"  name="prod_attributes[<%=attribute.attribute_name%>]" >
+                                                <option value="" selected="" disabled="">---Select---</option>
+                                                <% if (attribute.attribute_value) { %>
+                                                    <% let attr_val = JSON.parse(attribute.attribute_value);
+                                                        attr_val.forEach(function(element, av) { 
+                                                         let selected =    proAttr[attribute.attribute_name] == element ? 'selected' : '';
+                                                            
+                                                        %>
+                                                            <option <%= selected %> value="<%= element %>" ><%= element %></option>
+                                                    <% }); %>
+                                                <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+                                <% }); %>
+                                <% } %>
+                             </div>
+                            <hr class="mt-4 mb-4">
+                            <h5 class="from-title mb-1">Product Price & Stock</h5>
+                            <div class="row">
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Strikeout Price</label>
+                                        <input class="form-control require calunitprice" type="number" placeholder="Strikeout Price" name="pro_strikeout_price" id="pro_strikeout_price" value="<%= prodDetails.prod_strikeout_price ? prodDetails.prod_strikeout_price : 0 %>" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Unit Price</label>
+                                        <input class="form-control require" readonly type="text" placeholder="Unit Price" name="pro_unitprice" id="pro_unitprice" value="<%= prodDetails.prod_unitprice ? prodDetails.prod_unitprice : 0 %>">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Discount</label>
+                                        <input class="form-control require calunitprice" type="number" placeholder="Discount" name="pro_discount" id="pro_discount" value="<%= prodDetails.prod_discount ? prodDetails.prod_discount : 0 %>" min="0">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="city" class="col-form-label">Discount Type</label>
+                                        <select class="select2 form-control require calunitprice" name="pro_discount_type" id="pro_discount_type">
+                                            <option value="flat" <%= prodDetails.prod_discount_type == 'flat' ? 'selected' : '' %>>Flat</option>
+                                            <option value="percent" <%= prodDetails.prod_discount_type == 'percent' ? 'selected' : '' %>>Percent</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Purchase Price</label>
+                                        <input class="form-control require" type="number" placeholder="Purchase Price" name="pro_purchase_price" id="pro_purchase_price" value="<%= prodDetails.prod_purchase_price ? prodDetails.prod_purchase_price : 0 %>" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="member-name" class="col-form-label">Total Quantity</label>
+                                        <input class="form-control require" type="number" placeholder="Quantity" name="pro_quantity" id="pro_quantity" value="<%= prodDetails.prod_quantity ? prodDetails.prod_quantity : 0 %>" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                             <hr class="mt-4 mb-4">
+                            <h5 class="from-title mb-1">Upload product images</h5>
+                            <div class="row">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <div class="product-upload-wrap">
+                                        <ul class="product-upload-list">
+                                             <li>
+                                                <div>
+                                                    <input class="form-control d-none" type="file" placeholder="Upload Image" name="products_variant_image" id="products_variant_image" multiple >
+                                                    <label class="dragdrop_box" for="products_variant_image">                                                 
+                                                        <span class="dragdrop_icon">
+                                                            <img src="/images/drag.svg" alt="icon" class="img-fluid">
+                                                        </span>
+                                                        <div class="dragdrop_info">
+                                                            <p><span>Upload</span> Your File</p>
+                                                            <span class="dragdrop_sprt">Recommended Size 85x85</span><br>
+                                                            <span class="dragdrop_sprt">Supports: JPG, PNG </span><br>
+                                                            <p><span class="dragdrop_sprt numberOfFiles"></span></p>
+                                                        </div>                                                
+                                                    </label>
+                                                </div>
+                                             </li>
+
+                                            <% if (prodThumbs) {  
+                                                prodThumbs.forEach(function(thumb) { 
+                                                  
+                                                %>
+
+                                             <li class="imgArea">
+                                                 <div class="product-upload-image text-center">
+                                                    <img src="/uploads/products/<%= thumb.image_name; %>" alt="image" class="img-fluid">
+                                                    <button class="btn btn-primary" type="button" onclick="confirmBoxAlert($(this))" data-url="products/delete_product_variant_thumb" data-delete-id="<%= thumb._id  ; %>|<%= thumb.prod_variant_id  ; %>">Remove</button>
+                                                 </div>
+                                             </li>
+                                             <% }) 
+                                            }  %>
+                                        </ul>  
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mb-2 mt-2">
+                                <input type="hidden" name="prod_id" id="prod_id" value="<%= prod_id ? prod_id : 0 %>">
+                                <input type="hidden" name="prod_vid" id="prod_vid" value="<%= prod_vid %>">
+                                <!--button class="btn btn-primary" type="button">Reset</button-->
+                                <button class="btn btn-danger" type="submit" id="addProduct" data-action="submitMe">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../partials/footer'); %>
