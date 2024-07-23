@@ -555,7 +555,7 @@ async function sendEmailToCourier(email, trackingId, orderIds, courierServiceNam
             <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
             <p>Order ID(s): ${orderIds.join(', ')}</p>
             <p>Thank you for your service!</p>
-            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
             <p>Best regards,<br>PixaCart</p>
         `,
     };

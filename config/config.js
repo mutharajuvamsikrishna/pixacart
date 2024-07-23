@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/';
+const BASE_URL = 'http://18.61.197.237:3000/';
 const data = {
     PORT : 3000,
 
