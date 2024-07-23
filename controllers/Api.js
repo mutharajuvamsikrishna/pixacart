@@ -998,6 +998,7 @@ API.categorList = async (req, res) => {
 
   API.getSingleProductDetails = async (req, res) => {
     try {
+<<<<<<< HEAD
         var start = (req.body.start) ? req.body.start : 0;
         var dataLimit = (req.body.limit) ? req.body.limit : 1;
         let where = {};
@@ -1007,12 +1008,23 @@ API.categorList = async (req, res) => {
                 status: 0,
                 message: `Product id field required.`,
                 data: []
+=======
+      var start     = (req.body.start) ? req.body.start : 0 ;
+      var dataLimit = (req.body.limit) ? req.body.limit : 1 ;
+        let where = {};
+        if(!req.body.product_id){
+            res.json({
+              status : 0,
+              message: `Product id field required.`,
+              data:[]
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
             });
             return;
         }
 
         where._id = req.body.product_id;
 
+<<<<<<< HEAD
         await productsModel.findOne(where).populate('prod_brand', 'brand_name').then(async (element) => {
             if (element) {
                 let prodData =   {
@@ -1071,10 +1083,87 @@ API.categorList = async (req, res) => {
                         variantObj["thumb_image"] = thumb_images;
 
                         variantsArr.push(variantObj);
+=======
+        await productsModel.findOne(where).populate('prod_brand', 'brand_name').then(async (element)=>{
+          //console.log(result)
+          if(element){
+                let prodData = {"_id": element._id,
+                "prod_sellerid": element.prod_sellerid,
+                "prod_name": element.prod_name,
+                "prod_description": element.prod_description,
+                "prod_cate": element.prod_cate,
+              // "prod_subcate": element.prod_subcate,
+                "prod_brand": (element.prod_brand) ? element.prod_brand.brand_name : '',
+              //  "prod_unit": element.prod_unit,
+              //  "prod_unitprice": element.prod_unitprice,
+              // "prod_purchase_price": element.prod_purchase_price,
+               // "prod_strikeout_price" : element.prod_strikeout_price,
+               // "prod_tax": element.prod_tax,
+                "prod_discount": "0.00",
+                "prod_discount_type": 'flat',
+               // "prod_quantity": element.prod_quantity,
+               // "prod_groupid": element.prod_groupid,
+                "status": element.status,
+                "featured": element.featured,
+                //"isMyFavorite": 0,
+                "isLiked": await API.isLikedCheck(element._id,req.verifyUser.id),
+                "rating_average" : (element.average_rating) ? element.average_rating : "0.0",
+                "rating_user_count" : (element.rating_user_count) ? element.rating_user_count : null,
+                "count_views" : element.count_views,
+               // "createdAt": element.createdAt,
+              //  "updatedAt": element.updatedAt,
+                //"prod_image" : '',
+                //"thumb_image" : '',
+                };
+                  
+                let variants = await productsVariantsModel.find({status : 1, prod_id :element._id });
+                let variantsArr = [];
+                //console.log(variants)
+                if(variants.length > 0){
+                    for (const v of variants) {
+                          let variantObj = {
+                                            "variant_id": v._id,
+                                            "pro_subtitle" : v.pro_subtitle,
+                                            "prod_attributes": v.prod_attributes,
+                                            "prod_unitprice": v.prod_unitprice,
+                                            "prod_purchase_price": v.prod_purchase_price,
+                                            "prod_strikeout_price": v.prod_strikeout_price,
+                                            "prod_quantity": v.prod_quantity,
+                                            "prod_discount": v.prod_discount.toFixed(2),
+                                            "prod_discount_type": v.prod_discount_type,
+                                            "isLiked": await API.isLikedCheck(v._id,req.verifyUser.id),
+                                          };
+                            let resultt = await productsThumbModel.find({prod_variant_id :v._id,prod_id :element._id, user_id : element.prod_sellerid  }).limit(5).select('image_name');
+                            let prod_images = [];
+                            let thumb_images = [];
+                            if(resultt.length > 0){
+                              for(let i = 0; i< resultt.length; i++){
+                                  if(resultt[i].image_name != null){
+                                      prod_images.push(config.APP_URL+'uploads/products/'+resultt[i].image_name); 
+                                      let fileArr  = resultt[i].image_name.split('.');
+                                      thumb_images.push(config.APP_URL+'uploads/products/'+fileArr[0]+'_thumb.'+fileArr[1]);
+                                  }else{
+                                      prod_images.push(config.DEFAULT_IMAGE); 
+                                      thumb_images.push(config.DEFAULT_IMAGE);
+                                  }
+                              }
+            
+                            }else{
+                                prod_images.push(config.DEFAULT_IMAGE); 
+                                thumb_images.push(config.DEFAULT_IMAGE);
+                            }
+                            variantObj["prod_image"]  = prod_images;
+                            variantObj["thumb_image"] = thumb_images;
+
+
+
+                       variantsArr.push(variantObj);
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
                     }
                 }
                 prodData["prod_variants"] = variantsArr;
 
+<<<<<<< HEAD
                 res.json({
                     status: 1,
                     message: 'Product details fetched successfully.',
@@ -1092,6 +1181,28 @@ API.categorList = async (req, res) => {
         res.json({ status: 0, message: err.message });
     }
 };
+=======
+                
+
+            res.json({
+                status : 1,
+                message: 'Product details fetch successfully.',
+                data: prodData
+              });
+                  
+          } else {
+              res.json({
+                status : 0,
+                message: `We couldn't fetch product details.`,
+                data:[]
+              });
+          }
+        });
+      } catch (err) {
+        res.json({ status : 0, message : err.message });
+      }
+  };
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 
   async function getProductDetails (req, result) {
    // console.log(result)
@@ -1189,7 +1300,66 @@ API.categorList = async (req, res) => {
         }else{
             prod_images.push(config.DEFAULT_IMAGE); 
             thumb_images.push(config.DEFAULT_IMAGE);
+<<<<<<< HEAD
         }
+=======
+        }async function getProductDetails(req, result) {
+          returnedProducts = [];
+          for (const element of result) {
+              let variant = await productsVariantsModel.findOne({ status: 1, prod_id: element._id });
+              if (variant) {
+                  let prodData = {
+                      "_id": element._id,
+                      "prod_name": element.prod_name,
+                      "prod_unit": element.prod_unit,
+                      "status": element.status,
+                      "featured": element.featured,
+                      "rating_average": (element.average_rating) ? element.average_rating : "0.0",
+                      "rating_user_count": (element.rating_user_count) ? element.rating_user_count : null,
+                      "count_views": element.count_views,
+                      "isLiked": await API.isLikedCheck(variant._id, req.verifyUser.id),
+                      "variant_id": variant._id,
+                      "pro_subtitle": variant.pro_subtitle,
+                      "prod_sellerid": variant.prod_sellerid,
+                      "prod_unitprice": variant.prod_unitprice,
+                      "prod_strikeout_price": variant.prod_strikeout_price,
+                      "prod_discount": variant.prod_discount.toFixed(2),
+                      "prod_discount_type": variant.prod_discount_type,
+                      "prod_quantity": variant.prod_quantity,
+                      "prod_attributes": variant.prod_attributes,
+                      "prod_sizes": variant.prod_sizes, // Add this line to include sizes
+                      "prod_image": '',
+                      "thumb_image": '',
+                  };
+      
+                  let resultt = await productsThumbModel.find({ prod_variant_id: variant._id, prod_id: element._id, user_id: element.prod_sellerid }).limit(1).select('image_name');
+                  let prod_images = [];
+                  let thumb_images = [];
+                  if (resultt.length > 0) {
+                      for (let i = 0; i < resultt.length; i++) {
+                          if (resultt[i].image_name != null) {
+                              prod_images.push(config.APP_URL + 'uploads/products/' + resultt[i].image_name);
+                              let fileArr = resultt[i].image_name.split('.');
+                              thumb_images.push(config.APP_URL + 'uploads/products/' + fileArr[0] + '_thumb.' + fileArr[1]);
+                          } else {
+                              prod_images.push(config.DEFAULT_IMAGE);
+                              thumb_images.push(config.DEFAULT_IMAGE);
+                          }
+                      }
+                  } else {
+                      prod_images.push(config.DEFAULT_IMAGE);
+                      thumb_images.push(config.DEFAULT_IMAGE);
+                  }
+                  prodData["prod_image"] = prod_images;
+                  prodData["thumb_image"] = thumb_images;
+      
+                  returnedProducts.push(prodData);
+              }
+          }
+          return returnedProducts;
+      }
+      
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
         variant["prod_image"]  = prod_images;
         variant["thumb_image"] = thumb_images;
         returnedVariants.push(variant);
@@ -1791,7 +1961,14 @@ API.orderPlaceOLD = async (req, res) => {
                     await pids.save().then(async (subOrder) => {
                         
                         await helper.deductInventory(element.vid, - element.qty);
+<<<<<<< HEAD
 
+=======
+                        if (element.size && element.size.quantity > 0) {
+                          await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                        }
+                      
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
                         if(payModeArr.includes(req.body.payment_mode)){
 
                           let totalAmt = element.subtotal;

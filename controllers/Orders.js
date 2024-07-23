@@ -229,8 +229,37 @@ ORDERS.sellerOrdersList = async (req, res) => {
         res.status(401).json({ status : 0, message : 'error '+ err });
       }
   };
+<<<<<<< HEAD
   
 
+=======
+
+  
+  ORDERS.markOrderAsDelivered = async (req, res) => {
+    try {
+        const orderId = req.query.orderId;
+        if (!orderId) {
+            res.status(400).json({ status: 0, message: 'Order ID is missing.' });
+            return;
+        }
+
+        const order = await orderProducts.findOne({ '_id': orderId });
+        if (!order) {
+            res.status(404).json({ status: 0, message: 'Order not found.' });
+            return;
+        }
+
+        // Update order status to delivered
+        order.trackingDetails.delivered = new Date();
+        order.order_status = 1; // Assuming 1 is the status code for delivered
+        await order.save();
+
+        res.json({ status: 1, message: 'Order marked as delivered successfully.' });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Error: ' + err.message });
+    }
+};
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
   ORDERS.updateOrderStatus = async (req, res) => {
       try{
     if(!req.body.order_ids){
@@ -336,7 +365,14 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 updateData.cancel_reason = 'Canceled By Seller';
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
+<<<<<<< HEAD
 
+=======
+                if (element.size && element.size.quantity > 0) {
+                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                  }
+                
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
                 let totalAmt = orderDetails.prod_subtotal
                 let debitCharge = ( parseFloat(totalAmt) * parseFloat(cancelingCharge) / 100 ).toFixed(2);
 
@@ -360,7 +396,14 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 updateData.cancel_reason = 'Canceled By Seller';
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
+<<<<<<< HEAD
 
+=======
+                if (element.size && element.size.quantity > 0) {
+                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                  }
+                
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
                 let totalAmt = orderDetails.prod_subtotal
                 let debitCharge = ( parseFloat(totalAmt) * parseFloat(cancelingCharge) / 100 ).toFixed(2);
 
@@ -462,6 +505,12 @@ ORDERS.returnRequestAccept = async (req, res) => {
                 }  
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
+<<<<<<< HEAD
+=======
+                if (element.size && element.size.quantity > 0) {
+                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
+                  }
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
                 
                 await orderProducts.findOneAndUpdate({ "_id": id },updateData, {new: true}).then(async (result) =>{
                     let insertNoti = new notificationsModel({   noti_status : orderStatus,

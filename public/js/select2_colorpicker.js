@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 var myArray = {
+=======
+ 
+ var myArray = {
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
     "#000000": "Black",
     "#000080": "Navy Blue",
     "#0000C8": "Dark Blue",

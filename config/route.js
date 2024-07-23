@@ -1,6 +1,10 @@
 const router    = require('express').Router();
 const multer    = require('multer');
 const path      = require('path');
+<<<<<<< HEAD
+=======
+const nodemailer = require('nodemailer');
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 const controllers = {
     auth        : require('../controllers/Auth'),
     admin       : require('../controllers/Admin'),
@@ -13,9 +17,18 @@ const controllers = {
     api         : require('../controllers/Api'),
     settings    : require('../controllers/Settings'),
     support     : require('../controllers/Support'),
+<<<<<<< HEAD
 }
 const validationRules   =  require('./ValidationRules');
 
+=======
+    courier_service: require('../controllers/courierServiceController'),
+}
+const validationRules   =  require('./ValidationRules');
+
+router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
+router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let folder   = (file.fieldname).split('_');
@@ -65,7 +78,39 @@ function checkFileType(file, cb) {
         }
     }
 //at the save function 
+<<<<<<< HEAD
 
+=======
+router.post('/api/send-email', async (req, res) => {
+  const { to, subject, text ,html} = req.body;
+
+  // Create a transporter
+  const transporter = nodemailer.createTransport({
+      service: 'gmail', // or any other email service
+      auth: {
+          user: 'santhakumar4343@gmail.com',
+          pass: 'jinu kzpv lhqj bpkm'
+      }
+  });
+
+  // Email options
+  const mailOptions = {
+      from: 'santhakumar4343@gmail.com',
+      to: to,
+      subject: subject,
+      text: text,
+      html: html
+  };
+
+  try {
+      await transporter.sendMail(mailOptions);
+      res.json({ status: 1, message: 'Email sent successfully!' });
+  } catch (error) {
+      console.error("Email error: ", error);
+      res.status(500).json({ status: 0, message: 'Failed to send email.' });
+  }
+});
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 //const {check} = require('express-validator');
 router.use(['/login', '/register','/forgot-pws'], controllers.middleware.sessionChecker);
 
@@ -87,7 +132,11 @@ router.get('/admin/withdraw-request-list',controllers.middleware.authenticate, c
 //POST Request Admin
 router.post('/admin/processWithdrawRequest',upload.array(),controllers.admin.processWithdrawRequest);
 
+<<<<<<< HEAD
 
+=======
+router.get('/dashboard/courier_service_list',controllers.middleware.authenticate, controllers.courier_service.getAllCourierServices);
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 //GET Request Dashboard
 router.get('/dashboard',controllers.middleware.authenticate, controllers.dashboard.dashboard);
 router.get('/dashboard/category',controllers.middleware.authenticate, controllers.dashboard.category);
@@ -143,6 +192,10 @@ router.post('/seller/updateSellerStatus',upload.array(),controllers.seller.updat
 
 
 //POST Request ORDERS
+<<<<<<< HEAD
+=======
+router.get('/orders/markDelivered', controllers.orders.markOrderAsDelivered);
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 router.post('/orders/updateOrderStatus',upload.array(),controllers.orders.updateOrderStatus);
 router.post('/orders/generateLabel',upload.array(),controllers.orders.generateLabel);
 router.post('/orders/returnRequestAccept',upload.array(),controllers.orders.returnRequestAccept);

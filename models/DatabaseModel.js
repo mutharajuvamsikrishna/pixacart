@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 const userSchema = new mongoose.Schema({
     fullname :{ type: String,default:null},
     role: {type: Number,default:2},
@@ -169,6 +172,10 @@ const productVariantsSchema = new mongoose.Schema({
         type: Number,
          default:0
     },
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
     prod_id :{ type: mongoose.Schema.Types.ObjectId,
                 ref: 'products',
                 required:true
@@ -495,10 +502,20 @@ const firebase_Notification = new mongoose.Schema({
 
 
 const courierServicesSchema = new mongoose.Schema({
+<<<<<<< HEAD
     courier_name :{ type: String,default:null},
     status  :{ type: Number, default:1},
     createdAt :{type: Date, default: Date.now},
     updatedAt :{type: Date, default: Date.now}
+=======
+    service_name: { type: String, default: null },
+    email: { type: String, default: null },
+    password: { type: String, default: null },
+    phone_number: { type: String, default: null },
+    status: { type: Number, default: 1 },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 });
 
 

@@ -14,6 +14,10 @@ const ordersModel  = mongoose.model('orders');
 const currenciesModel   = mongoose.model('currencies');
 const notificationsModel  = mongoose.model('notifications');
 const { orderProducts } = require('../models/DatabaseModel');
+<<<<<<< HEAD
+=======
+const CourierService = require('../models/DatabaseModel').courierServices;
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 const {validationResult} = require('express-validator');
 //const API        = require('../controllers/Api');
 const config     = require('../config/config');
@@ -59,6 +63,16 @@ DASHBOARD.category = async (req, res) => {
     });
 };
 
+<<<<<<< HEAD
+=======
+// DASHBOARD.CourierService = async (req, res) => {
+//     res.render('backend/courier_services', {
+//             viewTitle : 'Courier Service',
+//             pageTitle : 'Courier Service List'
+//     });
+// };
+
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 DASHBOARD.sub_category = async (req, res) => {
     let  cateList = await categoryModel.find({status: 1}).exec();
     res.render('backend/subcategory_list', {
@@ -148,6 +162,10 @@ DASHBOARD.add_product_variants = async (req, res) => {
     });
 };
 
+<<<<<<< HEAD
+=======
+ 
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 
 DASHBOARD.product_wishlist = async (req, res) => {
     res.render('backend/products_wishlist', {
@@ -763,7 +781,11 @@ DASHBOARD.subCategorList = async (req, res) => {
       } catch (err) {
         res.json({ status : 0, message : err.message });
       }
+<<<<<<< HEAD
   };
+=======
+  }
+>>>>>>> 4caf25941784396aa7723fd5921d4a6e4cd68eb7
 
 
   DASHBOARD.getMonthlySale = async(req, res) => {
