@@ -4,74 +4,19 @@ const crypto = require('crypto');
 const path = require("path");
 const nodemailer = require("nodemailer");
 const controllers = {
-
-    auth        : require('../controllers/Auth'),
-    admin       : require('../controllers/Admin'),
-    middleware  : require('../controllers/Middleware'),
-    dashboard   : require('../controllers/Dashboard'),
-    products    : require('../controllers/Products'),
-    orders      : require('../controllers/Orders'),
-    customer    : require('../controllers/Customers'),
-    seller    : require('../controllers/Seller'),
-    api         : require('../controllers/Api'),
-    settings    : require('../controllers/Settings'),
-    support     : require('../controllers/Support'),
-    courier_service: require('../controllers/courierServiceController'),
-}
-const validationRules   =  require('./ValidationRules');
-router.get('/enter-otp', (req, res) => {
-    const orderId = req.query.orderId;
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Enter OTP</title>
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        </head>
-        <body>
-            <h1>Enter OTP for Order ID: ${orderId}</h1>
-            <button id="enter-otp-button">Enter OTP</button>
-
-            <script>
-                document.getElementById('enter-otp-button').addEventListener('click', function() {
-                    Swal.fire({
-                        title: 'Enter OTP',
-                        input: 'text',
-                        inputLabel: 'OTP',
-                        inputPlaceholder: 'Enter your OTP',
-                        showCancelButton: true,
-                        inputValidator: (value) => {
-                            if (!value) {
-                                return 'You need to enter the OTP!'
-                            }
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                type: "POST",
-                                url: "/verify-otp",
-                                data: JSON.stringify({ orderId: '${orderId}', otp: result.value }),
-                                contentType: "application/json",
-                                success: function(response) {
-                                    Swal.fire('Success', 'OTP verified!', 'success');
-                                },
-                                error: function() {
-                                    Swal.fire('Error', 'OTP verification failed', 'error');
-                                }
-                            });
-                        }
-                    });
-                });
-            </script>
-        </body>
-        </html>
-    `);
-});
-router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
-router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
-
-  
+  auth: require("../controllers/Auth"),
+  admin: require("../controllers/Admin"),
+  middleware: require("../controllers/Middleware"),
+  dashboard: require("../controllers/Dashboard"),
+  products: require("../controllers/Products"),
+  orders: require("../controllers/Orders"),
+  customer: require("../controllers/Customers"),
+  seller: require("../controllers/Seller"),
+  api: require("../controllers/Api"),
+  settings: require("../controllers/Settings"),
+  support: require("../controllers/Support"),
+  courier_service: require("../controllers/courierServiceController"),
+};
 const validationRules = require("./ValidationRules");
 router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
@@ -85,7 +30,6 @@ router.get(
   controllers.middleware.authenticate,
   controllers.courier_service.getAllCourierServices
 );
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder = file.fieldname.split("_");
