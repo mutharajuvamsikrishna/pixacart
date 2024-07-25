@@ -9,6 +9,7 @@ const subCategoryModel  = mongoose.model('sub_category');
 const brandModel = mongoose.model('brands');
 const productsModel  = mongoose.model('products');
 const ordersModel  = mongoose.model('orders');
+const orderProducts  = mongoose.model('orders_products');
 const courierServicesModel  = mongoose.model('courier_services');
 const {validationResult} = require('express-validator');
 const notificationsModel  = mongoose.model('notifications');
@@ -19,7 +20,7 @@ const currenciesModel   = mongoose.model('currencies');
 const helper          = require('../helpers/my_helper');
 const config     = require('../config/config');
 const API = require('./Api');
-const { orderProducts, outstandings } = require('../models/DatabaseModel');
+
 const payModeArr = helper.paymentMode;
 const ORDERS = {};
 
@@ -35,6 +36,44 @@ ORDERS.orders = async (req, res) => {
             courierServices : courierServices,
             targetVisible : targetVisible,
     });
+
+};
+ORDERS.getOrderDetails = async (req, res) => {
+    const orderId = req.params.orderId; 
+
+    try {
+        const order = await ordersModel.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        
+        res.status(200).json(order);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+ORDERS.getOrderProductDetails = async (req, res) => {
+    const orderId = req.params.orderId; // Extract order ID from request params
+
+    try {
+        const order = await orderProducts.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Optionally, you may want to populate related fields like customer_name if it's a reference
+        // await order.populate('order_userid', 'customer_name').execPopulate();
+
+        res.status(200).json(order);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
 };
 
 ORDERS.orderTransactions = async (req, res) => {
