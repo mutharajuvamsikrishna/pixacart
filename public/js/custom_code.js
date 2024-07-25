@@ -556,7 +556,7 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
 
 async function getOrderDetails(orderId) {
   try {
-    const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
+    const response = await fetch(`http://18.61.197.237:3000/api/orders/${orderId}`);
     const orderDetails = await response.json();
     return orderDetails;
   } catch (error) {
@@ -568,7 +568,7 @@ async function getOrderDetails(orderId) {
 async function getOrderData(orderUniqueId) {
   try {
     const response = await fetch(
-      `http://localhost:3000/api/ordersId/${orderUniqueId}`
+      `http://18.61.197.237:3000/api/ordersId/${orderUniqueId}`
     );
     const orderData = await response.json();
     return orderData;
@@ -580,7 +580,7 @@ async function getOrderData(orderUniqueId) {
 
 async function getUserDetails(userId) {
   try {
-    const response = await fetch(`http://localhost:3000/api/users/${userId}`);
+    const response = await fetch(`http://18.61.197.237:3000/api/users/${userId}`);
     const userData = await response.json();
     return userData;
   } catch (error) {
@@ -609,12 +609,12 @@ async function sendEmailToCourier(
             <p>Order User Email: ${userEmail}</p>
             <p>Thank you for your service!</p>
         <p>
-        <a href="http://localhost:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
+        <a href="http://18.61.197.237:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
       </p>
        <p>
-      <a href="http://localhost:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a>
+      <a href="http://18.61.197.237:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a>
     </p>
-            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${
+            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${
               orderIds[0]
             }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
             <p>Best regards,<br>PixaCart</p>
