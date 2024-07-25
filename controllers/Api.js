@@ -32,7 +32,22 @@ const { v4 : uuid }   = require('uuid');
 const fs = require('fs');
 const payModeArr = helper.paymentMode;
 const API = {};
+API.getUserDetails = async (req, res) => {
+  const userId = req.params.userId; // Extract user ID from request params
 
+  try {
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      res.status(200).json(user);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+  }
+};
 
 
 API.login = async (req, res) => {
