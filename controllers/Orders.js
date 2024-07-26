@@ -289,9 +289,74 @@ ORDERS.sellerOrdersList = async (req, res) => {
         order.order_status = 1; // Assuming 1 is the status code for delivered
         await order.save();
 
-        res.json({ status: 1, message: 'Order marked as delivered successfully.' });
+        res.send(`
+            <html>
+              <head>
+                <style>
+                  body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background-color: #f0f0f0;
+                  }
+                  .message-container {
+                    text-align: center;
+                    padding: 20px;
+                    background-color: #ffffff;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    border-radius: 8px;
+                  }
+                  .message-container h1 {
+                    margin-bottom: 10px;
+                    color: #4caf50;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="message-container">
+                  <h1>Product delivered successfully!</h1>
+                </div>
+              </body>
+            </html>
+          `);
     } catch (err) {
-        res.status(500).json({ status: 0, message: 'Error: ' + err.message });
+        res.status(500).send(`
+            <html>
+              <head>
+                <style>
+                  body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background-color: #f0f0f0;
+                  }
+                  .message-container {
+                    text-align: center;
+                    padding: 20px;
+                    background-color: #ffffff;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    border-radius: 8px;
+                  }
+                  .message-container h1 {
+                    margin-bottom: 10px;
+                    color: #f44336;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="message-container">
+                  <h1>Something went wrong,Please try again later.</h1>
+                
+                </div>
+              </body>
+            </html>
+          `);
     }
 };
   ORDERS.updateOrderStatus = async (req, res) => {

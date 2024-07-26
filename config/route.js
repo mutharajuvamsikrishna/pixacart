@@ -134,27 +134,142 @@ router.get("/send-otp", async (req, res) => {
         <p>Please use this code to complete your verification process.</p>
         <p>If you did not request this OTP, please ignore this email.</p>
         <p>Thank you!</p>
-        <p>Best regards,<br>Your Company</p>
+        <p>Best regards,<br>PixaCart</p>
       `,
     };
   
     try {
       await transporter.sendMail(mailOptions);
-      res.send("OTP sent successfully!");
+      res.send(`
+        <html>
+          <head>
+            <style>
+              body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+              }
+              .message-container {
+                text-align: center;
+                padding: 20px;
+                background-color: #ffffff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+              }
+              .message-container h1 {
+                margin-bottom: 10px;
+                color: #4caf50;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="message-container">
+              <h1>OTP Sent Successfully!</h1>
+              <p>Please check your email for the OTP code.</p>
+            </div>
+          </body>
+        </html>
+      `);
     } catch (error) {
       console.error("Email error: ", error);
-      res.status(500).send("Failed to send OTP.");
+      res.status(500).send(`
+        <html>
+          <head>
+            <style>
+              body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+              }
+              .message-container {
+                text-align: center;
+                padding: 20px;
+                background-color: #ffffff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+              }
+              .message-container h1 {
+                margin-bottom: 10px;
+                color: #f44336;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="message-container">
+              <h1>Failed to Send OTP</h1>
+              <p>There was an error sending the OTP. Please try again later.</p>
+            </div>
+          </body>
+        </html>
+      `);
     }
   });
   router.get('/verify-otp', (req, res) => {
     const { userEmail } = req.query;
     res.send(`
-      <form action="/verify-otp" method="POST">
-        <input type="hidden" name="userEmail" value="${userEmail}" />
-        <label for="otp">Enter OTP:</label>
-        <input type="text" id="otp" name="otp" required />
-        <button type="submit">Verify OTP</button>
-      </form>
+      <html>
+        <head>
+          <style>
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              font-family: Arial, sans-serif;
+              background-color: #f0f0f0;
+            }
+            .form-container {
+              text-align: center;
+              padding: 20px;
+              background-color: #ffffff;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              border-radius: 8px;
+            }
+            .form-container label {
+              display: block;
+              margin-bottom: 10px;
+              font-weight: bold;
+            }
+            .form-container input {
+              margin-bottom: 20px;
+              padding: 10px;
+              width: 100%;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+            }
+            .form-container button {
+              padding: 10px 20px;
+              background-color: #4caf50;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+            .form-container button:hover {
+              background-color: #45a049;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="form-container">
+            <form action="/verify-otp" method="POST">
+              <input type="hidden" name="userEmail" value="${userEmail}" />
+              <label for="otp">Enter OTP:</label>
+              <input type="text" id="otp" name="otp" required />
+              <button type="submit">Verify OTP</button>
+            </form>
+          </div>
+        </body>
+      </html>
     `);
   });
   
@@ -163,9 +278,73 @@ router.get("/send-otp", async (req, res) => {
   
     if (otpStore[userEmail] && otpStore[userEmail].otp === otp) {
       otpStore[userEmail].status = 'verified';
-      res.send('OTP verified successfully!');
+      res.send(`
+        <html>
+          <head>
+            <style>
+              body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+              }
+              .message-container {
+                text-align: center;
+                padding: 20px;
+                background-color: #ffffff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+              }
+              .message-container h1 {
+                margin-bottom: 10px;
+                color: #4caf50;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="message-container">
+              <h1>OTP verified successfully!!</h1>
+             
+            </div>
+          </body>
+        </html>
+      `);
     } else {
-      res.send('Invalid OTP. Please try again.');
+      res.send(`<html>
+          <head>
+            <style>
+              body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+              }
+              .message-container {
+                text-align: center;
+                padding: 20px;
+                background-color: #ffffff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+              }
+              .message-container h1 {
+                margin-bottom: 10px;
+                color: #f44336;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="message-container">
+              <h1>Invalid OTP. Please try again.</h1>
+        
+            </div>
+          </body>
+        </html>`);
     }
   });
   // Endpoint to get OTP status
