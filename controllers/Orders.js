@@ -9,7 +9,6 @@ const subCategoryModel  = mongoose.model('sub_category');
 const brandModel = mongoose.model('brands');
 const productsModel  = mongoose.model('products');
 const ordersModel  = mongoose.model('orders');
-const orderProducts  = mongoose.model('orders_products');
 const courierServicesModel  = mongoose.model('courier_services');
 const {validationResult} = require('express-validator');
 const notificationsModel  = mongoose.model('notifications');
@@ -20,7 +19,7 @@ const currenciesModel   = mongoose.model('currencies');
 const helper          = require('../helpers/my_helper');
 const config     = require('../config/config');
 const API = require('./Api');
-
+const { orderProducts, outstandings } = require('../models/DatabaseModel');
 const payModeArr = helper.paymentMode;
 const ORDERS = {};
 
@@ -36,44 +35,6 @@ ORDERS.orders = async (req, res) => {
             courierServices : courierServices,
             targetVisible : targetVisible,
     });
-
-};
-ORDERS.getOrderDetails = async (req, res) => {
-    const orderId = req.params.orderId; 
-
-    try {
-        const order = await ordersModel.findById(orderId);
-
-        if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        
-        res.status(200).json(order);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
-
-ORDERS.getOrderProductDetails = async (req, res) => {
-    const orderId = req.params.orderId; // Extract order ID from request params
-
-    try {
-        const order = await orderProducts.findById(orderId);
-
-        if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        // Optionally, you may want to populate related fields like customer_name if it's a reference
-        // await order.populate('order_userid', 'customer_name').execPopulate();
-
-        res.status(200).json(order);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
 };
 
 ORDERS.orderTransactions = async (req, res) => {
@@ -289,74 +250,9 @@ ORDERS.sellerOrdersList = async (req, res) => {
         order.order_status = 1; // Assuming 1 is the status code for delivered
         await order.save();
 
-        res.send(`
-            <html>
-              <head>
-                <style>
-                  body {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    font-family: Arial, sans-serif;
-                    background-color: #f0f0f0;
-                  }
-                  .message-container {
-                    text-align: center;
-                    padding: 20px;
-                    background-color: #ffffff;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    border-radius: 8px;
-                  }
-                  .message-container h1 {
-                    margin-bottom: 10px;
-                    color: #4caf50;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="message-container">
-                  <h1>Product delivered successfully!</h1>
-                </div>
-              </body>
-            </html>
-          `);
+        res.json({ status: 1, message: 'Order marked as delivered successfully.' });
     } catch (err) {
-        res.status(500).send(`
-            <html>
-              <head>
-                <style>
-                  body {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    font-family: Arial, sans-serif;
-                    background-color: #f0f0f0;
-                  }
-                  .message-container {
-                    text-align: center;
-                    padding: 20px;
-                    background-color: #ffffff;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    border-radius: 8px;
-                  }
-                  .message-container h1 {
-                    margin-bottom: 10px;
-                    color: #f44336;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="message-container">
-                  <h1>Something went wrong,Please try again later.</h1>
-                
-                </div>
-              </body>
-            </html>
-          `);
+        res.status(500).json({ status: 0, message: 'Error: ' + err.message });
     }
 };
   ORDERS.updateOrderStatus = async (req, res) => {

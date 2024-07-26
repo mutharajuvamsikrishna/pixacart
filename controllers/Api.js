@@ -32,22 +32,7 @@ const { v4 : uuid }   = require('uuid');
 const fs = require('fs');
 const payModeArr = helper.paymentMode;
 const API = {};
-API.getUserDetails = async (req, res) => {
-  const userId = req.params.userId; // Extract user ID from request params
 
-  try {
-      const user = await UserModel.findById(userId);
-
-      if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-      }
-
-      res.status(200).json(user);
-  } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Server error' });
-  }
-};
 
 
 API.login = async (req, res) => {
@@ -1013,101 +998,118 @@ API.categorList = async (req, res) => {
 
   API.getSingleProductDetails = async (req, res) => {
     try {
-        var start = (req.body.start) ? req.body.start : 0;
-        var dataLimit = (req.body.limit) ? req.body.limit : 1;
+      var start     = (req.body.start) ? req.body.start : 0 ;
+      var dataLimit = (req.body.limit) ? req.body.limit : 1 ;
         let where = {};
-        
-        if (!req.body.product_id) {
+        if(!req.body.product_id){
             res.json({
-                status: 0,
-                message: `Product id field required.`,
-                data: []
+              status : 0,
+              message: `Product id field required.`,
+              data:[]
             });
             return;
         }
 
         where._id = req.body.product_id;
-        
-        await productsModel.findOne(where).populate('prod_brand', 'brand_name').then(async (element) => {
-            if (element) {
-                let prodData = {
-                    "_id": element._id,
-                    "prod_sellerid": element.prod_sellerid,
-                    "prod_name": element.prod_name,
-                    "prod_description": element.prod_description,
-                    "prod_cate": element.prod_cate,
-                    "prod_brand": (element.prod_brand) ? element.prod_brand.brand_name : '',
-                    "prod_discount": "0.00",
-                    "prod_discount_type": 'flat',
-                    "status": element.status,
-                    "featured": element.featured,
-                    "isLiked": await API.isLikedCheck(element._id, req.verifyUser.id),
-                    "rating_average": (element.average_rating) ? element.average_rating : "0.0",
-                    "rating_user_count": (element.rating_user_count) ? element.rating_user_count : null,
-                    "count_views": element.count_views,
+
+        await productsModel.findOne(where).populate('prod_brand', 'brand_name').then(async (element)=>{
+          //console.log(result)
+          if(element){
+                let prodData = {"_id": element._id,
+                "prod_sellerid": element.prod_sellerid,
+                "prod_name": element.prod_name,
+                "prod_description": element.prod_description,
+                "prod_cate": element.prod_cate,
+              // "prod_subcate": element.prod_subcate,
+                "prod_brand": (element.prod_brand) ? element.prod_brand.brand_name : '',
+              //  "prod_unit": element.prod_unit,
+              //  "prod_unitprice": element.prod_unitprice,
+              // "prod_purchase_price": element.prod_purchase_price,
+               // "prod_strikeout_price" : element.prod_strikeout_price,
+               // "prod_tax": element.prod_tax,
+                "prod_discount": "0.00",
+                "prod_discount_type": 'flat',
+               // "prod_quantity": element.prod_quantity,
+               // "prod_groupid": element.prod_groupid,
+                "status": element.status,
+                "featured": element.featured,
+                //"isMyFavorite": 0,
+                "isLiked": await API.isLikedCheck(element._id,req.verifyUser.id),
+                "rating_average" : (element.average_rating) ? element.average_rating : "0.0",
+                "rating_user_count" : (element.rating_user_count) ? element.rating_user_count : null,
+                "count_views" : element.count_views,
+               // "createdAt": element.createdAt,
+              //  "updatedAt": element.updatedAt,
+                //"prod_image" : '',
+                //"thumb_image" : '',
                 };
-
-                let variants = await productsVariantsModel.find({ status: 1, prod_id: element._id });
+                  
+                let variants = await productsVariantsModel.find({status : 1, prod_id :element._id });
                 let variantsArr = [];
-                if (variants.length > 0) {
+                //console.log(variants)
+                if(variants.length > 0){
                     for (const v of variants) {
-                        let variantObj = {
-                            "variant_id": v._id,
-                            "pro_subtitle": v.pro_subtitle,
-                            "prod_attributes": v.prod_attributes,
-                            "prod_unitprice": v.prod_unitprice,
-                            "prod_purchase_price": v.prod_purchase_price,
-                            "prod_strikeout_price": v.prod_strikeout_price,
-                            "prod_quantity": v.prod_quantity,
-                            "prod_discount": v.prod_discount.toFixed(2),
-                            "prod_discount_type": v.prod_discount_type,
-                            "prod_sizes": v.prod_sizes,  // Include prod_sizes here
-                            "isLiked": await API.isLikedCheck(v._id, req.verifyUser.id),
-                        };
-                        let resultt = await productsThumbModel.find({ prod_variant_id: v._id, prod_id: element._id, user_id: element.prod_sellerid }).limit(5).select('image_name');
-                        let prod_images = [];
-                        let thumb_images = [];
-                        if (resultt.length > 0) {
-                            for (let i = 0; i < resultt.length; i++) {
-                                if (resultt[i].image_name != null) {
-                                    prod_images.push(config.APP_URL + 'uploads/products/' + resultt[i].image_name);
-                                    let fileArr = resultt[i].image_name.split('.');
-                                    thumb_images.push(config.APP_URL + 'uploads/products/' + fileArr[0] + '_thumb.' + fileArr[1]);
-                                } else {
-                                    prod_images.push(config.DEFAULT_IMAGE);
-                                    thumb_images.push(config.DEFAULT_IMAGE);
-                                }
+                          let variantObj = {
+                                            "variant_id": v._id,
+                                            "pro_subtitle" : v.pro_subtitle,
+                                            "prod_attributes": v.prod_attributes,
+                                            "prod_unitprice": v.prod_unitprice,
+                                            "prod_purchase_price": v.prod_purchase_price,
+                                            "prod_strikeout_price": v.prod_strikeout_price,
+                                            "prod_quantity": v.prod_quantity,
+                                            "prod_discount": v.prod_discount.toFixed(2),
+                                            "prod_discount_type": v.prod_discount_type,
+                                            "isLiked": await API.isLikedCheck(v._id,req.verifyUser.id),
+                                          };
+                            let resultt = await productsThumbModel.find({prod_variant_id :v._id,prod_id :element._id, user_id : element.prod_sellerid  }).limit(5).select('image_name');
+                            let prod_images = [];
+                            let thumb_images = [];
+                            if(resultt.length > 0){
+                              for(let i = 0; i< resultt.length; i++){
+                                  if(resultt[i].image_name != null){
+                                      prod_images.push(config.APP_URL+'uploads/products/'+resultt[i].image_name); 
+                                      let fileArr  = resultt[i].image_name.split('.');
+                                      thumb_images.push(config.APP_URL+'uploads/products/'+fileArr[0]+'_thumb.'+fileArr[1]);
+                                  }else{
+                                      prod_images.push(config.DEFAULT_IMAGE); 
+                                      thumb_images.push(config.DEFAULT_IMAGE);
+                                  }
+                              }
+            
+                            }else{
+                                prod_images.push(config.DEFAULT_IMAGE); 
+                                thumb_images.push(config.DEFAULT_IMAGE);
                             }
-                        } else {
-                            prod_images.push(config.DEFAULT_IMAGE);
-                            thumb_images.push(config.DEFAULT_IMAGE);
-                        }
-                        variantObj["prod_image"] = prod_images;
-                        variantObj["thumb_image"] = thumb_images;
+                            variantObj["prod_image"]  = prod_images;
+                            variantObj["thumb_image"] = thumb_images;
 
-                        variantsArr.push(variantObj);
+
+
+                       variantsArr.push(variantObj);
                     }
                 }
                 prodData["prod_variants"] = variantsArr;
 
-                res.json({
-                    status: 1,
-                    message: 'Product details fetched successfully.',
-                    data: prodData
-                });
-            } else {
-                res.json({
-                    status: 0,
-                    message: `We couldn't fetch product details.`,
-                    data: []
-                });
-            }
-        });
-    } catch (err) {
-        res.json({ status: 0, message: err.message });
-    }
-};
+                
 
+            res.json({
+                status : 1,
+                message: 'Product details fetch successfully.',
+                data: prodData
+              });
+                  
+          } else {
+              res.json({
+                status : 0,
+                message: `We couldn't fetch product details.`,
+                data:[]
+              });
+          }
+        });
+      } catch (err) {
+        res.json({ status : 0, message : err.message });
+      }
+  };
 
   async function getProductDetails (req, result) {
    // console.log(result)
