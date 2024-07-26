@@ -1027,7 +1027,7 @@ API.categorList = async (req, res) => {
         }
 
         where._id = req.body.product_id;
-
+        
         await productsModel.findOne(where).populate('prod_brand', 'brand_name').then(async (element) => {
             if (element) {
                 let prodData = {

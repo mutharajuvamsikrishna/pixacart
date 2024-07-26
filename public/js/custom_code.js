@@ -281,6 +281,8 @@ $(document).on("click", ".viewInvoice", async function (e) {
   }
 });
 
+<<<<<<< HEAD
+=======
 // $(document).on('click', '.AddTrackingDetail' ,async function(e) {
 //     e.preventDefault();
 //     let _this 	= 	$(this);
@@ -456,6 +458,7 @@ $(document).on("click", ".viewInvoice", async function (e) {
 //         showNotifications("error", 'An error occurred while sending the email.');
 //     }
 // }
+>>>>>>> c0501b4d5c0c243218b9904df21eb7d88d4575d8
 
 $(document).on("click", ".AddTrackingDetail", async function (e) {
   e.preventDefault();
@@ -608,6 +611,10 @@ async function sendEmailToCourier(
             <p>Order User ID: ${orderUserId}</p>
             <p>Order User Email: ${userEmail}</p>
             <p>Thank you for your service!</p>
+
+            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+            <p><a href="http://localhost:3000/enter-otp?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
+
         <p>
         <a href="http://18.61.197.237:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
       </p>
@@ -617,6 +624,7 @@ async function sendEmailToCourier(
             <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${
               orderIds[0]
             }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+
             <p>Best regards,<br>PixaCart</p>
         `,
   };
