@@ -281,8 +281,7 @@ $(document).on("click", ".viewInvoice", async function (e) {
   }
 });
 
-<<<<<<< HEAD
-=======
+
 // $(document).on('click', '.AddTrackingDetail' ,async function(e) {
 //     e.preventDefault();
 //     let _this 	= 	$(this);
@@ -458,7 +457,7 @@ $(document).on("click", ".viewInvoice", async function (e) {
 //         showNotifications("error", 'An error occurred while sending the email.');
 //     }
 // }
->>>>>>> c0501b4d5c0c243218b9904df21eb7d88d4575d8
+
 
 $(document).on("click", ".AddTrackingDetail", async function (e) {
   e.preventDefault();
