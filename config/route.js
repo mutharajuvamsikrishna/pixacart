@@ -104,6 +104,7 @@ router.use(['/login', '/register','/forgot-pws'], controllers.middleware.session
 //GET Request Auth
 router.get('/', function(req,res){ res.redirect('/login'); });
 router.get('/login',  controllers.auth.login);
+router.get('/courierservicelogin',  controllers.auth.logincourier);
 router.get('/seller/register', controllers.auth.register);
 router.get('/logout', controllers.auth.logout);
 router.get('/forgot-pws', controllers.auth.forgot_password);
@@ -218,6 +219,8 @@ router.get('/support/ticket-reply/:id',controllers.middleware.authenticate, cont
 router.get('/support/sp_category_list',controllers.middleware.authenticate, controllers.support.supportCategorList);
 
 //POST Request 
+
+router.post('/courierservicelogin',upload.array(), controllers.auth.api.courierServiceLogin);
 router.post('/login',upload.array(), validationRules.login, controllers.auth.api.login);
 router.post('/register', upload.array(), validationRules.register, controllers.auth.api.register);
 router.post('/forgot_password',upload.array(), controllers.auth.api.forgot_password);  
