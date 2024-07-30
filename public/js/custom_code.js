@@ -685,6 +685,7 @@ $(document).ready(function () {
       .stop()
       .animate({ scrollTop: showChatHistory[0].scrollHeight }, 1000);
   }
+<<<<<<< HEAD
   
   $(document).on("click", "#sendReplyBtn", (e) => {
     e.preventDefault();
@@ -710,6 +711,468 @@ $(document).ready(function () {
               }
             } else if (data.status == 0) {
               showNotifications("error", data.message);
+=======
+});
+
+$(document).on("click", ".viewInvoice", async function (e) {
+  e.preventDefault();
+  let _this = $(this);
+  let action = _this.attr("action");
+  let url = _this.attr("url");
+  let ids = _this.attr("data-invoice-id");
+
+  if (ids) {
+    let allChekedOrderID = [];
+    allChekedOrderID.push(ids);
+    let f = new FormData();
+    f.set("invoice_id", allChekedOrderID);
+    xhr(f, url).done((data) => {
+      if (data.status == 1) {
+        $("#exampleModalLabel02").text("Invoice");
+        $("#appendLabelHtml").html(data.data);
+        $("#generateLabelModal").modal();
+        //showNotifications("success", data.message);
+      }
+    });
+  } else {
+    showNotifications("error", "Order id is missing");
+  }
+});
+
+
+// $(document).on('click', '.AddTrackingDetail' ,async function(e) {
+//     e.preventDefault();
+//     let _this 	= 	$(this);
+// 	let action = _this.attr('action');
+// 	let url = _this.attr('url');
+//     let ids = _this.attr('data-order-id');
+
+//     if(ids){
+//         let allChekedOrderID = [];
+//         allChekedOrderID.push(ids);
+
+//         let courier =  JSON.parse($('#courierServices').val());
+
+//         let HTML =`<select id="swal-input1" class="swal2-input">`;
+//         HTML +=`<option value="" selected="" disabled="">---Select---</option>`;
+//                 courier.forEach(function(value, key){
+//                 HTML +=` <option value="${value._id}">${value.service_name}</option>`;
+//             });
+//         HTML +=`</select>
+//             <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;
+
+//         Swal.fire({
+//             title: 'Select Courier Service',
+//             showCancelButton: true,
+//             html: HTML,
+//             focusConfirm: false,
+//             preConfirm: () => {
+//             const courier = document.getElementById('swal-input1').value
+//             const trackingid = document.getElementById('swal-input2').value
+
+//             if (!courier) {
+//                 Swal.showValidationMessage(`Please select courier sevice`)
+//             }else
+//             if (!trackingid) {
+//                 Swal.showValidationMessage(`Please enter tracking id`)
+//             }
+
+//             return { courier: courier, trackingid: trackingid }
+//             }
+//         }).then((result) => {
+//             if(result.isConfirmed){
+//                 let f = new FormData();
+//                 f.set('order_ids',allChekedOrderID);
+//                 f.set('status', action);
+//                 f.set('courier_service', result.value.courier);
+//                 f.set('tracking_id', result.value.trackingid);
+//                 xhr(f, url ).done((data) => {
+//                     if (data.status == 1) {
+//                         showNotifications("success", data.message);
+//                         dataTableObj.forEach(function(k,v){
+//                             k.ajax.reload();
+//                         });
+//                     }
+//                 })
+
+//             /* Swal.fire(`
+//                 Login: ${result.value.courier}
+//                 Password: ${result.value.trackingid}
+//                 `.trim())*/
+//             }
+//         });
+//     }else{
+//         showNotifications("error", 'Order id is missing');
+//     }
+// });
+
+// $(document).on('click', '.AddTrackingDetail', async function(e) {
+//     e.preventDefault();
+//     let _this = $(this);
+//     let action = _this.attr('action');
+//     let url = _this.attr('url');
+//     let ids = _this.attr('data-order-id'); // Get the order ID from the button
+
+//     if (ids) {
+//         let allCheckedOrderID = [];
+//         allCheckedOrderID.push(ids); // Add the order ID to the array
+
+//         let courier = JSON.parse($('#courierServices').val());
+
+//         let HTML = `<select id="swal-input1" class="swal2-input">`;
+//         HTML += `<option value="" selected disabled>---Select---</option>`;
+//         courier.forEach(function(value) {
+//             HTML += `<option value="${value._id}" data-email="${value.email}">${value.service_name}</option>`;
+//         });
+//         HTML += `</select>
+//                  <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;
+
+//         Swal.fire({
+//             title: 'Select Courier Service',
+//             showCancelButton: true,
+//             html: HTML,
+//             focusConfirm: false,
+//             preConfirm: () => {
+//                 const courierId = document.getElementById('swal-input1').value;
+//                 const trackingid = document.getElementById('swal-input2').value;
+
+//                 if (!courierId) {
+//                     Swal.showValidationMessage(`Please select a courier service`);
+//                 } else if (!trackingid) {
+//                     Swal.showValidationMessage(`Please enter tracking ID`);
+//                 }
+
+//                 return { courierId: courierId, trackingid: trackingid };
+//             }
+//         }).then(async (result) => {
+//             if (result.isConfirmed) {
+//                 let courierEmail = $(`#swal-input1 option[value="${result.value.courierId}"]`).data('email');
+//                 let courierServiceName = $(`#swal-input1 option[value="${result.value.courierId}"]`).text();
+
+//                 // Prepare the FormData for the AJAX call
+//                 let f = new FormData();
+//                 f.set('order_ids', allCheckedOrderID);
+//                 f.set('status', action);
+//                 f.set('courier_service', result.value.courierId);
+//                 f.set('tracking_id', result.value.trackingid);
+
+//                 // Send data to your server and update the UI
+//                 try {
+//                     const dataResponse = await xhr(f, url);
+//                     if (dataResponse.status === 1) {
+//                         showNotifications("success", dataResponse.message);
+//                         dataTableObj.forEach(function(k) {
+//                             k.ajax.reload();
+//                         });
+
+//                         // Now send the email with tracking details
+//                         await sendEmailToCourier(courierEmail, result.value.trackingid, ids, courierServiceName);
+//                     } else {
+//                         showNotifications("error", dataResponse.message);
+//                     }
+//                 } catch (error) {
+//                     console.error("Error in sending order details: ", error);
+//                     showNotifications("error", 'An error occurred while processing the request.');
+//                 }
+//             }
+//         });
+//     } else {
+//         showNotifications("error", 'Order ID is missing');
+//     }
+// });
+
+// // Function to send email to the courier service
+// async function sendEmailToCourier(email, trackingId, orderIds, courierServiceName) {
+//     const emailData = {
+//         to: email,
+//         subject: `Product to Deliver`,
+//         html: `
+//             <p>Hello Deliver Partner (${courierServiceName}),</p>
+//             <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
+//             <p>Order ID(s): ${orderIds.join(', ')}</p>
+//             <p>Thank you for your service!</p>
+//             <p><a href="http://yourwebsite.com/mark-delivered?trackingId=${trackingId}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+//             <p>Best regards,<br>PixaCart</p>
+//         `,
+//     };
+
+//     try {
+//         const response = await $.ajax({
+//             type: "POST",
+//             url: "/api/send-email",
+//             data: JSON.stringify(emailData),
+//             contentType: "application/json",
+//             dataType: "json",
+//         });
+
+//         if (response.status === 1) {
+//             showNotifications("success", "Email sent successfully!");
+//         } else {
+//             showNotifications("error", "Failed to send email.");
+//         }
+//     } catch (error) {
+//         console.error("Email sending error: ", error);
+//         showNotifications("error", 'An error occurred while sending the email.');
+//     }
+// }
+
+
+$(document).on("click", ".AddTrackingDetail", async function (e) {
+  e.preventDefault();
+  let _this = $(this);
+  let action = _this.attr("action");
+  let url = _this.attr("url");
+  let ids = _this.attr("data-order-id"); // Get the order ID from the button
+
+  if (ids) {
+    let allCheckedOrderID = [];
+    allCheckedOrderID.push(ids); // Add the order ID to the array
+
+    let courier = JSON.parse($("#courierServices").val());
+
+    let HTML = `<select id="swal-input1" class="swal2-input">`;
+    HTML += `<option value="" selected disabled>---Select---</option>`;
+    courier.forEach(function (value) {
+      HTML += `<option value="${value._id}" data-email="${value.email}">${value.service_name}</option>`;
+    });
+    HTML += `</select>
+                 <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;
+
+    Swal.fire({
+      title: "Select Courier Service",
+      showCancelButton: true,
+      html: HTML,
+      focusConfirm: false,
+      preConfirm: () => {
+        const courierId = document.getElementById("swal-input1").value;
+        const trackingid = document.getElementById("swal-input2").value;
+
+        if (!courierId) {
+          Swal.showValidationMessage(`Please select a courier service`);
+        } else if (!trackingid) {
+          Swal.showValidationMessage(`Please enter tracking ID`);
+        }
+
+        return { courierId: courierId, trackingid: trackingid };
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        let courierEmail = $(
+          `#swal-input1 option[value="${result.value.courierId}"]`
+        ).data("email");
+        let courierServiceName = $(
+          `#swal-input1 option[value="${result.value.courierId}"]`
+        ).text();
+
+        // Prepare the FormData for the AJAX call
+        let f = new FormData();
+        f.set("order_ids", allCheckedOrderID);
+        f.set("status", action);
+        f.set("courier_service", result.value.courierId);
+        f.set("tracking_id", result.value.trackingid);
+
+        // Send data to your server and update the UI
+        try {
+          const dataResponse = await xhr(f, url);
+          if (dataResponse.status === 1) {
+            showNotifications("success", dataResponse.message);
+            dataTableObj.forEach(function (k) {
+              k.ajax.reload();
+            });
+
+            // Fetch order details
+            const orderDetails = await getOrderDetails(allCheckedOrderID[0]);
+            // Fetch user ID based on order ID
+            const orderData = await getOrderData(orderDetails.order_id);
+            // Fetch user email based on user ID
+            const userData = await getUserDetails(orderData.order_userid);
+
+            // Now send the email with tracking details
+            await sendEmailToCourier(
+              courierEmail,
+              result.value.trackingid,
+              allCheckedOrderID,
+              courierServiceName,
+              orderDetails.order_id,
+              orderData.order_userid,
+              userData.email
+            );
+          } else {
+            showNotifications("error", dataResponse.message);
+          }
+        } catch (error) {
+          console.error("Error in sending order details: ", error);
+          showNotifications(
+            "error",
+            "An error occurred while processing the request."
+          );
+        }
+      }
+    });
+  } else {
+    showNotifications("error", "Order ID is missing");
+  }
+});
+
+async function getOrderDetails(orderId) {
+  try {
+    const response = await fetch(`http://18.61.197.237:3000/api/orders/${orderId}`);
+    const orderDetails = await response.json();
+    return orderDetails;
+  } catch (error) {
+    console.error("Error fetching order details:", error);
+    throw error;
+  }
+}
+
+async function getOrderData(orderUniqueId) {
+  try {
+    const response = await fetch(
+      `http://18.61.197.237:3000/api/ordersId/${orderUniqueId}`
+    );
+    const orderData = await response.json();
+    return orderData;
+  } catch (error) {
+    console.error("Error fetching order data:", error);
+    throw error;
+  }
+}
+
+async function getUserDetails(userId) {
+  try {
+    const response = await fetch(`http://18.61.197.237:3000/api/users/${userId}`);
+    const userData = await response.json();
+    return userData;
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    throw error;
+  }
+}
+async function sendEmailToCourier(
+  email,
+  trackingId,
+  orderIds,
+  courierServiceName,
+  orderId,
+  orderUserId,
+  userEmail
+) {
+  const emailData = {
+    to: email,
+    subject: "Product to Deliver",
+    html: `
+            <p>Hello Deliver Partner (${courierServiceName}),</p>
+            <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
+            <p>Order ID(s): ${orderIds.join(", ")}</p>
+            <p>Order ID: ${orderId}</p>
+            <p>Order User ID: ${orderUserId}</p>
+            <p>Order User Email: ${userEmail}</p>
+            <p>Thank you for your service!</p>
+
+            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+            <p><a href="http://localhost:3000/enter-otp?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
+
+        <p>
+        <a href="http://18.61.197.237:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
+      </p>
+       <p>
+      <a href="http://18.61.197.237:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a>
+    </p>
+            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${
+              orderIds[0]
+            }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+
+            <p>Best regards,<br>PixaCart</p>
+        `,
+  };
+
+  try {
+    const response = await $.ajax({
+      type: "POST",
+      url: "/api/send-email",
+      data: JSON.stringify(emailData),
+      contentType: "application/json",
+      dataType: "json",
+    });
+
+    if (response.status === 1) {
+      showNotifications("success", "Email sent successfully!");
+    } else {
+      showNotifications("error", "Failed to send email.");
+    }
+  } catch (error) {
+    console.error("Email sending error: ", error);
+    showNotifications("error", "An error occurred while sending the email.");
+  }
+}
+
+// Trigger OTP request from client-side
+function requestOtp(userEmail) {
+  $.ajax({
+    type: "POST",
+    url: "/api/send-otp",
+    data: JSON.stringify({ userEmail: userEmail }),
+    contentType: "application/json",
+    dataType: "json",
+    success: function (response) {
+      if (response.status === 1) {
+        alert("OTP sent successfully!");
+      } else {
+        alert("Failed to send OTP.");
+      }
+    },
+    error: function (error) {
+      console.error("OTP request error: ", error);
+      alert("An error occurred while sending the OTP.");
+    },
+  });
+}
+
+$(document).on("click", ".editSpCate", function () {
+  let _this = $(this);
+  $("#addNewCateBtn").trigger("click");
+  $("#exampleModalLabel02").text("Edit Category");
+  $("#cate_id").val(_this.attr("data-cate-id"));
+  $("#cate_name").val(_this.attr("data-cate-name"));
+});
+
+$(document).on("keypress", "#reply_msg", function (event) {
+  var keyCode = event.which || event.keyCode;
+  if (keyCode == 13) {
+    $("#sendReplyBtn").click();
+    return false;
+  }
+});
+
+if ($(".msg-history").length) {
+  let showChatHistory = $(".msg-history");
+  showChatHistory
+    .stop()
+    .animate({ scrollTop: showChatHistory[0].scrollHeight }, 1000);
+}
+
+$(document).on("click", "#sendReplyBtn", (e) => {
+  e.preventDefault();
+  let _this = $(e.target);
+  let btntxt = _this.html();
+  _this.html('<span class="sc_wait_pro">Wait...</span>').prop("disabled", true);
+  let form = _this.closest("form");
+  checkValidation(form)
+    .then(() => {
+      let f = new FormData(form[0]);
+      f.set("offset", tzoffset());
+      xhr(f, form.attr("action"))
+        .done((data) => {
+          if (data.status == 1) {
+            showNotifications("success", data.message);
+            if (typeof data.chatHtml != "undefined") {
+              $(".msg-history").append(data.chatHtml);
+              let showChatHistory = $(".msg-history");
+              showChatHistory
+                .stop()
+                .animate({ scrollTop: showChatHistory[0].scrollHeight }, 1000);
+              $("#reply_msg").val("").focus();
+>>>>>>> 4ff02f7a18241d93b88f4638925aaa1799a9a9da
             }
             _this.html(btntxt).prop("disabled", false);
           })

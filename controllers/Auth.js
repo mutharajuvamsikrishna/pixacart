@@ -5,6 +5,7 @@ const mongoose   = require('mongoose');
 const UserModel  = mongoose.model('users');
 const CategoryModel  = mongoose.model('category');
 const SubCategoryModel  = mongoose.model('sub_category');
+const CourierServiceModel  = mongoose.model('courier_services');
 const md5        = require('md5');
 const {validationResult} = require('express-validator');
 const config     = require('../config/config');
@@ -30,9 +31,23 @@ USER.login = async (req, res) => {
         verifyType : verifyType,
         verifyMsg : verifyMsg
     });
-   
 };
-
+USER.logincourier = async (req, res) => {
+  let verifyType ='';
+  let verifyMsg = '';
+  if(req.query.type){
+      verifyType = req.query.type;
+  }
+  if(req.query.msg){
+      verifyMsg = req.query.msg;
+  }
+    res.render('authentication/logincourier', {
+        viewTitle : 'Login User',
+        cookies   : req.cookies,
+        verifyType : verifyType,
+        verifyMsg : verifyMsg
+    });
+};
 USER.register = async (req, res) => {
   res.render('authentication/register', {
       viewTitle : 'Register User'
@@ -106,6 +121,58 @@ USER.verify_email = async (req, res) => {
     }
   };
 
+
+  USER.api.courierServiceLogin = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      console.log('Login attempt for email:', email);
+      console.log('Login attempt for password:', password);
+      // Check if email and password are provided
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required.' });
+      }
+  
+      CourierServiceModel.findOne({ email }, function(err, result) {
+        if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).json({ error: 'Internal server error.' });
+        }
+  
+        if (!result) {
+          console.log('No account found for email:', email);
+          return res.status(401).json({ message: 'We couldn\'t find the account with this email address.' });
+        }
+  
+        if (password.trim() !== result.password) {
+          console.log('Password mismatch for email:', email);
+          return res.status(401).json({ message: 'Invalid login credentials.' });
+        }
+  
+        console.log('Login successful for email:', email);
+        const userData = {
+          user_id: result._id,
+          email: result.email,
+          service_name: result.service_name,
+          phone_number: result.phone_number,
+          status: result.status,
+          loginAS: 'COURIER_SERVICE',
+        };
+  
+        req.session.user = userData;
+  
+        res.status(200).json({
+          status: 1,
+          message: "Logged in successfully.",
+          data: userData,
+          redirect: 'dashboard',
+        });
+      });
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      res.status(500).json({ error: 'Internal server error.' });
+    }
+  };
+  
 
 
 USER.api.login = async (req, res) => {

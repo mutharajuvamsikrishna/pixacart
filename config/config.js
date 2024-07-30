@@ -1,4 +1,8 @@
+<<<<<<< HEAD
  const BASE_URL = 'http://localhost:3000/';
+=======
+const BASE_URL = 'http://localhost:3000/';
+>>>>>>> 4ff02f7a18241d93b88f4638925aaa1799a9a9da
 const data = {
     PORT : 3000,
 
