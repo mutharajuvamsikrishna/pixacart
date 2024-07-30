@@ -6,6 +6,7 @@ const UserModel  = mongoose.model('users');
 const CategoryModel  = mongoose.model('category');
 const SubCategoryModel  = mongoose.model('sub_category');
 const CourierServiceModel  = mongoose.model('courier_services');
+const CourierBoysModel  = mongoose.model('courier_boys');
 const md5        = require('md5');
 const {validationResult} = require('express-validator');
 const config     = require('../config/config');
@@ -124,54 +125,48 @@ USER.verify_email = async (req, res) => {
 
   USER.api.courierServiceLogin = async (req, res) => {
     try {
-      const { email, password } = req.body;
-      console.log('Login attempt for email:', email);
-      console.log('Login attempt for password:', password);
-      // Check if email and password are provided
-      if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required.' });
-      }
-  
-      CourierServiceModel.findOne({ email }, function(err, result) {
-        if (err) {
-          console.error('Database query error:', err);
-          return res.status(500).json({ error: 'Internal server error.' });
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required.' });
         }
-  
+
+        const result = await CourierServiceModel.findOne({ email });
+
         if (!result) {
-          console.log('No account found for email:', email);
-          return res.status(401).json({ message: 'We couldn\'t find the account with this email address.' });
+            return res.status(401).json({ message: 'Account not found.' });
         }
-  
+
         if (password.trim() !== result.password) {
-          console.log('Password mismatch for email:', email);
-          return res.status(401).json({ message: 'Invalid login credentials.' });
+            return res.status(401).json({ message: 'Invalid credentials.' });
         }
-  
-        console.log('Login successful for email:', email);
+
+        const courierBoys = await CourierBoysModel.find({ courierService: result._id });
+
         const userData = {
-          user_id: result._id,
-          email: result.email,
-          service_name: result.service_name,
-          phone_number: result.phone_number,
-          status: result.status,
-          loginAS: 'COURIER_SERVICE',
+            user_id: result._id,
+            email: result.email,
+            service_name: result.service_name,
+            phone_number: result.phone_number,
+            status: result.status,
+            loginAS: 'COURIER_SERVICE',
+            courierBoys: courierBoys
         };
-  
+     
         req.session.user = userData;
-  
+
         res.status(200).json({
-          status: 1,
-          message: "Logged in successfully.",
-          data: userData,
-          redirect: 'dashboard',
+            status: 1,
+            message: "Logged in successfully.",
+            data: userData,
+            redirect: 'dashboard',
         });
-      });
     } catch (err) {
-      console.error('Unexpected error:', err);
-      res.status(500).json({ error: 'Internal server error.' });
+        res.status(500).json({ error: 'Internal server error.' });
     }
-  };
+};
+
+
   
 
 

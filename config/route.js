@@ -20,6 +20,11 @@ const validationRules   =  require('./ValidationRules');
 
 router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
 router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
+
+router.post('/dashboard/create_or_update_courier_boys',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierBoy);
+router.get('/dashboard/courier_boys_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierBoys);
+
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let folder   = (file.fieldname).split('_');

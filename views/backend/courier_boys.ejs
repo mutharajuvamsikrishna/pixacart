@@ -28,7 +28,7 @@
                     <div class="card-header ttl-with-btn pb-0">
                         <h4><%= pageTitle %></h4>
                         <div class="card-header-btn">
-                            <a class="pc-btn resetModalForm" data-toggle="modal" data-target="#createCourierServiceModal" data-whatever="@mdo" id="addNewServiceBtn">Add New Courier Service</a>
+                            <a class="pc-btn resetModalForm" data-toggle="modal" data-target="#createCourierServiceModal" data-whatever="@mdo" id="addNewServiceBtn">Add New Courier Boy</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -36,7 +36,7 @@
                             <thead>
                                 <tr>
                                     <th class="sr">#</th>
-                                    <th class="service_name">Service Name</th>
+                                    <th class="service_name">Boy Name</th>
                                     <th class="email">Email</th>
                                     <th class="phone_number">Phone Number</th>
                                     <th class="address">Address</th>
@@ -87,7 +87,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add New Courier Service</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add New Courier Boy</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -96,7 +96,7 @@
                 <div class="modal-body">
                     <input type="hidden" name="id" id="service_id" value="0">
                     <div class="form-group">
-                        <label class="col-form-label">Service Name:</label>
+                        <label class="col-form-label">Boy Name:</label>
                         <input type="text" class="form-control require" name="service_name" id="service_name" data-error="Service name field is required">
                     </div>
                     <div class="form-group">
@@ -151,7 +151,7 @@
 
         $.ajax({
             type: 'POST',
-            url: 'create_or_update_courier_service',
+            url: 'create_or_update_courier_boys',
             data: formData,
             success: function(response) {
                 // Handle success response
