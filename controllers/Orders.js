@@ -9,6 +9,7 @@ const subCategoryModel  = mongoose.model('sub_category');
 const brandModel = mongoose.model('brands');
 const productsModel  = mongoose.model('products');
 const ordersModel  = mongoose.model('orders');
+const orderProducts  = mongoose.model('orders_products');
 const courierServicesModel  = mongoose.model('courier_services');
 const {validationResult} = require('express-validator');
 const notificationsModel  = mongoose.model('notifications');
@@ -19,7 +20,7 @@ const currenciesModel   = mongoose.model('currencies');
 const helper          = require('../helpers/my_helper');
 const config     = require('../config/config');
 const API = require('./Api');
-const { orderProducts, outstandings } = require('../models/DatabaseModel');
+const {  outstandings } = require('../models/DatabaseModel');
 const payModeArr = helper.paymentMode;
 const ORDERS = {};
 
@@ -36,6 +37,53 @@ ORDERS.orders = async (req, res) => {
             targetVisible : targetVisible,
     });
 };
+// ORDERS.courierServicesOrders = async (req, res) => {
+//     let targetVisible = 9;
+//     if(await helper.isAdmin(req)){
+//         targetVisible = '';
+//     }
+//     let courierServices = await courierServicesModel.find({status : 1}).exec();
+//     res.render('backend/courierServicesOrders', {
+//             viewTitle : 'Orders',
+//             pageTitle : 'Orders',
+//             courierServices : courierServices,
+//             targetVisible : targetVisible,
+//     });
+// };
+
+ORDERS.courierServicesOrders = async (req, res) => {
+    try {
+        let targetVisible = 9;
+        let orders = [];
+        let courierServices = [];
+
+        // Check if the user is an admin or courier service
+        if (await helper.isAdmin(req)) {
+            targetVisible = '';
+            // Fetch all courier services if admin
+            courierServices = await courierServicesModel.find({ status: 1 }).exec();
+        } else if (req.session.user && req.session.user.loginAS === 'COURIER_SERVICE') {
+            // Fetch orders for the logged-in courier service
+            orders = await orderProducts.find({ courier_service: req.session.user.user_id }).exec();
+        } else {
+            // Handle unauthorized access
+            return res.status(403).json({ error: 'Unauthorized access.' });
+        }
+
+        res.render('backend/courierServicesOrders', {
+            viewTitle: 'Orders',
+            pageTitle: 'Orders',
+            courierServices: courierServices,
+            orders: orders,
+            targetVisible: targetVisible,
+        });
+    } catch (err) {
+        console.error('Error fetching orders:', err);
+        res.status(500).json({ error: 'Failed to fetch orders. Please try again later.' });
+    }
+};
+
+
 
 ORDERS.orderTransactions = async (req, res) => {
     let seller_id = '';

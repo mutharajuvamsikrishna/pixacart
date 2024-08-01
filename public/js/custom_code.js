@@ -464,11 +464,11 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
   let _this = $(this);
   let action = _this.attr("action");
   let url = _this.attr("url");
-  let ids = _this.attr("data-order-id"); // Get the order ID from the button
+  let ids = _this.attr("data-order-id");
 
   if (ids) {
     let allCheckedOrderID = [];
-    allCheckedOrderID.push(ids); // Add the order ID to the array
+    allCheckedOrderID.push(ids);
 
     let courier = JSON.parse($("#courierServices").val());
 
@@ -506,30 +506,26 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
           `#swal-input1 option[value="${result.value.courierId}"]`
         ).text();
 
-        // Prepare the FormData for the AJAX call
+       
         let f = new FormData();
         f.set("order_ids", allCheckedOrderID);
         f.set("status", action);
         f.set("courier_service", result.value.courierId);
         f.set("tracking_id", result.value.trackingid);
 
-        // Send data to your server and update the UI
+      
         try {
           const dataResponse = await xhr(f, url);
           if (dataResponse.status === 1) {
             showNotifications("success", dataResponse.message);
             dataTableObj.forEach(function (k) {
               k.ajax.reload();
-            });
-
-            // Fetch order details
+            });           
             const orderDetails = await getOrderDetails(allCheckedOrderID[0]);
-            // Fetch user ID based on order ID
+           
             const orderData = await getOrderData(orderDetails.order_id);
-            // Fetch user email based on user ID
+          
             const userData = await getUserDetails(orderData.order_userid);
-
-            // Now send the email with tracking details
             await sendEmailToCourier(
               courierEmail,
               result.value.trackingid,
@@ -558,8 +554,9 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
 
 async function getOrderDetails(orderId) {
   try {
-    const response = await fetch(`http://18.61.197.237:3000/api/orders/${orderId}`);
+    const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
     const orderDetails = await response.json();
+    
     return orderDetails;
   } catch (error) {
     console.error("Error fetching order details:", error);
@@ -570,7 +567,7 @@ async function getOrderDetails(orderId) {
 async function getOrderData(orderUniqueId) {
   try {
     const response = await fetch(
-      `http://18.61.197.237:3000/api/ordersId/${orderUniqueId}`
+      `http://localhost:3000/api/ordersId/${orderUniqueId}`
     );
     const orderData = await response.json();
     return orderData;
@@ -582,7 +579,7 @@ async function getOrderData(orderUniqueId) {
 
 async function getUserDetails(userId) {
   try {
-    const response = await fetch(`http://18.61.197.237:3000/api/users/${userId}`);
+    const response = await fetch(`http://localhost:3000/api/users/${userId}`);
     const userData = await response.json();
     return userData;
   } catch (error) {
@@ -611,16 +608,16 @@ async function sendEmailToCourier(
             <p>Order User Email: ${userEmail}</p>
             <p>Thank you for your service!</p>
 
-            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
             <p><a href="http://localhost:3000/enter-otp?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
 
         <p>
-        <a href="http://18.61.197.237:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
+        <a href="http://localhost:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
       </p>
        <p>
-      <a href="http://18.61.197.237:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a>
+      <a href="http://localhost:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a>
     </p>
-            <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${
+            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${
               orderIds[0]
             }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
 
@@ -794,7 +791,6 @@ $(document).on("click", ".AcceptReturn", async function (e) {
     showNotifications("error", "Order id is missing");
   }
 });
-
 $(document).on("click", ".generateRefund", async function (e) {
   e.preventDefault();
   let _this = $(this);
