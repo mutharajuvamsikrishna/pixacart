@@ -1,7 +1,5 @@
 <%- include('../partials/header'); %>
-<% if (typeof courierServices !== 'undefined') { %>
-    <input type="hidden" id="courierServices" value="<%= JSON.stringify(courierServices) %>" >
-<% } %>
+    <input type="hidden" id="courierServices" value="<%=JSON.stringify(courierServices); %>" >
    <!-- Container Start -->
     <div class="page-wrapper">
         <div class="main-content">
@@ -36,7 +34,6 @@
                                     <ul class="nav nav-tabs" id="myTab1" role="tablist">
                                        
                                        
-                                        
                                         <li class="nav-item orderTab">
                                             <a class="nav-link" id="profile-tab22" data-toggle="tab" href="#dispatch" role="tab" aria-controls="profile" aria-selected="false">Dispatched (<span id="dispatchOrder">0</span>)</a>
                                             
@@ -61,11 +58,9 @@
                                     </ul>
                                     <div class="tab-content pc-content2" id="myTabContent2">
                                         
-                                       
-                                        
                                         <div class="tab-pane fade show active" id="dispatch" role="tabpanel">
                                             <button type="button" class="btn btn-primary mt-2 mr-2 updateAllStatus" action="1"  url="orders/updateOrderStatus" disabled>Delivered</button>
-                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="orders_list/5" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#dispatchOrder">
+                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="courier_orders_list/5" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#dispatchOrder">
                                                 <thead>
                                                     <tr>
                                                         <th class="sr">#</th>
@@ -90,7 +85,7 @@
                                             </table>
                                         </div>
                                         <div class="tab-pane fade" id="delivered" role="tabpanel">
-                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="orders_list/1" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#deliveredOrder">
+                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="courier_orders_list/1" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#deliveredOrder">
                                                 <thead>
                                                     <tr>
                                                         <th class="sr">#</th>
@@ -115,7 +110,7 @@
                                             </table>
                                         </div>
                                         <div class="tab-pane fade" id="canceled" role="tabpanel">
-                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="orders_list/6" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#canceledOrder">
+                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="courier_orders_list/6" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#canceledOrder">
                                                 <thead>
                                                     <tr>
                                                         <th class="sr">#</th>
@@ -140,7 +135,7 @@
                                             </table>
                                         </div>
                                         <div class="tab-pane fade" id="return_requested" role="tabpanel">
-                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="orders_list/8" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#returnOrder">
+                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="courier_orders_list/8" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#returnOrder">
                                                 <thead>
                                                     <tr>
                                                         <th class="sr">#</th>
@@ -165,7 +160,7 @@
                                             </table>
                                         </div>
                                         <div class="tab-pane fade" id="refund_requested" role="tabpanel">
-                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="orders_list/7" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#refundOrder">
+                                            <table class="table table-striped table-bordered dt-responsive nowrap display dataTableAjax" style="width:100%" data-action-url="courier_orders_list/7" data-target-section="tbody" data-column-class="[{className:'sr'},{className:'order_id'},{className:'pro_name'},{className:'pro_sku'},{className:'pro_qty'},{className:'pro_price'},{className:'subtotal'},{className: 'cust_name'},{className: 'order_date'},{className: 'seller_name'},{className: 'order_status'},{className: 'order_paystatus'},{className: 'order_paymode'},{className: 'action'}]"  data-refresh-dataTablePosition='0' data-filter='filter' data-sort="[{'targets': [],'orderable': false},{'targets': [<%=targetVisible%>],'visible': false}]" data-id="#refundOrder">
                                                 <thead>
                                                     <tr>
                                                         <th class="sr">#</th>

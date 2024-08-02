@@ -20,7 +20,7 @@ const currenciesModel   = mongoose.model('currencies');
 const helper          = require('../helpers/my_helper');
 const config     = require('../config/config');
 const API = require('./Api');
-const {  outstandings } = require('../models/DatabaseModel');
+const { outstandings } = require('../models/DatabaseModel');
 const payModeArr = helper.paymentMode;
 const ORDERS = {};
 
@@ -37,53 +37,19 @@ ORDERS.orders = async (req, res) => {
             targetVisible : targetVisible,
     });
 };
-// ORDERS.courierServicesOrders = async (req, res) => {
-//     let targetVisible = 9;
-//     if(await helper.isAdmin(req)){
-//         targetVisible = '';
-//     }
-//     let courierServices = await courierServicesModel.find({status : 1}).exec();
-//     res.render('backend/courierServicesOrders', {
-//             viewTitle : 'Orders',
-//             pageTitle : 'Orders',
-//             courierServices : courierServices,
-//             targetVisible : targetVisible,
-//     });
-// };
-
 ORDERS.courierServicesOrders = async (req, res) => {
-    try {
-        let targetVisible = 9;
-        let orders = [];
-        let courierServices = [];
-
-        // Check if the user is an admin or courier service
-        if (await helper.isAdmin(req)) {
-            targetVisible = '';
-            // Fetch all courier services if admin
-            courierServices = await courierServicesModel.find({ status: 1 }).exec();
-        } else if (req.session.user && req.session.user.loginAS === 'COURIER_SERVICE') {
-            // Fetch orders for the logged-in courier service
-            orders = await orderProducts.find({ courier_service: req.session.user.user_id }).exec();
-        } else {
-            // Handle unauthorized access
-            return res.status(403).json({ error: 'Unauthorized access.' });
-        }
-
-        res.render('backend/courierServicesOrders', {
-            viewTitle: 'Orders',
-            pageTitle: 'Orders',
-            courierServices: courierServices,
-            orders: orders,
-            targetVisible: targetVisible,
-        });
-    } catch (err) {
-        console.error('Error fetching orders:', err);
-        res.status(500).json({ error: 'Failed to fetch orders. Please try again later.' });
+    let targetVisible = 9;
+    if(await helper.isAdmin(req)){
+        targetVisible = '';
     }
+    let courierServices = await courierServicesModel.find({status : 1}).exec();
+    res.render('backend/courierServicesOrders', {
+            viewTitle : 'Orders',
+            pageTitle : 'Orders',
+            courierServices : courierServices,
+            targetVisible : targetVisible,
+    });
 };
-
-
 
 ORDERS.orderTransactions = async (req, res) => {
     let seller_id = '';
@@ -97,6 +63,126 @@ ORDERS.orderTransactions = async (req, res) => {
     });
 };
 
+ORDERS.courier_ServicesOrders = async (req, res) => {
+    try {
+        let orderStatus = req.params.status;
+        const courierServiceId = req.session.user.user_id; 
+
+
+        let query = {
+            courier_service: courierServiceId,
+            order_status: orderStatus
+        };
+
+        // Array of columns that you want to show in the table
+        const columns = ['fullname'];
+        const start = parseInt(req.query.start) || 0;
+        const dataLimit = parseInt(req.query.length) || 10;
+
+        // Check if global search is enabled and its value is defined
+        if (req.query.search && req.query.search.value) {
+            const text = req.query.search.value;
+
+            // Apply search on specified columns
+            for (let i = 0; i < columns.length; i++) {
+                const requestColumn = req.query.columns[i];
+                const column = columns[requestColumn.data];
+
+                if (requestColumn.searchable === 'true') {
+                    query[column] = {
+                        $regex: '.*' + text + '.*', $options: 'i'
+                    };
+                }
+            }
+        }
+
+        // Fetch orders based on the query
+        const result = await orderProducts.find(query)
+            .populate('seller_id', 'fullname')
+            .populate('order_id', 'order_uniqueid payment_status payment_mode')
+            .populate('order_vid', 'pro_subtitle pro_sku')
+            .populate({ path: 'order_uid', select: 'fullname' })
+            .sort({ _id: 'desc' }) 
+            .skip(start)
+            .limit(dataLimit);
+
+        const totalRecords = await orderProducts.countDocuments(query);
+        const filteredRecords = totalRecords; // Total filtered records
+
+        const mytable = {
+            draw: parseInt(req.query.draw) || 1,
+            recordsTotal: totalRecords,
+            recordsFiltered: filteredRecords,
+            data: []
+        };
+
+        // Prepare data for response
+        if (result.length > 0) {
+            let currency_symbol = "$";
+            const currencies = await currenciesModel.findOne({ status: 1 });
+            if (currencies) {
+                currency_symbol = currencies.currency_symbol;
+            }
+
+            result.forEach((element, index) => {
+                let label = '';
+                let track = '';
+                let returnBtn = '';
+                let refundBtn = '';
+
+                if (element.order_status === 8) {
+                    returnBtn = `<a href="javascript:;" title="Accept Return" class="AcceptReturn" action="6" url="orders/returnRequestAccept" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+                }
+
+                if (element.order_status === 7) {
+                    refundBtn = `<a href="javascript:;" title="Generate Refund" class="generateRefund" action="6" url="orders/generateRefund" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+                }
+
+                const invoice = `<a href="javascript:;" title="View Invoice" class="viewInvoice" url="orders/view-invoice" data-invoice-id="${element.invoice_id}"><i class="fas fa-file-invoice"></i></a>`;
+
+                let checkBox = `<input class="checkedOrder" value="${element._id}" id="${element._id}" type="checkbox"> `;
+                if (element.order_status === 4) {
+                    label = `<a href="javascript:;" title="Generate Label" class="generateLabel" url="orders/generateLabel" data-order-id="${element._id}"><i class="fas fa fa-tag"></i></a>`;
+                    track = `<a href="javascript:;" title="Add Tracking Id" class="AddTrackingDetail" action="5" url="orders/updateOrderStatus" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+                    checkBox = '';
+                }
+
+                const inArr = [1, 6, 7, 8];
+                if (inArr.includes(element.order_status)) {
+                    checkBox = '';
+                }
+
+                let payStatus = 'Unpaid';
+                if (element.order_id && element.order_id.payment_status === 1) {
+                    payStatus = 'Paid';
+                }
+
+                mytable.data.push([
+                    checkBox + '' + (start + index + 1), // Row number adjusted here
+                    (element.order_id) ? element.order_id.order_uniqueid : '',
+                    (element.order_vid) ? element.order_vid.pro_subtitle : '',
+                    (element.order_vid) ? element.order_vid.pro_sku : '',
+                    element.prod_quantity,
+                    currency_symbol + '' + element.prod_price,
+                    currency_symbol + '' + element.prod_subtotal,
+                    (element.order_uid) ? element.order_uid.fullname : '',
+                    moment(element.createdAt).format('DD-MMM-YYYY HH:MM'),
+                    (element.seller_id) ? element.seller_id.fullname : '',
+                    `<label class="mb-0 badge badge-${helper.lableClass[element.order_status]}" title="" data-original-title="Pending">${helper.orderStatusLable[element.order_status]}</label>`,
+                    payStatus,
+                    (element.order_id) ? element.order_id.payment_mode : '',
+                    invoice + ' ' + label + ' ' + track + ' ' + returnBtn + ' ' + refundBtn
+                ]);
+            });
+
+            res.status(200).json(mytable);
+        } else {
+            res.status(200).json(mytable);
+        }
+    } catch (err) {
+        res.status(401).json({ status: 0, message: 'Error: ' + err.message });
+    }
+};
 
 
 ORDERS.sellerOrdersList = async (req, res) => {
@@ -234,7 +320,7 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 requestColumn = req.query.columns[i];
                 column = columns[requestColumn.data];
 
-                // if search is enabled for that particular field then create query
+                // if search is enabled for that  vparticular field then create query
                 if (requestColumn.searchable == 'true') {
                     query[column] = {
                         $regex: text,

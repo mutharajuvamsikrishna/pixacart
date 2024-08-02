@@ -192,6 +192,7 @@ router.post('/orders/view-invoice',upload.array(),controllers.orders.getInvoice)
 //GET Request ORDERS
 router.get('/dashboard/courierServicesOrders',controllers.middleware.authenticate, controllers.orders.courierServicesOrders);
 router.get('/dashboard/orders',controllers.middleware.authenticate, controllers.orders.orders);
+router.get('/courier_orders_list/:status',controllers.middleware.authenticate, controllers.orders.courier_ServicesOrders);
 router.get('/orders_list/:status',controllers.middleware.authenticate, controllers.orders.sellerOrdersList);
 router.get('/dashboard/order_transactions',controllers.middleware.authenticate, controllers.orders.orderTransactions);
 router.get('/seller/order_transactions/:seller_id',controllers.middleware.authenticate, controllers.orders.orderTransactions);
