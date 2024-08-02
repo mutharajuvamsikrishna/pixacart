@@ -1115,6 +1115,11 @@ API.categorList = async (req, res) => {
         for (const element of result) { 
               let variant = await productsVariantsModel.findOne({status : 1, prod_id : element._id});
               if(variant){
+                let variantPrice = variant.prod_unitprice; 
+                if (variant.prod_sizes && variant.prod_sizes.length > 0) {
+                  variantPrice = variant.prod_sizes[0].price; 
+                }
+                let formattedVariantPrice = variantPrice.toFixed(2); 
                   let prodData = {"_id": element._id,
                                   "prod_name": element.prod_name,
                                   "prod_unit": element.prod_unit,
@@ -1127,7 +1132,7 @@ API.categorList = async (req, res) => {
                                   "variant_id" : variant._id,
                                   "pro_subtitle" : variant.pro_subtitle,
                                   "prod_sellerid": variant.prod_sellerid,
-                                  "prod_unitprice": variant.prod_unitprice,
+                                  "prod_unitprice": formattedVariantPrice,
                                   "prod_strikeout_price" : variant.prod_strikeout_price,
                                   "prod_discount": variant.prod_discount.toFixed(2),
                                   "prod_discount_type": variant.prod_discount_type,
@@ -1166,21 +1171,25 @@ API.categorList = async (req, res) => {
   }
 
   async function getVariantsDetails(req, result){
-   let  returnedVariants =  [];
-    for(const element of result){
-
-      let variant = { "variant_id": element._id,
-                      "prod_sellerid": element.prod_sellerid,
-                      "pro_subtitle": element.pro_subtitle,
-                      "prod_attributes": element.prod_attributes,
-                      "prod_unitprice": element.prod_unitprice,
-                      "prod_strikeout_price": element.prod_strikeout_price,
-                      "prod_quantity": element.prod_quantity,
-                      "prod_discount":element.prod_discount.toFixed(2),
-                      "prod_discount_type": element.prod_discount_type,
-                      "isLiked": await API.isLikedCheck(element._id,req.verifyUser.id),
-                      "status": element.status,
-                    };
+    let  returnedVariants =  [];
+     for(const element of result){
+       let variantPrice = element.prod_unitprice; // Default to prod_unitprice
+       if (element.prod_sizes && element.prod_sizes.length > 0) {
+         variantPrice = element.prod_sizes[0].price; // Use the price of the first size
+       }
+       let formattedVariantPrice = variantPrice.toFixed(2); 
+       let variant = { "variant_id": element._id,
+                       "prod_sellerid": element.prod_sellerid,
+                       "pro_subtitle": element.pro_subtitle,
+                       "prod_attributes": element.prod_attributes,
+                       "prod_unitprice":formattedVariantPrice,
+                       "prod_strikeout_price": element.prod_strikeout_price,
+                       "prod_quantity": element.prod_quantity,
+                       "prod_discount":element.prod_discount.toFixed(2),
+                       "prod_discount_type": element.prod_discount_type,
+                       "isLiked": await API.isLikedCheck(element._id,req.verifyUser.id),
+                       "status": element.status,
+                     };
                     
       let prodDetails = await getProductDetailsByVariant(req, [element.prod_id]);
       if(prodDetails.length > 0){
@@ -1397,6 +1406,7 @@ API.categorList = async (req, res) => {
                             'order_uniqueid' : order.order_uniqueid,
                             'order_status' : element.order_status,
                             'sub_orderid' : element._id,
+                            'order_Option':element.prod_size,
                             'order_qty' : element.prod_quantity, 
                             'order_price' : element.prod_price,
                             'order_subTotal' : element.prod_subtotal,
@@ -1844,6 +1854,7 @@ API.orderPlaceOLD = async (req, res) => {
                                                 'order_vid' : element.vid,
                                                 'order_uid' : req.body.user_id,
                                                 'seller_id' : element.seller_id,
+                                                'prod_size':element.selectedSize,
                                                 'prod_quantity' : element.qty,
                                                 'prod_price' : element.price,
                                                 'prod_subtotal' : element.subtotal,
@@ -1862,9 +1873,9 @@ API.orderPlaceOLD = async (req, res) => {
                     await pids.save().then(async (subOrder) => {
                         
                         await helper.deductInventory(element.vid, - element.qty);
-                        if (element.size && element.size.quantity > 0) {
-                          await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
-                        }
+                     
+                          await helper.deductSizeInventory(element.vid, element.selectedSize, -element.qty);
+                        
                       
                         if(payModeArr.includes(req.body.payment_mode)){
 

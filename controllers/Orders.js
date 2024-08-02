@@ -179,6 +179,7 @@ ORDERS.sellerOrdersList = async (req, res) => {
                                           (element.order_id) ? element.order_id.order_uniqueid :'',
                                           (element.order_vid) ? element.order_vid.pro_subtitle : '',
                                           (element.order_vid) ? element.order_vid.pro_sku : '',
+                                          element.prod_size,
                                           element.prod_quantity,
                                           currency_symbol+''+element.prod_price,
                                           currency_symbol+''+element.prod_subtotal,
@@ -399,9 +400,9 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 updateData.cancel_reason = 'Canceled By Seller';
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
-                if (element.size && element.size.quantity > 0) {
-                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
-                  }
+             
+                    await helper.deductSizeInventory(orderDetails.order_vid,orderDetails.prod_size,orderDetails.prod_quantity);
+                  
                 
                 let totalAmt = orderDetails.prod_subtotal
                 let debitCharge = ( parseFloat(totalAmt) * parseFloat(cancelingCharge) / 100 ).toFixed(2);
@@ -426,9 +427,7 @@ ORDERS.sellerOrdersList = async (req, res) => {
                 updateData.cancel_reason = 'Canceled By Seller';
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
-                if (element.size && element.size.quantity > 0) {
-                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
-                  }
+                await helper.deductSizeInventory(orderDetails.order_vid,orderDetails.prod_size,orderDetails.prod_quantity);
                 
                 let totalAmt = orderDetails.prod_subtotal
                 let debitCharge = ( parseFloat(totalAmt) * parseFloat(cancelingCharge) / 100 ).toFixed(2);
@@ -531,9 +530,7 @@ ORDERS.returnRequestAccept = async (req, res) => {
                 }  
 
                 await helper.deductInventory(orderDetails.order_vid, orderDetails.prod_quantity);
-                if (element.size && element.size.quantity > 0) {
-                    await helper.deductSizeInventory(element.pid, element.size.id, -element.size.quantity);
-                  }
+                await helper.deductSizeInventory(orderDetails.order_vid,orderDetails.prod_size,orderDetails.prod_quantity);
                 
                 await orderProducts.findOneAndUpdate({ "_id": id },updateData, {new: true}).then(async (result) =>{
                     let insertNoti = new notificationsModel({   noti_status : orderStatus,

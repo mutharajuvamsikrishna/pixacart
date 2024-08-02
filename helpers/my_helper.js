@@ -349,13 +349,25 @@ HELPER.sendNotification = async (notiMsg, token) => {
   }
   return resp;
 };
-HELPER.deductSizeInventory = async (prod_id, size_id, qty) => {
-  if (prod_id && size_id) {
-    // Example: Update size inventory in the product collection
-    await productsModel.findOneAndUpdate(
-      { _id: prod_id, 'sizes.id': size_id },
-      { $inc: { 'sizes.$.quantity': qty } }
-    );
+HELPER.deductSizeInventory = async (prod_vid, size, qty) => {
+  if (prod_vid && size) {
+    try {
+      const result = await productsVariantsModel.findOneAndUpdate(
+        { _id: mongoose.Types.ObjectId(prod_vid), 'prod_sizes.size': size },
+        { $inc: { 'prod_sizes.$.quantity': qty } },
+        { new: true }
+      );
+
+      if (result) {
+      
+      } else {
+        console.log('No matching document found.');
+      }
+    } catch (error) {
+      console.error('Error updating size inventory:', error);
+    }
+  } else {
+    console.error('Product variant ID and size are required.');
   }
 };
 

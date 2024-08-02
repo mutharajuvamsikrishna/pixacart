@@ -257,6 +257,7 @@ const orderProductsSchema = new mongoose.Schema({
                  ref: 'users',
                 //required:true
                 },
+                prod_size:{type:String,default:null},
     prod_quantity:{ type: Number, default:0},
     prod_price :{ type: Number,default:0,  get : getPrice},
     prod_subtotal :{ type: Number,default:0,  get : getPrice},
