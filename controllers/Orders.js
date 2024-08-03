@@ -37,6 +37,44 @@ ORDERS.orders = async (req, res) => {
             targetVisible : targetVisible,
     });
 };
+
+ORDERS.getOrderDetails = async (req, res) => {
+    const orderId = req.params.orderId;
+ 
+    try {
+        const order = await ordersModel.findById(orderId);
+ 
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+ 
+       
+        res.status(200).json(order);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+ 
+ORDERS.getOrderProductDetails = async (req, res) => {
+    const orderId = req.params.orderId; // Extract order ID from request params
+ 
+    try {
+        const order = await orderProducts.findById(orderId);
+ 
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+ 
+        // Optionally, you may want to populate related fields like customer_name if it's a reference
+        // await order.populate('order_userid', 'customer_name').execPopulate();
+ 
+        res.status(200).json(order);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
 ORDERS.courierServicesOrders = async (req, res) => {
     let targetVisible = 9;
     if(await helper.isAdmin(req)){

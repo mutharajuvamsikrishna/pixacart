@@ -555,14 +555,29 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
 async function getOrderDetails(orderId) {
   try {
     const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
-    const orderDetails = await response.json();
-    
-    return orderDetails;
+    console.log("order id is")
+    // Check if the response is OK and JSON
+    if (!response.ok) {
+      // If response status is not OK, throw an error
+      const text = await response.text(); // Read the response as text
+      console.error(`Error fetching order details: ${text}`);
+      throw new Error('Error fetching order details.');
+    }
+
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const orderDetails = await response.json();
+      return orderDetails;
+    } else {
+      throw new Error('Response is not JSON.');
+    }
   } catch (error) {
     console.error("Error fetching order details:", error);
     throw error;
   }
 }
+
 
 async function getOrderData(orderUniqueId) {
   try {

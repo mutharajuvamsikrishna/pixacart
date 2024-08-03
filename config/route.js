@@ -18,6 +18,9 @@ const controllers = {
 }
 const validationRules   =  require('./ValidationRules');
 
+router.get("/api/users/:userId", controllers.api.getUserDetails);
+router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
+router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
 router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
 router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
 
@@ -73,36 +76,94 @@ function checkFileType(file, cb) {
           }
         }
     }
-//at the save function 
-router.post('/api/send-email', async (req, res) => {
-  const { to, subject, text ,html} = req.body;
+    const transporter = nodemailer.createTransport({
+        service: 'gmail', // or any other email service
+        auth: {
+            user: 'santhakumar4343@gmail.com',
+            pass: 'jinu kzpv lhqj bpkm'
+        }
+    });
 
-  // Create a transporter
-  const transporter = nodemailer.createTransport({
-      service: 'gmail', // or any other email service
-      auth: {
-          user: 'santhakumar4343@gmail.com',
-          pass: 'jinu kzpv lhqj bpkm'
-      }
-  });
-
-  // Email options
-  const mailOptions = {
-      from: 'santhakumar4343@gmail.com',
-      to: to,
-      subject: subject,
-      text: text,
-      html: html
-  };
-
-  try {
-      await transporter.sendMail(mailOptions);
-      res.json({ status: 1, message: 'Email sent successfully!' });
-  } catch (error) {
-      console.error("Email error: ", error);
-      res.status(500).json({ status: 0, message: 'Failed to send email.' });
-  }
-});
+    router.post("/api/send-email", async (req, res) => {
+        const { to, subject, text, html } = req.body;
+       
+        // Create a transporter
+       
+        // Email options
+        const mailOptions = {
+          from: "santhakumar4343@gmail.com",
+          to: to,
+          subject: subject,
+          text: text,
+          html: html,
+        };
+       
+        try {
+          await transporter.sendMail(mailOptions);
+          res.json({ status: 1, message: "Email sent successfully!" });
+        } catch (error) {
+          console.error("Email error: ", error);
+          res.status(500).json({ status: 0, message: "Failed to send email." });
+        }
+      });
+      const otpStore = {};
+      router.get("/send-otp", async (req, res) => {
+          const { userEmail } = req.query;
+       
+          // Generate OTP
+          const otpCode = crypto.randomInt(100000, 999999).toString();
+          otpStore[userEmail] = { otp: otpCode, status: 'sent' };
+          // Email options
+          const mailOptions = {
+            from: "santhakumar4343@gmail.com",
+            to: userEmail,
+            subject: "Your OTP Code",
+            html: `
+              <p>Hello,</p>
+              <p>Your OTP code for verification is: <strong>${otpCode}</strong></p>
+              <p>Please use this code to complete your verification process.</p>
+              <p>If you did not request this OTP, please ignore this email.</p>
+              <p>Thank you!</p>
+              <p>Best regards,<br>Your Company</p>
+            `,
+          };
+       
+          try {
+            await transporter.sendMail(mailOptions);
+            res.send("OTP sent successfully!");
+          } catch (error) {
+            console.error("Email error: ", error);
+            res.status(500).send("Failed to send OTP.");
+          }
+        });
+        router.get('/verify-otp', (req, res) => {
+          const { userEmail } = req.query;
+          res.send(`
+            <form action="/verify-otp" method="POST">
+              <input type="hidden" name="userEmail" value="${userEmail}" />
+              <label for="otp">Enter OTP:</label>
+              <input type="text" id="otp" name="otp" required />
+              <button type="submit">Verify OTP</button>
+            </form>
+          `);
+        });
+       
+        router.post('/verify-otp', (req, res) => {
+          const { userEmail, otp } = req.body;
+       
+          if (otpStore[userEmail] && otpStore[userEmail].otp === otp) {
+            otpStore[userEmail].status = 'verified';
+            res.send('OTP verified successfully!');
+          } else {
+            res.send('Invalid OTP. Please try again.');
+          }
+        });
+        // Endpoint to get OTP status
+      router.get('/otp-status', (req, res) => {
+          const { userEmail } = req.query;
+          const otpStatus = otpStore[userEmail]?.status || 'not_sent';
+          res.json({ status: otpStatus });
+        });
 //const {check} = require('express-validator');
 router.use(['/login', '/register','/forgot-pws'], controllers.middleware.sessionChecker);
 
