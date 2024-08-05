@@ -2,6 +2,9 @@ const router    = require('express').Router();
 const multer    = require('multer');
 const path      = require('path');
 const nodemailer = require('nodemailer');
+const mongoose =require('mongoose')
+const crypto =require('crypto')
+const CourierBoys  = mongoose.model('courier_boys');
 const controllers = {
     auth        : require('../controllers/Auth'),
     admin       : require('../controllers/Admin'),
@@ -17,6 +20,37 @@ const controllers = {
     courier_service: require('../controllers/courierServiceController'),
 }
 const validationRules   =  require('./ValidationRules');
+
+router.get('/api/courierService/:courierServiceId/:postalCode', async (req, res) => {
+    const { courierServiceId, postalCode } = req.params;
+
+    try {
+        const courierBoysList = await CourierBoys.find({ 
+            courierService: courierServiceId,
+            postal_code: postalCode 
+        });
+        if (!courierBoysList || courierBoysList.length === 0) {
+            return res.status(404).json({ message: 'No courier boys found for the given postal code and courier service ID' });
+        }
+        res.status(200).json(courierBoysList);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+});
+router.get('/api/courierService/:courierServiceId', async (req, res) => {
+    const { courierServiceId } = req.params;
+
+    try {
+        const courierBoysList = await CourierBoys.find({ courierService: courierServiceId });
+        if (!courierBoysList || courierBoysList.length === 0) {
+            return res.status(404).json({ message: 'No courier boys found for the given courier service ID' });
+        }
+        res.status(200).json(courierBoysList);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+});
+
 
 router.get("/api/users/:userId", controllers.api.getUserDetails);
 router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);

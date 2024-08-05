@@ -472,13 +472,12 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
 
     let courier = JSON.parse($("#courierServices").val());
 
-    let HTML = `<select id="swal-input1" class="swal2-input">`;
-    HTML += `<option value="" selected disabled>---Select---</option>`;
+    let HTML = '<select id="swal-input1" class="swal2-input">';
+    HTML += '<option value="" selected disabled>---Select---</option>';
     courier.forEach(function (value) {
       HTML += `<option value="${value._id}" data-email="${value.email}">${value.service_name}</option>`;
     });
-    HTML += `</select>
-                 <input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">`;
+    HTML += '</select><input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">';
 
     Swal.fire({
       title: "Select Courier Service",
@@ -490,9 +489,9 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
         const trackingid = document.getElementById("swal-input2").value;
 
         if (!courierId) {
-          Swal.showValidationMessage(`Please select a courier service`);
+          Swal.showValidationMessage("Please select a courier service");
         } else if (!trackingid) {
-          Swal.showValidationMessage(`Please enter tracking ID`);
+          Swal.showValidationMessage("Please enter tracking ID");
         }
 
         return { courierId: courierId, trackingid: trackingid };
@@ -506,14 +505,12 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
           `#swal-input1 option[value="${result.value.courierId}"]`
         ).text();
 
-       
         let f = new FormData();
         f.set("order_ids", allCheckedOrderID);
         f.set("status", action);
         f.set("courier_service", result.value.courierId);
         f.set("tracking_id", result.value.trackingid);
 
-      
         try {
           const dataResponse = await xhr(f, url);
           if (dataResponse.status === 1) {
@@ -522,19 +519,27 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
               k.ajax.reload();
             });           
             const orderDetails = await getOrderDetails(allCheckedOrderID[0]);
-           
             const orderData = await getOrderData(orderDetails.order_id);
-          
             const userData = await getUserDetails(orderData.order_userid);
-            await sendEmailToCourier(
-              courierEmail,
-              result.value.trackingid,
-              allCheckedOrderID,
-              courierServiceName,
-              orderDetails.order_id,
-              orderData.order_userid,
-              userData.email
-            );
+
+            // Fetch courier boys by postal code match
+            const matchedCourierBoys = await fetch(`/api/courierService/${result.value.courierId}/${userData.postal_code}`);
+            const matchedBoysData = await matchedCourierBoys.json();
+            
+            if (matchedBoysData && matchedBoysData.length > 0) {
+              const matchedCourierBoy = matchedBoysData[0]; // Assuming there's only one match
+
+              await sendEmailToCourier(
+                matchedCourierBoy.email,
+                result.value.trackingid,
+                allCheckedOrderID,
+                courierServiceName,
+                orderDetails.order_id,
+                orderData.order_userid,
+                userData.email,
+                userData.postal_code
+              );
+            }
           } else {
             showNotifications("error", dataResponse.message);
           }
@@ -609,36 +614,29 @@ async function sendEmailToCourier(
   courierServiceName,
   orderId,
   orderUserId,
-  userEmail
+  userEmail,
+  postal_code
 ) {
   const emailData = {
     to: email,
     subject: "Product to Deliver",
     html: `
-            <p>Hello Deliver Partner (${courierServiceName}),</p>
-            <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
-            <p>Order ID(s): ${orderIds.join(", ")}</p>
-            <p>Order ID: ${orderId}</p>
-            <p>Order User ID: ${orderUserId}</p>
-            <p>Order User Email: ${userEmail}</p>
-            <p>Thank you for your service!</p>
-
-            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
-            <p><a href="http://localhost:3000/enter-otp?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
-
-        <p>
-        <a href="http://localhost:3000/send-otp?userEmail=${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a>
-      </p>
-       <p>
-      <a href="http://localhost:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a>
-    </p>
-            <p><a href="http://localhost:3000/orders/markDelivered?orderId=${
-              orderIds[0]
-            }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
-
-            <p>Best regards,<br>PixaCart</p>
-        `,
+      <p>Hello Deliver Partner (${courierServiceName}),</p>
+      <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
+      <p>OrderProduct ID: ${orderIds.join(", ")}</p>
+      <p>Order ID: ${orderId}</p>
+      <p>Order User ID: ${orderUserId}</p>
+      <p>Order User Email: ${userEmail}</p>
+      <p>Order User Pin Code: ${postal_code}</p>
+      <p>Thank you for your service!</p>
+      <p><a href="http://localhost:3000/orders/markDelivered?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
+      <p><a href="http://localhost:3000/enter-otp?orderId=${orderIds[0]}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
+      <p><a href="http://localhost:3000/send-otp? =${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a></p>
+      <p><a href="http://localhost:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a></p>
+      <p>Best regards,<br>PixaCart</p>
+    `,
   };
+
 
   try {
     const response = await $.ajax({
@@ -700,7 +698,7 @@ $(document).on("keypress", "#reply_msg", function (event) {
 
 if ($(".msg-history").length) {
   let showChatHistory = $(".msg-history");
-  showChatHistory
+  showChatHistory 
     .stop()
     .animate({ scrollTop: showChatHistory[0].scrollHeight }, 1000);
 }
