@@ -504,6 +504,26 @@ const courierServicesSchema = new mongoose.Schema({
     email: { type: String, default: null },
     password: { type: String, default: null },
     phone_number: { type: String, default: null },
+    address :{ type: String,default:null},
+    city :{ type: String,default:null},
+    postal_code :{ type: String,default:null},
+    country :{ type: String,default:null},
+    state :{ type: String,default:null},
+    status: { type: Number, default: 1 },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+});
+const courierBoysSchema = new mongoose.Schema({
+    service_name: { type: String, default: null },
+    email: { type: String, default: null },
+    password: { type: String, default: null },
+    phone_number: { type: String, default: null },
+    address :{ type: String,default:null},
+    city :{ type: String,default:null},
+    postal_code :{ type: String,default:null},
+    country :{ type: String,default:null},
+    state :{ type: String,default:null},
+    courierService: { type: mongoose.Schema.Types.ObjectId, ref: 'courier_services' },
     status: { type: Number, default: 1 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
@@ -596,6 +616,7 @@ const notifications = mongoose.model('notifications',notificationSchema);
 const ordersInvoice = mongoose.model('orders_invoice',orderInvoiceSchema);
 const customerQueries = mongoose.model('customer_queries',customerQueriesSchema);
 const courierServices = mongoose.model('courier_services',courierServicesSchema);
+const courierBoys = mongoose.model('courier_boys',courierBoysSchema);
 const supportTickets = mongoose.model('support_tickets',supportTicketSchema);
 const supportReplies = mongoose.model('support_replies',supportReplySchema);
 const supportCategory = mongoose.model('support_categories',supportCategorySchema);
@@ -630,6 +651,7 @@ module.exports = {
     ordersInvoice,
     customerQueries,
     courierServices,
+    courierBoys,
     supportTickets,
     supportReplies,
     supportCategory,

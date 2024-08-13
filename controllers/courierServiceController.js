@@ -1,6 +1,6 @@
 
 const CourierService = require('../models/DatabaseModel').courierServices;
-
+const CourierBoys = require('../models/DatabaseModel').courierBoys;
 
 const createOrUpdateCourierService = async (req, res) => {
     let postData = {
@@ -51,9 +51,29 @@ const getAllCourierServices = async (req, res) => {
 };
 
 
+const getAllCourierBoys = async (req, res) => {
+    try {
+        // Get the logged-in courier service ID from the session or request object
+        const courierServiceId = req.session.user.user_id; // Assuming you store user_id in the session
+ 
+        // Find courier boys associated with the logged-in courier service
+        const courierBoys = await CourierBoys.find({ courierService: courierServiceId });
+ 
+        res.render('backend/courier_boys', {
+            viewTitle: 'Courier Boys',
+            pageTitle: 'Courier Boys List',
+            courierServices: courierBoys
+        });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve courier boys.', data: err.message });
+    }
+};
+
+
 
 
 module.exports = {
     createOrUpdateCourierService,
-    getAllCourierServices
+    getAllCourierServices,
+    getAllCourierBoys
 };

@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const multer = require("multer");
 const crypto = require('crypto');
+const mongoose=require('mongoose')
+const CourierBoys  = mongoose.model('courier_boys');
 const path = require("path");
 const nodemailer = require("nodemailer");
 const controllers = {
@@ -15,9 +17,66 @@ const controllers = {
   api: require("../controllers/Api"),
   settings: require("../controllers/Settings"),
   support: require("../controllers/Support"),
-  courier_service: require("../controllers/courierServiceController"),
+  courier_service: require('../controllers/courierServiceController'),
 };
 const validationRules = require("./ValidationRules");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let folder = file.fieldname.split("_");
+    cb(null, "./public/uploads/" + folder[0]);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+    // cb(null, file.fieldname+'_'+ Date.now()+ path.extname(file.originalname));
+  },
+});
+var upload = multer({
+  storage: storage,
+  /*fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png") {
+          cb(null, true);
+        } else {
+          cb(null, false);
+          return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+        }
+      }*/
+});
+
+router.get('/api/courierService/:courierServiceId/:postalCode', async (req, res) => {
+  const { courierServiceId, postalCode } = req.params;
+
+  try {
+      const courierBoysList = await CourierBoys.find({
+          courierService: courierServiceId,
+          postal_code: postalCode
+      });
+      if (!courierBoysList || courierBoysList.length === 0) {
+          return res.status(404).json({ message: 'No courier boys found for the given postal code and courier service ID' });
+      }
+      res.status(200).json(courierBoysList);
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+  }
+});
+router.get('/api/courierService/:courierServiceId', async (req, res) => {
+  const { courierServiceId } = req.params;
+
+  try {
+      const courierBoysList = await CourierBoys.find({ courierService: courierServiceId });
+      if (!courierBoysList || courierBoysList.length === 0) {
+          return res.status(404).json({ message: 'No courier boys found for the given courier service ID' });
+      }
+      res.status(200).json(courierBoysList);
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+  }
+});
+router.get('/courier_orders_list/:status',controllers.middleware.authenticate, controllers.orders.courier_ServicesOrders);
+router.get('/dashboard/courierServicesOrders',controllers.middleware.authenticate, controllers.orders.courierServicesOrders);
+router.get('/dashboard/courier_boys_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierBoys);
+ 
+router.get('/courierservicelogin',  controllers.auth.logincourier);
+router.post('/courierservicelogin',upload.array(), controllers.auth.api.courierServiceLogin);
 router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
 router.post(
@@ -30,28 +89,9 @@ router.get(
   controllers.middleware.authenticate,
   controllers.courier_service.getAllCourierServices
 );
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let folder = file.fieldname.split("_");
-    cb(null, "./public/uploads/" + folder[0]);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-    // cb(null, file.fieldname+'_'+ Date.now()+ path.extname(file.originalname));
-  },
-});
 
-var upload = multer({
-  storage: storage,
-  /*fileFilter: (req, file, cb) => {
-        if (file.mimetype == "image/png") {
-          cb(null, true);
-        } else {
-          cb(null, false);
-          return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
-        }
-      }*/
-});
+
+
 
 function checkFileType(file, cb) {
   if (file.fieldname === "certificate") {
