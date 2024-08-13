@@ -527,7 +527,7 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
             const matchedBoysData = await matchedCourierBoys.json();
             
             if (matchedBoysData && matchedBoysData.length > 0) {
-              const matchedCourierBoy = matchedBoysData[0]; // Assuming there's only one match
+              const matchedCourierBoy = matchedBoysData[0]; 
 
               await sendEmailToCourier(
                 matchedCourierBoy.email,
@@ -561,15 +561,13 @@ async function getOrderDetails(orderId) {
   try {
     const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
     console.log("order id is")
-    // Check if the response is OK and JSON
+
     if (!response.ok) {
-      // If response status is not OK, throw an error
-      const text = await response.text(); // Read the response as text
+      const text = await response.text(); 
       console.error(`Error fetching order details: ${text}`);
       throw new Error('Error fetching order details.');
     }
 
-    // Check if response is JSON
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       const orderDetails = await response.json();
@@ -620,7 +618,7 @@ async function sendEmailToCourier(
   const emailData = {
     to: email,
     subject: "Product to Deliver",
-    html: `
+    html: `    
       <p>Hello Deliver Partner (${courierServiceName}),</p>
       <p>The tracking ID for your service is: <strong>${trackingId}</strong></p>
       <p>OrderProduct ID: ${orderIds.join(", ")}</p>
@@ -636,7 +634,6 @@ async function sendEmailToCourier(
       <p>Best regards,<br>PixaCart</p>
     `,
   };
-
 
   try {
     const response = await $.ajax({
@@ -658,7 +655,6 @@ async function sendEmailToCourier(
   }
 }
 
-// Trigger OTP request from client-side
 function requestOtp(userEmail) {
   $.ajax({
     type: "POST",

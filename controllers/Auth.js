@@ -123,49 +123,129 @@ USER.verify_email = async (req, res) => {
   };
 
 
-  USER.api.courierServiceLogin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+//   USER.api.courierServiceLogin = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required.' });
-        }
+//         if (!email || !password) {
+//             return res.status(400).json({ message: 'Email and password are required.' });
+//         }
 
-        const result = await CourierServiceModel.findOne({ email });
+//         const result = await CourierServiceModel.findOne({ email });
 
-        if (!result) {
-            return res.status(401).json({ message: 'Account not found.' });
-        }
+//         if (!result) {
+//             return res.status(401).json({ message: 'Account not found.' });
+//         }
 
-        if (password.trim() !== result.password) {
-            return res.status(401).json({ message: 'Invalid credentials.' });
-        }
+//         if (password.trim() !== result.password) {
+//             return res.status(401).json({ message: 'Invalid credentials.' });
+//         }
 
-        const courierBoys = await CourierBoysModel.find({ courierService: result._id });
+//         const courierBoys = await CourierBoysModel.find({ courierService: result._id });
 
-        const userData = {
-            user_id: result._id,
-            email: result.email,
-            service_name: result.service_name,
-            phone_number: result.phone_number,
-            status: result.status,
-            loginAS: 'COURIER_SERVICE',
-            courierBoys: courierBoys
-        };
+//         const userData = {
+//             user_id: result._id,
+//             email: result.email,
+//             service_name: result.service_name,
+//             phone_number: result.phone_number,
+//             status: result.status,
+//             loginAS: 'COURIER_SERVICE',
+//             courierBoys: courierBoys
+//         };
      
-        req.session.user = userData;
+//         req.session.user = userData;
 
-        res.status(200).json({
-            status: 1,
-            message: "Logged in successfully.",
-            data: userData,
-            redirect: 'dashboard',
-        });
-    } catch (err) {
-        res.status(500).json({ error: 'Internal server error.' });
-    }
+//         res.status(200).json({
+//             status: 1,
+//             message: "Logged in successfully.",
+//             data: userData,
+//             redirect: 'dashboard',
+//         });
+//     } catch (err) {
+//         res.status(500).json({ error: 'Internal server error.' });
+//     }
+// };
+
+USER.api.courierServiceLogin = async (req, res) => {
+  try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+          return res.status(400).json({ message: 'Email and password are required.' });
+      }
+
+      // First, try to find the user in CourierServiceModel
+      let result = await CourierServiceModel.findOne({ email });
+
+      if (result) {
+          // Check if the password matches
+          if (password.trim() !== result.password) {
+              return res.status(401).json({ message: 'Invalid credentials.' });
+          }
+
+          // If a CourierService is found, fetch associated CourierBoys
+          const courierBoys = await CourierBoysModel.find({ courierService: result._id });
+
+          const userData = {
+              user_id: result._id,
+              email: result.email,
+              service_name: result.service_name,
+              phone_number: result.phone_number,
+              status: result.status,
+              loginAS: 'COURIER_SERVICE',
+              courierBoys: courierBoys
+          };
+
+          req.session.user = userData;
+
+          return res.status(200).json({
+              status: 1,
+              message: "Logged in successfully.",
+              data: userData,
+              redirect: 'dashboard',
+          });
+      }
+
+      // If not found in CourierServiceModel, check CourierBoysModel
+      result = await CourierBoysModel.findOne({ email });
+
+      if (result) {
+          // Check if the password matches
+          if (password.trim() !== result.password) {
+              return res.status(401).json({ message: 'Invalid credentials.' });
+          }
+
+          const userData = {
+              user_id: result._id,
+              email: result.email,
+              service_name: result.service_name,
+              phone_number: result.phone_number,
+              address: result.address,
+              city: result.city,
+              postal_code: result.postal_code,   
+              country: result.country,
+              state: result.state,
+              status: result.status,
+              loginAS: 'COURIER_BOY'
+          };
+
+          req.session.user = userData;
+
+          return res.status(200).json({
+              status: 1,
+              message: "Logged in successfully.",
+              data: userData,
+              redirect: 'dashboard',
+          });
+      }
+
+      // If neither a CourierService nor a CourierBoy is found
+      res.status(401).json({ message: 'Account not found.' });
+      
+  } catch (err) {
+      res.status(500).json({ error: 'Internal server error.' });
+  }
 };
-
 
   
 

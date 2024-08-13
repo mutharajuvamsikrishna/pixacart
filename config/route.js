@@ -57,7 +57,6 @@ router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
 router.post('/dashboard/create_or_update_courier_service',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierService);
 router.get('/dashboard/courier_service_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierServices);
-
 router.post('/dashboard/create_or_update_courier_boys',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierBoy);
 router.get('/dashboard/courier_boys_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierBoys);
 
