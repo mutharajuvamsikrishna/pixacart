@@ -79,6 +79,7 @@ router.get('/courierservicelogin',  controllers.auth.logincourier);
 router.post('/courierservicelogin',upload.array(), controllers.auth.api.courierServiceLogin);
 router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
+router.post('/dashboard/create_or_update_courier_boys',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierBoy);
 router.post(
   "/dashboard/create_or_update_courier_service",
   controllers.middleware.authenticate,

@@ -50,7 +50,57 @@ const getAllCourierServices = async (req, res) => {
     }
 };
 
-
+const createOrUpdateCourierBoy = async (req, res) => {
+    // Extract the courier service ID from the session
+    const courierServiceId = req.session.user && req.session.user.user_id;
+ 
+    if (!courierServiceId) {
+        return res.status(403).json({ status: 0, message: 'Unauthorized access.' });
+    }
+ 
+    const {service_name, email, password, phone_number, address, city, postal_code, country, state, id } = req.body;
+console.log('requestbody is',req.body);
+    // Prepare the data for creating or updating a courier boy
+    const postData = {
+        service_name,
+        email,
+        password,
+        phone_number,
+        address,
+        city,
+        postal_code,
+        country,
+        state,
+        courierService: courierServiceId  // Assign the logged-in courier service ID
+    };
+ 
+    try {
+        if (id && id !== '0') {
+            // Check for duplicate courier boys with the same email, excluding the current ID
+            const checkServiceExist = await CourierBoys.findOne({ email, _id: { $ne: id } });
+            if (checkServiceExist) {
+                return res.status(401).json({ status: 0, message: 'Courier Boy already exists.', data: '' });
+            }
+ 
+            postData.updatedAt = Date.now();
+            // Update the existing courier boy
+            const updatedService = await CourierBoys.findOneAndUpdate({ _id: id }, postData, { new: true });
+            res.status(200).json({ status: 1, message: 'Courier Boy Updated Successfully!', data: updatedService });
+        } else {
+            // Check if a courier boy with the same email already exists
+            const checkServiceExist = await CourierBoys.findOne({ email });
+            if (checkServiceExist) {
+                return res.status(401).json({ status: 0, message: 'Courier Boy already exists.', data: checkServiceExist });
+            }
+ 
+            // Create a new courier boy
+            const newService = await CourierBoys.create(postData);
+            res.status(200).json({ status: 1, message: 'Courier Boy Added Successfully!', data: newService });
+        }
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Something went wrong.', data: err.message });
+    }
+};
 const getAllCourierBoys = async (req, res) => {
     try {
         // Get the logged-in courier service ID from the session or request object
@@ -74,6 +124,7 @@ const getAllCourierBoys = async (req, res) => {
 
 module.exports = {
     createOrUpdateCourierService,
+    createOrUpdateCourierBoy,
     getAllCourierServices,
     getAllCourierBoys
 };
