@@ -508,128 +508,203 @@ PRODUCTS.create_category = async (req, res) => {
   }
 };
 
-PRODUCTS.create_subcategory = async (req, res) => {
-  postData = {};
+// PRODUCTS.create_subcategory = async (req, res) => {
+//   postData = {};
 
-  postData.cate_name = req.body.cate_name;
-  filePath = "./public/uploads/subcategory/";
-  //Create thumb image
+//   postData.cate_name = req.body.cate_name;
+//   filePath = "./public/uploads/subcategory/";
+//   //Create thumb image
+//   if (req.file) {
+//     postData.cate_image = req.file.filename;
+//     await helper.createThumb(
+//       req.file,
+//       (height = 64),
+//       (width = 64),
+//       (uploadPath = filePath)
+//     );
+//   }
+
+//   if (req.body.id && req.body.id != 0) {
+//     await subCategoryModel
+//       .findOne({ cate_name: req.body.cate_name, _id: { $ne: req.body.id } })
+//       .then(async (checkCateExist) => {
+//         if (checkCateExist) {
+//           res
+//             .status(401)
+//             .json({
+//               status: 0,
+//               message: "Category name already exists, Please try another one.",
+//               data: "",
+//             });
+//         } else {
+//           if (req.file) {
+//             let previousImage = await subCategoryModel
+//               .findOne({ _id: req.body.id })
+//               .select("cate_image")
+//               .exec();
+//             if (previousImage) {
+//               if (previousImage.cate_image != null) {
+//                 let imageName = previousImage.cate_image;
+//                 let mainImage = filePath + imageName;
+//                 if (fs.existsSync(mainImage)) {
+//                   fs.unlinkSync(mainImage); //file removed
+//                 }
+
+//                 let fileArr = imageName.split(".");
+//                 let thumbPath = filePath + fileArr[0] + "_thumb." + fileArr[1];
+
+//                 if (fs.existsSync(thumbPath)) {
+//                   fs.unlinkSync(thumbPath); //file removed
+//                 }
+//               }
+//             }
+//           }
+//           postData.updatedAt = Date.now();
+//           await subCategoryModel
+//             .findOneAndUpdate({ _id: req.body.id }, postData)
+//             .then(async (result) => {
+//               res
+//                 .status(200)
+//                 .json({
+//                   status: 1,
+//                   message: "Category Updated Successfully!",
+//                   data: req.body.id,
+//                 });
+//             })
+//             .catch((err) => {
+//               res
+//                 .status(500)
+//                 .json({
+//                   status: 0,
+//                   message: "Something went wrong in update category.",
+//                   data: err.message,
+//                 });
+//             });
+//         }
+//       })
+//       .catch((err) => {
+//         res
+//           .status(500)
+//           .json({
+//             status: 0,
+//             message: "Something went wrong in update category.",
+//             data: err.message,
+//           });
+//       });
+//   } else {
+//     await subCategoryModel
+//       .findOne({ cate_name: req.body.cate_name })
+//       .then((check) => {
+//         if (check) {
+//           res
+//             .status(401)
+//             .json({
+//               status: 0,
+//               message: "Category name already exists, Please try another one.",
+//               data: check,
+//             });
+//         } else {
+//           postData.name = req.body.name;
+//           postData.parent_id = req.body.main_cateid;
+//           subCategoryModel
+//             .create(postData)
+//             .then((creatRes) => {
+//               res
+//                 .status(200)
+//                 .json({
+//                   status: 1,
+//                   message: "Category Added Successfully!",
+//                   data: creatRes,
+//                 });
+//             })
+//             .catch((err) => {
+//               res
+//                 .status(500)
+//                 .json({
+//                   status: 0,
+//                   message: "Something went wrong in insert category.",
+//                   data: err.message,
+//                 });
+//             });
+//         }
+//       });
+//   }
+// };
+
+PRODUCTS.create_subcategory = async (req, res) => {
+  let postData = {
+    cate_name: req.body.cate_name,
+    parent_id: req.body.main_cateid, // Assuming this field represents the category's relation
+    updatedAt: Date.now()
+  };
+
   if (req.file) {
     postData.cate_image = req.file.filename;
-    await helper.createThumb(
-      req.file,
-      (height = 64),
-      (width = 64),
-      (uploadPath = filePath)
-    );
+    await helper.createThumb(req.file, 64, 64, "./public/uploads/subcategory/");
   }
 
-  if (req.body.id && req.body.id != 0) {
-    await subCategoryModel
-      .findOne({ cate_name: req.body.cate_name, _id: { $ne: req.body.id } })
-      .then(async (checkCateExist) => {
-        if (checkCateExist) {
-          res
-            .status(401)
-            .json({
-              status: 0,
-              message: "Category name already exists, Please try another one.",
-              data: "",
-            });
-        } else {
-          if (req.file) {
-            let previousImage = await subCategoryModel
-              .findOne({ _id: req.body.id })
-              .select("cate_image")
-              .exec();
-            if (previousImage) {
-              if (previousImage.cate_image != null) {
-                let imageName = previousImage.cate_image;
-                let mainImage = filePath + imageName;
-                if (fs.existsSync(mainImage)) {
-                  fs.unlinkSync(mainImage); //file removed
-                }
-
-                let fileArr = imageName.split(".");
-                let thumbPath = filePath + fileArr[0] + "_thumb." + fileArr[1];
-
-                if (fs.existsSync(thumbPath)) {
-                  fs.unlinkSync(thumbPath); //file removed
-                }
-              }
-            }
-          }
-          postData.updatedAt = Date.now();
-          await subCategoryModel
-            .findOneAndUpdate({ _id: req.body.id }, postData)
-            .then(async (result) => {
-              res
-                .status(200)
-                .json({
-                  status: 1,
-                  message: "Category Updated Successfully!",
-                  data: req.body.id,
-                });
-            })
-            .catch((err) => {
-              res
-                .status(500)
-                .json({
-                  status: 0,
-                  message: "Something went wrong in update category.",
-                  data: err.message,
-                });
-            });
-        }
-      })
-      .catch((err) => {
-        res
-          .status(500)
-          .json({
-            status: 0,
-            message: "Something went wrong in update category.",
-            data: err.message,
-          });
+  try {
+    if (req.body.id && req.body.id != 0) {
+      let checkCateExist = await subCategoryModel.findOne({
+        cate_name: req.body.cate_name,
+        _id: { $ne: req.body.id },
       });
-  } else {
-    await subCategoryModel
-      .findOne({ cate_name: req.body.cate_name })
-      .then((check) => {
-        if (check) {
-          res
-            .status(401)
-            .json({
-              status: 0,
-              message: "Category name already exists, Please try another one.",
-              data: check,
-            });
-        } else {
-          postData.name = req.body.name;
-          postData.parent_id = req.body.main_cateid;
-          subCategoryModel
-            .create(postData)
-            .then((creatRes) => {
-              res
-                .status(200)
-                .json({
-                  status: 1,
-                  message: "Category Added Successfully!",
-                  data: creatRes,
-                });
-            })
-            .catch((err) => {
-              res
-                .status(500)
-                .json({
-                  status: 0,
-                  message: "Something went wrong in insert category.",
-                  data: err.message,
-                });
-            });
+
+      if (checkCateExist) {
+        return res.status(401).json({
+          status: 0,
+          message: "Category name already exists, Please try another one.",
+        });
+      }
+
+      if (req.file) {
+        let previousImage = await subCategoryModel
+          .findOne({ _id: req.body.id })
+          .select("cate_image");
+
+        if (previousImage && previousImage.cate_image) {
+          let mainImage = `./public/uploads/subcategory/${previousImage.cate_image}`;
+          let thumbPath = `./public/uploads/subcategory/${previousImage.cate_image.split(".")[0]}_thumb.${previousImage.cate_image.split(".")[1]}`;
+          if (fs.existsSync(mainImage)) fs.unlinkSync(mainImage);
+          if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
         }
+      }
+
+      await subCategoryModel.findOneAndUpdate({ _id: req.body.id }, postData);
+      return res.status(200).json({
+        status: 1,
+        message: "Category Updated Successfully!",
+        data: req.body.id,
       });
+    } else {
+      let check = await subCategoryModel.findOne({
+        cate_name: req.body.cate_name,
+      });
+
+      if (check) {
+        return res.status(401).json({
+          status: 0,
+          message: "Category name already exists, Please try another one.",
+        });
+      }
+
+      postData.createdAt = Date.now();
+      let creatRes = await subCategoryModel.create(postData);
+      return res.status(200).json({
+        status: 1,
+        message: "Category Added Successfully!",
+        data: creatRes,
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      status: 0,
+      message: "Something went wrong.",
+      data: err.message,
+    });
   }
 };
+
 
 PRODUCTS.create_brand = async (req, res) => {
   postData = {};

@@ -53,8 +53,9 @@
                                             <td><%= service.phone_number %></td>
                                             <td><%= service.status === 1 ? 'Active' : 'Inactive' %></td>
                                             <td>
-                                                <button class="btn btn-primary">Edit</button>
-                                                <button class="btn btn-danger">Delete</button>
+                                                <button class="btn btn-primary" onclick="editCourierService('<%= service._id %>', '<%= service.service_name %>', '<%= service.email %>', '<%= service.phone_number %>')">Edit</button>
+                                                <button class="btn btn-danger" onclick="confirmDelete('<%= service._id %>', '<%= service.service_name %>')">Delete</button>
+
                                             </td>
                                         </tr>
                                     <% }); %>
@@ -80,29 +81,29 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="courierServiceForm" autocomplete="off">
+            <form id="courierServiceForm" autocomplete="off"  novalidate>
                 <div class="modal-body">
                     <input type="hidden" name="id" id="service_id" value="0">
                     <div class="form-group">
                         <label class="col-form-label">Service Name:</label>
-                        <input type="text" class="form-control require" name="service_name" id="service_name" data-error="Service name field is required">
+                        <input type="text" class="form-control require" name="service_name" id="service_name"  required data-error="Service name field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Email:</label>
-                        <input type="email" class="form-control" name="email" id="email" data-error="Valid email address is required">
+                        <input type="email" class="form-control" name="email" id="email"  required data-error="Valid email address is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Password:</label>
-                        <input type="password" class="form-control" name="password" id="password" data-error="Password field is required">
+                        <input type="password" class="form-control" name="password" id="password"  required data-error="Password field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Phone Number:</label>
-                        <input type="text" class="form-control" name="phone_number" id="phone_number" data-error="Phone number field is required">
+                        <input type="text" class="form-control" name="phone_number" id="phone_number"  required data-error="Phone number field is required">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitCourierService()">Submit</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCourierService(event)">Submit</button>
                 </div>
             </form>
         </div>
@@ -113,23 +114,92 @@
 
 
 <script>
-    function submitCourierService() {
-    const formData = $('#courierServiceForm').serialize(); // Serialize form data
+    function confirmDelete(serviceId, serviceName) {
+    // Use a confirmation dialog (using SweetAlert2 for a better UX)
+    Swal.fire({
+        title: `Are you sure you want to delete ${serviceName}?`,
+        text: "This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteCourierService(serviceId);
+        }
+    });
+}
+
+function deleteCourierService(serviceId) {
+    $.ajax({
+        type: 'DELETE',
+        url: `/delete_courier_service/${serviceId}`, // Update the URL based on your route
+        success: function(response) {
+            Swal.fire(
+                'Deleted!',
+                'The courier service has been deleted.',
+                'success'
+            );
+            // Optionally reload the table or remove the row from the table
+            location.reload(); // or use DataTable's row.remove()
+        },
+        error: function(err) {
+            Swal.fire(
+                'Error!',
+                'There was an error deleting the service.',
+                'error'
+            );
+            console.error('Error:', err);
+        }
+    });
+}
+
+    function editCourierService(id, serviceName, email, phoneNumber) {
+    // Populate the form fields with the existing data
+    $('#service_id').val(id);
+    $('#service_name').val(serviceName);
+    $('#email').val(email);
+    $('#phone_number').val(phoneNumber);
+
+    if (!serviceName || !email || !password || !phoneNumber) {
+        Swal.fire('Error!', 'All fields are required!', 'error');
+        return; // Stop form submission
+    }
+    // Change the modal title
+    $('#exampleModalLabel').text('Edit Courier Service');
+    
+    // Show the modal
+    $('#createCourierServiceModal').modal('show');
+}
+
+function submitCourierService(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const serviceName = $('#service_name').val().trim();
+    const email = $('#email').val().trim();
+    const password = $('#password').val().trim();
+    const phoneNumber = $('#phone_number').val().trim();
+
+    if (!serviceName || !email || !password || !phoneNumber) {
+        Swal.fire('Error!', 'All fields are required!', 'error');
+        return;
+    }
+
+    const formData = $('#courierServiceForm').serialize();
 
     $.ajax({
         type: 'POST',
         url: 'create_or_update_courier_service',
         data: formData,
         success: function(response) {
-            // Handle success response
-            console.log(response);
-            // Optionally, close modal or do other actions on success
+            Swal.fire('Success!', 'Courier service saved successfully.', 'success');
+            location.reload();
             $('#createCourierServiceModal').modal('hide');
         },
         error: function(err) {
-            // Handle error response
+            Swal.fire('Error!', 'An error occurred while saving the service.', 'error');
             console.error('Error:', err);
-            // Optionally, display error messages to the user
         }
     });
 }

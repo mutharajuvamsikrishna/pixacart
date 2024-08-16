@@ -3,6 +3,7 @@ const multer = require("multer");
 const crypto = require('crypto');
 const mongoose=require('mongoose')
 const CourierBoys  = mongoose.model('courier_boys');
+const CourierService  = mongoose.model('courier_services');
 const path = require("path");
 const nodemailer = require("nodemailer");
 const controllers = {
@@ -40,6 +41,29 @@ var upload = multer({
           return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
         }
       }*/
+});
+
+router.delete('/delete_courier_boy/:id', (req, res) => {
+  const serviceId = req.params.id;
+
+  // Use Mongoose to delete the courier service by ID
+  CourierBoys.findByIdAndDelete(serviceId, (err) => {
+      if (err) {
+          return res.status(500).send(err);
+      }
+      res.status(200).send({ message: 'Courier boy deleted successfully!' });
+  });
+});
+router.delete('/delete_courier_service/:id', (req, res) => {
+  const serviceId = req.params.id;
+
+  // Use Mongoose to delete the courier service by ID
+  CourierService.findByIdAndDelete(serviceId, (err) => {
+      if (err) {
+          return res.status(500).send(err);
+      }
+      res.status(200).send({ message: 'Courier service deleted successfully!' });
+  });
 });
 
 router.get('/api/courierService/:courierServiceId/:postalCode', async (req, res) => {

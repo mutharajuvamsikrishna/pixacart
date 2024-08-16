@@ -45,7 +45,7 @@
                                     <th class="country">Country</th>
                                     <th class="state">State</th>
                                     <th class="status">Status</th>
-                                    <!-- <th class="action">Action</th> -->
+                                    <th class="action">Action</th> 
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,10 +62,10 @@
                                             <td><%= service.country %></td>
                                             <td><%= service.state %></td>
                                             <td><%= service.status === 1 ? 'Active' : 'Inactive' %></td>
-                                            <!-- <td>
-                                                <button class="btn btn-primary">Edit</button>
-                                                <button class="btn btn-danger">Delete</button>
-                                            </td> -->
+                                            <td>
+                                                <button class="btn btn-primary" onclick="editCourierService('<%= service._id %>', '<%= service.service_name %>', '<%= service.email %>', '<%= service.phone_number %>', '<%= service.address %>','<%= service.address %>','<%= service.city %>','<%= service.postal_code %>','<%= service.country %>','<%= service.state %>')">Edit</button>
+                                                <button class="btn btn-danger" onclick="confirmDelete('<%= service._id %>', '<%= service.service_name %>')">Delete</button>
+                                            </td> 
                                         </tr>
                                     <% }); %>
                                 <% } else { %>
@@ -97,44 +97,44 @@
                     <input type="hidden" name="id" id="service_id" value="0">
                     <div class="form-group">
                         <label class="col-form-label">Boy Name:</label>
-                        <input type="text" class="form-control require" name="service_name" id="service_name" data-error="Service name field is required">
+                        <input type="text" class="form-control require" name="service_name" id="service_name"  required  data-error="Service name field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Email:</label>
-                        <input type="email" class="form-control" name="email" id="email" data-error="Valid email address is required">
+                        <input type="email" class="form-control" name="email" id="email" required data-error="Valid email address is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Password:</label>
-                        <input type="password" class="form-control" name="password" id="password" data-error="Password field is required">
+                        <input type="password" class="form-control" name="password" id="password" required data-error="Password field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Phone Number:</label>
-                        <input type="text" class="form-control" name="phone_number" id="phone_number" data-error="Phone number field is required">
+                        <input type="text" class="form-control" name="phone_number" id="phone_number" required data-error="Phone number field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Address:</label>
-                        <input type="text" class="form-control" name="address" id="address" data-error="Address field is required">
+                        <input type="text" class="form-control" name="address" id="address" required data-error="Address field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">City:</label>
-                        <input type="text" class="form-control" name="city" id="city" data-error="City field is required">
+                        <input type="text" class="form-control" name="city" id="city" required data-error="City field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Postal Code:</label>
-                        <input type="text" class="form-control" name="postal_code" id="postal_code" data-error="Postal code field is required">
+                        <input type="text" class="form-control" name="postal_code" id="postal_code" required data-error="Postal code field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Country:</label>
-                        <input type="text" class="form-control" name="country" id="country" data-error="Country field is required">
+                        <input type="text" class="form-control" name="country" id="country" required data-error="Country field is required">
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">State:</label>
-                        <input type="text" class="form-control" name="state" id="state" data-error="State field is required">
+                        <input type="text" class="form-control" name="state" id="state" required data-error="State field is required">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitCourierService()">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCourierService(event)">Submit</button>
                 </div>
             </form>
         </div>
@@ -146,7 +146,91 @@
  
  
 <script>
-    function submitCourierService() {
+
+function confirmDelete(serviceId, serviceName) {
+    // Use a confirmation dialog (using SweetAlert2 for a better UX)
+    Swal.fire({
+        title: `Are you sure you want to delete ${serviceName}?`,
+        text: "This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteCourierService(serviceId);
+        }
+    });
+}
+
+function deleteCourierService(serviceId) {
+    $.ajax({
+        type: 'DELETE',
+        url: `/delete_courier_boy/${serviceId}`, // Update the URL based on your route
+        success: function(response) {
+            Swal.fire(
+                'Deleted!',
+                'The courier Boy has been deleted.',
+                'success'
+            );
+            // Optionally reload the table or remove the row from the table
+            location.reload(); // or use DataTable's row.remove()
+        },
+        error: function(err) {
+            Swal.fire(
+                'Error!',
+                'There was an error deleting the boy.',
+                'error'
+            );
+            console.error('Error:', err);
+        }
+    });
+}
+
+
+
+
+    function editCourierService(id, serviceName, email, phoneNumber,address,city,postal_code,country,state) {
+    // Populate the form fields with the existing data
+    $('#service_id').val(id);
+    $('#service_name').val(serviceName);
+    $('#email').val(email);
+    $('#phone_number').val(phoneNumber);
+    $('#address').val(address);
+    $('#city').val(city);
+    $('#postal_code').val(postal_code);
+    $('#country').val(country);
+    $('#state').val(state);
+   
+    if (!serviceName || !email || !password || !phoneNumber) {
+        Swal.fire('Error!', 'All fields are required!', 'error');
+        return; // Stop form submission
+    }
+    // Change the modal title
+    $('#exampleModalLabel').text('Edit Courier Service');
+    
+    // Show the modal
+    $('#createCourierServiceModal').modal('show');
+}
+    function submitCourierService(event) {
+        
+        event.preventDefault(); // Prevent default form submission
+
+const serviceName = $('#service_name').val().trim();
+const email = $('#email').val().trim();
+const password = $('#password').val().trim();
+const phoneNumber = $('#phone_number').val().trim();
+const address = $('#address').val().trim();
+const city = $('#city').val().trim();
+const postal_code = $('#postal_code').val().trim();
+const country = $('#country').val().trim();
+const state = $('#state').val().trim();
+if (!serviceName || !email || !password || !phoneNumber) {
+        Swal.fire('Error!', 'All fields are required!', 'error');
+        return;
+    }
+
         const formData = $('#courierServiceForm').serialize(); // Serialize form data
  
         $.ajax({
@@ -154,16 +238,14 @@
             url: 'create_or_update_courier_boys',
             data: formData,
             success: function(response) {
-                // Handle success response
-                console.log(response);
-                // Optionally, close modal or do other actions on success
-                $('#createCourierServiceModal').modal('hide');
-            },
-            error: function(err) {
-                // Handle error response
-                console.error('Error:', err);
-                // Optionally, display error messages to the user
-            }
+            Swal.fire('Success!', 'Courier boy saved successfully.', 'success');
+            location.reload();
+            $('#createCourierServiceModal').modal('hide');
+        },
+        error: function(err) {
+            Swal.fire('Error!', 'An error occurred while saving the boy.', 'error');
+            console.error('Error:', err);
+        }
         });
     }
 </script>

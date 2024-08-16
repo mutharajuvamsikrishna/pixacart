@@ -500,10 +500,10 @@ const firebase_Notification = new mongoose.Schema({
 
 
 const courierServicesSchema = new mongoose.Schema({
-    service_name: { type: String, default: null },
-    email: { type: String, default: null },
-    password: { type: String, default: null },
-    phone_number: { type: String, default: null },
+    service_name: { type: String,required: true  },
+    email: { type: String,required: true },
+    password: { type: String,required: true },
+    phone_number: { type: String, required: true },
     address :{ type: String,default:null},
     city :{ type: String,default:null},
     postal_code :{ type: String,default:null},
