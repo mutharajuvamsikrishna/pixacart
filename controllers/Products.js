@@ -175,6 +175,7 @@ PRODUCTS.create_product_variants = async (req, res) => {
             status: 1,
             updatedAt: Date.now()
         };
+        console.log(req.body)
 
         // Handle color attributes
         if (req.body.prod_attributes) {
@@ -201,6 +202,9 @@ PRODUCTS.create_product_variants = async (req, res) => {
                     let newSizes = req.body.sizes.map((size, index) => ({
                         size: size,
                         quantity: req.body.quantities[index] || 0,
+                        strikePrice:req.body.strikePrices[index]||0,
+                        discountType:req.body.discountTypes[index]||"",
+                        discount:req.body.discounts[index]||"",
                         price: req.body.prices[index] || 0  // Add price
                     }));
 
@@ -209,6 +213,9 @@ PRODUCTS.create_product_variants = async (req, res) => {
                         const existingIndex = existingSizes.findIndex(size => size.size === newSize.size);
                         if (existingIndex !== -1) {
                             existingSizes[existingIndex].quantity = newSize.quantity;
+                            existingSizes[existingIndex].strikePrice=newSize.strikePrice;
+                            existingSizes[existingIndex].discountType=newSize.discountType;
+                            existingSizes[existingIndex].discount=newSize.discount;
                             existingSizes[existingIndex].price = newSize.price;  // Update price
                         } else {
                             existingSizes.push(newSize); // Add new size if it doesn't exist
@@ -248,6 +255,9 @@ PRODUCTS.create_product_variants = async (req, res) => {
                 postData.prod_sizes = req.body.sizes.map((size, index) => ({
                     size: size,
                     quantity: req.body.quantities[index] || 0,
+                    strikePrice:req.body.strikePrices[index]||0,
+                        discountType:req.body.discountTypes[index]||"",
+                        discount:req.body.discounts[index]||"",
                     price: req.body.prices[index] || 0  // Add price
                 }));
             }

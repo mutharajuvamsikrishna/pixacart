@@ -151,6 +151,18 @@ const productVariantsSchema = new mongoose.Schema({
             type: Number,
             default: 0
         },
+        strikePrice: {
+            type: Number,
+            default: 0
+        },
+        discountType: {
+            type: String,
+            default: ""
+        },
+        discount: {
+            type: Number,
+            default: 0
+        },
         price: {
             type: Number,
             default: 0
