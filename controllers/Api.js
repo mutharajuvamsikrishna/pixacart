@@ -1116,10 +1116,19 @@ API.categorList = async (req, res) => {
               let variant = await productsVariantsModel.findOne({status : 1, prod_id : element._id});
               if(variant){
                 let variantPrice = variant.prod_unitprice; 
+                let variantDiscountType="";
+                let vStrikePrice=0;
+                let vDiscount=0;
                 if (variant.prod_sizes && variant.prod_sizes.length > 0) {
                   variantPrice = variant.prod_sizes[0].price; 
+                  variantDiscountType=variant.prod_sizes[0].discountType;
+                  vStrikePrice=variant.variant.prod_sizes[0].strikePrice;
+                  vDiscount=variant.prod_sizes[0].discount;
                 }
                 let formattedVariantPrice = variantPrice.toFixed(2); 
+                let discountType=variantDiscountType;
+                let strikePrice=vStrikePrice.toFixed(2);
+                let discount=vDiscount.toFixed(2);
                   let prodData = {"_id": element._id,
                                   "prod_name": element.prod_name,
                                   "prod_unit": element.prod_unit,
@@ -1133,9 +1142,9 @@ API.categorList = async (req, res) => {
                                   "pro_subtitle" : variant.pro_subtitle,
                                   "prod_sellerid": variant.prod_sellerid,
                                   "prod_unitprice": formattedVariantPrice,
-                                  "prod_strikeout_price" : variant.prod_strikeout_price,
-                                  "prod_discount": variant.prod_discount.toFixed(2),
-                                  "prod_discount_type": variant.prod_discount_type,
+                                  "prod_strikeout_price" :strikePrice ,
+                                  "prod_discount": discount.toFixed(2),
+                                  "prod_discount_type": discountType,
                                   "prod_quantity": variant.prod_quantity,
                                   "prod_attributes": variant.prod_attributes,
                                   "prod_image" : '',
@@ -1174,19 +1183,28 @@ API.categorList = async (req, res) => {
     let  returnedVariants =  [];
      for(const element of result){
        let variantPrice = element.prod_unitprice; // Default to prod_unitprice
+       let variantDiscountType=element.discountType;
+       let vStrikePrice=element.strikePrice;
+       let vDiscount=element.discount;
        if (element.prod_sizes && element.prod_sizes.length > 0) {
-         variantPrice = element.prod_sizes[0].price; // Use the price of the first size
+         variantPrice = element.prod_sizes[0].price;
+          vStrikePrice=element.prod_sizes[0].strikePrice;
+          variantDiscountType=element.prod_sizes[0].discountType;
+          vDiscount=element.prod_sizes[0].discount;
        }
        let formattedVariantPrice = variantPrice.toFixed(2); 
+       let strikePrice=vStrikePrice.toFixed(2);
+       let discountType=variantDiscountType;
+       let discoun=vDiscount.toFixed(2);
        let variant = { "variant_id": element._id,
                        "prod_sellerid": element.prod_sellerid,
                        "pro_subtitle": element.pro_subtitle,
                        "prod_attributes": element.prod_attributes,
                        "prod_unitprice":formattedVariantPrice,
-                       "prod_strikeout_price": element.prod_strikeout_price,
+                       "prod_strikeout_price":strikePrice,
                        "prod_quantity": element.prod_quantity,
-                       "prod_discount":element.prod_discount.toFixed(2),
-                       "prod_discount_type": element.prod_discount_type,
+                       "prod_discount":discoun,
+                       "prod_discount_type": discountType,
                        "isLiked": await API.isLikedCheck(element._id,req.verifyUser.id),
                        "status": element.status,
                      };

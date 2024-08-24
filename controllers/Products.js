@@ -175,8 +175,7 @@ PRODUCTS.create_product_variants = async (req, res) => {
             status: 1,
             updatedAt: Date.now()
         };
-        console.log(req.body)
-
+        postData.prod_discount_type="default";
         // Handle color attributes
         if (req.body.prod_attributes) {
             req.body.prod_attributes['Colorname'] = helper.colorlist(req.body.prod_attributes.Color);
