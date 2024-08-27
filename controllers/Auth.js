@@ -94,6 +94,7 @@ USER.api.courierServiceLogin = async (req, res) => {
               country: result.country,
               state: result.state,
               status: result.status,
+              courierService:result.courierService,
               loginAS: 'COURIER_BOY'
           };
  
