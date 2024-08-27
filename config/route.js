@@ -96,7 +96,10 @@ router.get('/api/courierService/:courierServiceId', async (req, res) => {
   }
 });
 router.get('/courier_orders_list/:status',controllers.middleware.authenticate, controllers.orders.courier_ServicesOrders);
+router.get('/courierboy_orders_list/:status',controllers.middleware.authenticate, controllers.orders.courierboy_ServicesOrders);
+
 router.get('/dashboard/courierServicesOrders',controllers.middleware.authenticate, controllers.orders.courierServicesOrders);
+router.get('/dashboard/courierboyServicesOrders',controllers.middleware.authenticate, controllers.orders.courierboyServicesOrders);
 router.get('/dashboard/courier_boys_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierBoys);
  
 router.get('/courierservicelogin',  controllers.auth.logincourier);
@@ -184,34 +187,38 @@ router.post("/api/send-email", async (req, res) => {
 });
 const otpStore = {};
 router.get("/send-otp", async (req, res) => {
-    const { userEmail } = req.query;
-  
-    // Generate OTP
-    const otpCode = crypto.randomInt(100000, 999999).toString();
-    otpStore[userEmail] = { otp: otpCode, status: 'sent' };
-    // Email options
-    const mailOptions = {
+  const { userEmail } = req.query;
+
+  if (!userEmail) {
+      return res.status(400).send("Email is required.");
+  }
+
+  const otpCode = crypto.randomInt(100000, 999999).toString();
+  otpStore[userEmail] = { otp: otpCode, status: 'sent' };
+
+  const mailOptions = {
       from: "santhakumar4343@gmail.com",
       to: userEmail,
       subject: "Your OTP Code",
       html: `
-        <p>Hello,</p>
-        <p>Your OTP code for verification is: <strong>${otpCode}</strong></p>
-        <p>Please use this code to complete your verification process.</p>
-        <p>If you did not request this OTP, please ignore this email.</p>
-        <p>Thank you!</p>
-        <p>Best regards,<br>Your Company</p>
+          <p>Hello,</p>
+          <p>Your OTP code for verification is: <strong>${otpCode}</strong></p>
+          <p>Please use this code to complete your verification process.</p>
+          <p>If you did not request this OTP, please ignore this email.</p>
+          <p>Thank you!</p>
+          <p>Best regards,<br>Your Company</p>
       `,
-    };
-  
-    try {
+  };
+
+  try {
       await transporter.sendMail(mailOptions);
       res.send("OTP sent successfully!");
-    } catch (error) {
+  } catch (error) {
       console.error("Email error: ", error);
       res.status(500).send("Failed to send OTP.");
-    }
-  });
+  }
+});
+
   router.get('/verify-otp', (req, res) => {
     const { userEmail } = req.query;
     res.send(`

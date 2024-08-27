@@ -39,6 +39,77 @@ function xhr(targetForm, targetUrl, method ='post') {
 	});
 }
 
+//Send and Verify otp 
+
+$(document).on('click', '.send-otp-btn', function () {
+    const userEmail = $(this).data('email');
+    const orderId = $(this).data('order-id'); // Get the order ID from the button
+
+    if (!userEmail || !orderId) {
+        alert("Email or Order ID is undefined. Cannot send OTP.");
+        return;
+    }
+
+    $('#orderIdInput').val(orderId); // Set the order ID in the hidden input field
+    $('#emailInput').val(userEmail); // Set the email in the hidden input field
+
+    $.ajax({
+        url: '/send-otp',
+        type: 'GET',
+        data: { userEmail: userEmail },
+        success: function (response) {
+            alert(response); // Notify the user that the OTP was sent
+            $('#otpModal').modal('show'); // Show the OTP modal
+        },
+        error: function (error) {
+            alert('Failed to send OTP. Please try again.');
+            console.log(error);
+        }
+    });
+});
+
+
+$('#verifyOtpForm').submit(function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const userEmail = $('#emailInput').val();
+    const otp = $('#otpInput').val();
+    const orderId = $('#orderIdInput').val(); // Retrieve the order ID
+
+    $.ajax({
+        url: '/verify-otp',
+        type: 'POST',
+        data: { userEmail: userEmail, otp: otp },
+        success: function (response) {
+            alert(response); // Notify the user about the OTP verification status
+            if (response.includes('successfully')) {
+                $('#otpModal').modal('hide'); // Hide the OTP modal on successful verification
+              
+                // Make the API call to mark the order as delivered
+                $.ajax({
+                    url: '/orders/markDelivered',
+                    type: 'GET',
+                    data: { orderId: orderId },
+                    success: function (response) {
+                        alert(response.message); // Notify the user about the order status update
+						location.reload();
+                    },
+                    error: function (error) {
+                        alert('Failed to mark order as delivered. Please try again.');
+                        console.log(error);
+                    }
+                });
+            }
+        },
+        error: function (error) {
+            alert('Failed to verify OTP. Please try again.');
+            console.log(error);
+        }
+    });
+});
+
+
+
 
 
 $(document).on('change', '.previewFile', function () {
