@@ -14,7 +14,8 @@ const helper     = require('../helpers/my_helper');
 const jwt 		   = require('jsonwebtoken');
 const { v4 : uuid } = require('uuid');
 const generatorPassword = require('generate-password');
-
+const productsModel   = mongoose.model('products');
+const productsVariantsModel  = mongoose.model('products_variants');
 const USER = {};
 USER.api = {};
 
@@ -114,6 +115,83 @@ USER.api.courierServiceLogin = async (req, res) => {
       res.status(500).json({ error: 'Internal server error.' });
   }
 };
+// Product Variant Details
+USER.api.getProductVariantDetails = async (req, res) => {
+  try {
+    const { product_id, variant_id, size } = req.body;
+    
+    // Validate the presence of product_id
+    if (!product_id) {
+      return res.json({
+        status: 0,
+        message: 'Product id field required.',
+        data: []
+      });
+    }
+
+    // Find the product by product_id
+    const product = await productsModel.findOne({ _id: product_id }).populate('prod_brand', 'brand_name');
+
+    if (!product) {
+      return res.json({
+        status: 0,
+        message: 'Product not found.',
+        data: []
+      });
+    }
+
+    // Prepare the base product data
+    let prodData = {
+      "_id": product._id,
+      "prod_sellerid": product.prod_sellerid,
+      "status": product.status,
+      "featured": product.featured,
+      "rating_average": product.average_rating || "0.0",
+      "prod_variants": []
+    };
+
+    // Fetch the product variants
+    let variants = await productsVariantsModel.find({ status: 1, prod_id: product._id });
+     
+    // Filter by variant_id if provided
+    if (variant_id) {
+      variants = variants.filter(variant => variant._id.toString() === variant_id);
+    }
+
+    // Build the variant response
+    for (const variant of variants) {
+      let variantObj = {
+        "variant_id": variant._id,
+        "prod_attributes": variant.prod_attributes,
+        "prod_sizes": []
+      };
+
+      // Filter by size if provided
+      if (size) {
+        variantObj.prod_sizes = variant.prod_sizes.filter(s => s.size === size);
+      } else {
+        variantObj.prod_sizes = variant.prod_sizes;
+      }
+
+      // Add the variant object to the response array
+      if (variantObj.prod_sizes.length > 0 || !size) {
+        prodData.prod_variants.push(variantObj);
+      }
+    }
+
+    return res.json({
+      status: 1,
+      message: 'Product details fetched successfully.',
+      data: prodData
+    });
+
+  } catch (err) {
+    return res.json({ status: 0, message: err.message });
+  }
+};
+
+
+// End
 USER.login = async (req, res) => {
   let verifyType ='';
   let verifyMsg = '';
