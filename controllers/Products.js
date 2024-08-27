@@ -1126,11 +1126,13 @@ PRODUCTS.subCategorList = async (req, res) => {
               element.cate_name,
               element.catArray["cate_name"],
               `<div class="toggle-wrap">
-                                           <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateSubcateStatus">
-                                           <label class="toggle-label" for="${element._id}"></label>
-                                           </div>`,
+                <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateSubcateStatus">
+                <label class="toggle-label" for="${element._id}"></label>
+              </div>`,
               `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray["_id"]}"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Delete" class="deleteSubCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>` // Add this line
             ];
+            
           }
 
           res.status(200).json(mytable);

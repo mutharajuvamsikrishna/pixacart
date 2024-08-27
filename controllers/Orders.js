@@ -82,7 +82,7 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
         };
  
         // Array of columns that you want to show in the table
-        const columns = ['fullname'];
+        const columns = ['fullname']; 
         const start = parseInt(req.query.start) || 0;
         const dataLimit = parseInt(req.query.length) || 10;
  
