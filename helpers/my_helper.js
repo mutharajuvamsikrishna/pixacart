@@ -305,7 +305,65 @@ HELPER.getVariantSingleImage = async (vid) => {
   }
   return thumbImage;
 };
+// custom Email
+HELPER.sendEmailForConfirmation = async (
+  email,
+  name,
+  order_id,
+  order_pid,
+  sub_title,
+  size,
+  quantity,
+  price,
+  total,
+  trackingDetails
+) => {
+  const emailContent = `
+    <p>Dear ${name},</p>
+    <p>Your order has been placed successfully. Here are the details:</p>
+    <ul>
+      <li><strong>Order ID:</strong> ${order_id}</li>
+      <li><strong>Product ID:</strong> ${order_pid}</li>
+      <li><strong>Subtitle:</strong> ${sub_title}</li>
+      <li><strong>Size:</strong> ${size}</li>
+      <li><strong>Quantity:</strong> ${quantity}</li>
+      <li><strong>Price:</strong> $${price}</li>
+      <li><strong>Total:</strong> $${total}</li>
+    </ul>
+    <h4>Tracking Details:</h4>
+    <ul>
+      <li><strong>Pending:</strong> ${trackingDetails.pending}</li>
+    </ul>
+    <p>Thank you for shopping with us!</p>
+  `;
 
+  const emailParams = {
+    to: email,
+    subject: "Product to Deliver",
+    message: emailContent,
+  };
+
+  try {
+    const response = await HELPER.sendMail(emailParams);
+    if (response.success) {
+     
+      // Optional: You can use a notification function if needed
+      // showNotifications("success", "Email sent successfully!");
+    } else {
+      console.error("Failed to send email.");
+      // Optional: You can use a notification function if needed
+      // showNotifications("error", "Failed to send email.");
+    }
+  } catch (error) {
+    console.error("Email sending error:", error);
+    // Optional: You can use a notification function if needed
+    // showNotifications("error", "An error occurred while sending the email.");
+  }
+};
+
+
+
+// 
 HELPER.sendNotification = async (notiMsg, token) => {
   // console.log(token)
   var resp = {};

@@ -161,130 +161,138 @@ PRODUCTS.create_product = async (req, res) => {
 // };
 
 PRODUCTS.create_product_variants = async (req, res) => {
-    try {
-        let postData = {
-            prod_id: req.body.prod_id,
-            pro_subtitle: req.body.pro_subtitle,
-            pro_sku: req.body.pro_sku,
-            prod_unitprice: req.body.pro_unitprice,
-            prod_strikeout_price: req.body.pro_strikeout_price,
-            prod_purchase_price: req.body.pro_purchase_price,
-            prod_quantity: req.body.pro_quantity,
-            prod_discount: req.body.pro_discount,
-            prod_discount_type: req.body.pro_discount_type,
-            status: 1,
-            updatedAt: Date.now()
-        };
-        postData.prod_discount_type="default";
-        // Handle color attributes
-        if (req.body.prod_attributes) {
-            req.body.prod_attributes['Colorname'] = helper.colorlist(req.body.prod_attributes.Color);
-            postData.prod_attributes = JSON.stringify(req.body.prod_attributes);
+  try {
+      let postData = {
+          prod_id: req.body.prod_id,
+          pro_subtitle: req.body.pro_subtitle,
+          pro_sku: req.body.pro_sku,
+          prod_unitprice: req.body.prod_unitprice,
+          prod_strikeout_price: req.body.prod_strikeout_price,
+          prod_purchase_price: req.body.pro_purchase_price,
+          prod_quantity: req.body.pro_quantity,
+          prod_discount: req.body.prod_discount,
+          prod_discount_type: req.body.prod_discount_type,
+          status: 1,
+          updatedAt: Date.now()
+      };
+
+      // Default discount type
+      postData.prod_discount_type = "default";
+
+      // Handle color attributes
+      if (req.body.prod_attributes) {
+          req.body.prod_attributes['Colorname'] = helper.colorlist(req.body.prod_attributes.Color);
+          postData.prod_attributes = JSON.stringify(req.body.prod_attributes);
+      }
+
+      let uid = await helper.uid(req);
+      postData.prod_sellerid = uid;
+
+      // Separate prod_sizes and array data
+      let sizesData = [];
+      if (req.body.prod_sizes && Array.isArray(req.body.prod_sizes)) {
+          sizesData = req.body.prod_sizes.map((sizeObj, index) => ({
+              size: sizeObj.size,
+              quantity: sizeObj.quantity || 0,
+              strikePrice: sizeObj.strikePrice || 0,
+              discountType: sizeObj.discountType || "",
+              discount: sizeObj.discount || "",
+              price: sizeObj.price || 0
+          }));
+      }
+
+      // Handle additional arrays
+      if (req.body.sizes && Array.isArray(req.body.sizes)) {
+          req.body.sizes.forEach((size, index) => {
+              const sizeObj = {
+                  size: size,
+                  quantity: req.body.quantities[index] || 0,
+                  strikePrice: req.body.strikePrices[index] || 0,
+                  discountType: req.body.discountTypes[index] || "",
+                  discount: req.body.discounts[index] || 0,
+                  price: req.body.prices[index] || 0
+              };
+
+              // If sizesData already contains the size, update it; otherwise, add new size
+              const existingIndex = sizesData.findIndex(item => item.size === sizeObj.size);
+              if (existingIndex !== -1) {
+                  sizesData[existingIndex] = { ...sizesData[existingIndex], ...sizeObj };
+              } else {
+                  sizesData.push(sizeObj);
+              }
+          });
+      }
+
+      postData.prod_sizes = sizesData;
+
+      if (req.body.prod_vid && req.body.prod_vid != 0) {
+          // Updating existing product variant
+          const existingVariant = await productsVariantsModel.findOne({ _id: req.body.prod_vid, prod_id: postData.prod_id });
+
+          if (existingVariant) {
+              await productsVariantsModel.findOneAndUpdate(
+                  { _id: req.body.prod_vid, prod_id: postData.prod_id },
+                  postData
+              ).then(async result => {
+                  if (req.files) {
+                      let imageInsert = [];
+                      for (let i = 0; i < req.files.length; i++) {
+                          let imagesData = {
+                              'prod_id': req.body.prod_id,
+                              'prod_variant_id': req.body.prod_vid,
+                              'user_id': uid,
+                              'image_name': req.files[i].filename
+                          };
+                          imageInsert.push(imagesData);
+                      }
+                      productsThumbModel.insertMany(imageInsert);
+                  }
+                  res.status(200).json({ status: 1, message: 'Product variant Updated Successfully!', 'data': result });
+              }).catch(err => {
+                  res.status(500).json({ status: 0, message: 'Something went wrong in update product.', data: err.message });
+              });
+          } else {
+              res.status(404).json({ status: 0, message: 'Product variant not found.', data: null });
+          }
+      } else {
+        // Creating new product variant
+        if (req.body.sizes && Array.isArray(req.body.sizes)) {
+            postData.prod_sizes = req.body.sizes.map((size, index) => ({
+                size: size,
+                quantity: req.body.quantities[index] || 0,
+                strikePrice:req.body.strikePrices[index]||0,
+                    discountType:req.body.discountTypes[index]||"",
+                    discount:req.body.discounts[index]||"",
+                price: req.body.prices[index] || 0  // Add price
+            }));
         }
 
-        let uid = await helper.uid(req);
-        postData.prod_sellerid = uid;
-
-        if (req.body.prod_vid && req.body.prod_vid != 0) {
-            // Updating existing product variant
-            const existingVariant = await productsVariantsModel.findOne({ _id: req.body.prod_vid, prod_id: postData.prod_id });
-
-            if (existingVariant) {
-                // Merge existing attributes with new attributes
-                const existingAttributes = existingVariant.prod_attributes ? JSON.parse(existingVariant.prod_attributes) : {};
-                const updatedAttributes = { ...existingAttributes, ...req.body.prod_attributes };
-                postData.prod_attributes = JSON.stringify(updatedAttributes);
-
-                // Merge existing sizes with new sizes
-                let existingSizes = existingVariant.prod_sizes || [];
-                if (req.body.sizes && Array.isArray(req.body.sizes)) {
-                    let newSizes = req.body.sizes.map((size, index) => ({
-                        size: size,
-                        quantity: req.body.quantities[index] || 0,
-                        strikePrice:req.body.strikePrices[index]||0,
-                        discountType:req.body.discountTypes[index]||"",
-                        discount:req.body.discounts[index]||"",
-                        price: req.body.prices[index] || 0  // Add price
-                    }));
-
-                    // Merge logic
-                    newSizes.forEach(newSize => {
-                        const existingIndex = existingSizes.findIndex(size => size.size === newSize.size);
-                        if (existingIndex !== -1) {
-                            existingSizes[existingIndex].quantity = newSize.quantity;
-                            existingSizes[existingIndex].strikePrice=newSize.strikePrice;
-                            existingSizes[existingIndex].discountType=newSize.discountType;
-                            existingSizes[existingIndex].discount=newSize.discount;
-                            existingSizes[existingIndex].price = newSize.price;  // Update price
-                        } else {
-                            existingSizes.push(newSize); // Add new size if it doesn't exist
-                        }
-                    });
+        await productsVariantsModel.create(postData).then(creatRes => {
+            if (req.files) {
+                let imageInsert = [];
+                for (let i = 0; i < req.files.length; i++) {
+                    let imagesData = {
+                        'prod_id': req.body.prod_id,
+                        'prod_variant_id': creatRes._id,
+                        'user_id': uid,
+                        'image_name': req.files[i].filename
+                    };
+                    imageInsert.push(imagesData);
                 }
-
-                postData.prod_sizes = existingSizes;
-
-                await productsVariantsModel.findOneAndUpdate(
-                    { _id: req.body.prod_vid, prod_id: postData.prod_id },
-                    postData
-                ).then(async result => {
-                    if (req.files) {
-                        let imageInsert = [];
-                        for (let i = 0; i < req.files.length; i++) {
-                            let imagesData = {
-                                'prod_id': req.body.prod_id,
-                                'prod_variant_id': req.body.prod_vid,
-                                'user_id': uid,
-                                'image_name': req.files[i].filename
-                            };
-                            imageInsert.push(imagesData);
-                        }
-                        productsThumbModel.insertMany(imageInsert);
-                    }
-                    res.status(200).json({ status: 1, message: 'Product variant Updated Successfully!', 'data': req.body.id });
-                }).catch(err => {
-                    res.status(500).json({ status: 0, message: 'Something went wrong in update product.', data: err.message });
-                });
-            } else {
-                res.status(404).json({ status: 0, message: 'Product variant not found.', data: null });
+                productsThumbModel.insertMany(imageInsert);
             }
-        } else {
-            // Creating new product variant
-            if (req.body.sizes && Array.isArray(req.body.sizes)) {
-                postData.prod_sizes = req.body.sizes.map((size, index) => ({
-                    size: size,
-                    quantity: req.body.quantities[index] || 0,
-                    strikePrice:req.body.strikePrices[index]||0,
-                        discountType:req.body.discountTypes[index]||"",
-                        discount:req.body.discounts[index]||"",
-                    price: req.body.prices[index] || 0  // Add price
-                }));
-            }
-
-            await productsVariantsModel.create(postData).then(creatRes => {
-                if (req.files) {
-                    let imageInsert = [];
-                    for (let i = 0; i < req.files.length; i++) {
-                        let imagesData = {
-                            'prod_id': req.body.prod_id,
-                            'prod_variant_id': creatRes._id,
-                            'user_id': uid,
-                            'image_name': req.files[i].filename
-                        };
-                        imageInsert.push(imagesData);
-                    }
-                    productsThumbModel.insertMany(imageInsert);
-                }
-                res.status(200).json({ status: 1, message: 'Product variant Added Successfully!', 'data': creatRes });
-            }).catch(err => {
-                let m = err.code == 11000 ? 'Please provide unique SKU.' : 'Something went wrong in insert product.';
-                res.status(500).json({ status: 0, message: m, data: err.message });
-            });
-        }
-    } catch (err) {
-        res.status(500).json({ status: 0, message: 'Something went wrong.', data: err.message });
+            res.status(200).json({ status: 1, message: 'Product variant Added Successfully!', 'data': creatRes });
+        }).catch(err => {
+            let m = err.code == 11000 ? 'Please provide unique SKU.' : 'Something went wrong in insert product.';
+            res.status(500).json({ status: 0, message: m, data: err.message });
+        });
     }
+} catch (err) {
+    res.status(500).json({ status: 0, message: 'Something went wrong.', data: err.message });
+}
 };
+
+
 
 
 

@@ -1950,7 +1950,33 @@ API.orderPlaceOLD = async (req, res) => {
                                         image : await helper.getVariantSingleImage(element.vid),
                                         body : await helper.getNotiMsg(insertNoti.noti_status, type = 1) // type 1 for order
                                       };
+                                      const user = await UserModel.findById(pids.order_uid);
+                                      const seller= await UserModel.findById(seller_id);
                         await helper.sendNotification(notiMsg, token);
+                        await helper.sendEmailForConfirmation(
+                          user.email,
+                          user.fullname,
+                          pids.order_id,
+                          pids.order_pid,
+                          variant.pro_subtitle,
+                          pids.prod_size,
+                          pids.prod_quantity,
+                          pids.prod_price,
+                          pids.prod_subtotal,
+                          pids.trackingDetails // Pass tracking details here
+                      );
+                      await helper.sendEmailForConfirmation(
+                        seller.email,
+                        seller.fullname,
+                        pids.order_id,
+                        pids.order_pid,
+                        variant.pro_subtitle,
+                        pids.prod_size,
+                        pids.prod_quantity,
+                        pids.prod_price,
+                        pids.prod_subtotal,
+                        pids.trackingDetails // Pass tracking details here
+                    );
                     });
               }
               

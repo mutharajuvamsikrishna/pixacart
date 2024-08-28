@@ -87,48 +87,57 @@
                                     <div class="row">
                                         <% if (prodDetails.prod_sizes) {
                                             prodDetails.prod_sizes.forEach(function(sizeQuantity, index) { %>
-                                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                <div class="form-group">
-                                                    <label for="size_<%= index %>" class="col-form-label">Size</label>
-                                                    <input class="form-control require" type="text" placeholder="Size" name="prod_sizes[<%= index %>][size]" id="size_<%= index %>" value="<%= sizeQuantity.size %>">
+                                            <div class="row size-row" id="sizeRow_<%= index %>">
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="size_<%= index %>" class="col-form-label">Size</label>
+                                                        <input class="form-control require" type="text" placeholder="Size" name="prod_sizes[<%= index %>][size]" id="size_<%= index %>" value="<%= sizeQuantity.size %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="quantity_<%= index %>" class="col-form-label">Quantity</label>
+                                                        <input class="form-control require" type="number" placeholder="Quantity" name="prod_sizes[<%= index %>][quantity]" id="quantity_<%= index %>" value="<%= sizeQuantity.quantity %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="strikePrice_<%= index %>" class="col-form-label">Strike Price</label>
+                                                        <input class="form-control require strike-price" type="number" placeholder="Strike Price" name="prod_sizes[<%= index %>][strikePrice]" id="strikePrice_<%= index %>" value="<%= sizeQuantity.strikePrice %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="discountType_<%= index %>" class="col-form-label">Discount Type</label>
+                                                        <select class="form-control require discount-type" name="prod_sizes[<%= index %>][discountType]" id="discountType_<%= index %>">
+                                                            <option value="flat" <%= sizeQuantity.discountType === 'flat' ? 'selected' : '' %>>Flat</option>
+                                                            <option value="percentage" <%= sizeQuantity.discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="discount_<%= index %>" class="col-form-label">Discount</label>
+                                                        <input class="form-control require discount" type="number" placeholder="Discount" name="prod_sizes[<%= index %>][discount]" id="discount_<%= index %>" value="<%= sizeQuantity.discount %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="price_<%= index %>" class="col-form-label">Price</label>
+                                                        <input class="form-control require price" type="number" placeholder="Price" name="prod_sizes[<%= index %>][price]" id="price_<%= index %>" value="<%= sizeQuantity.price %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button style="height: 40px;" type="button" class="btn btn-danger btn-sm remove-size-row" data-index="<%= index %>">Remove</button>
                                                 </div>
                                             </div>
-                                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                <div class="form-group">
-                                                    <label for="quantity_<%= index %>" class="col-form-label">Quantity</label>
-                                                    <input class="form-control require" type="number" placeholder="Quantity" name="prod_sizes[<%= index %>][quantity]" id="quantity_<%= index %>" value="<%= sizeQuantity.quantity %>">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                <div class="form-group">
-                                                    <label for="strikePrice_<%= index %>" class="col-form-label">Strike Price</label>
-                                                    <input class="form-control require" type="number" placeholder="Strike Price" name="prod_sizes[<%= index %>][strikePrice]" id="strikePrice_<%= index %>" value="<%= sizeQuantity.strikePrice %>">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                <div class="form-group">
-                                                    <label for="discountType_<%= index %>" class="col-form-label">Discount Type</label>
-                                                    <select class="form-control require" name="prod_sizes[<%= index %>][discountType]" id="discountType_<%= index %>">
-                                                        <option value="flat" <%= sizeQuantity.discountType === 'flat' ? 'selected' : '' %>>Flat</option>
-                                                        <option value="percentage" <%= sizeQuantity.discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                <div class="form-group">
-                                                    <label for="discount_<%= index %>" class="col-form-label">Discount</label>
-                                                    <input class="form-control require" type="number" placeholder="Discount" name="prod_sizes[<%= index %>][discount]" id="discount_<%= index %>" value="<%= sizeQuantity.discount %>">
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
-                                                <div class="form-group">
-                                                    <label for="price_<%= index %>" class="col-form-label">Price</label>
-                                                    <input class="form-control require" type="number" placeholder="Price" name="prod_sizes[<%= index %>][price]" id="price_<%= index %>" value="<%= sizeQuantity.price %>">
-                                                </div>
-                                            </div>
-                                        <% });
+                                            <% });
                                         } %>
                                     </div>
+                                    
+                                    <script>
+                                       
+                                    </script>
                                     
                                     <!-- Ended -->
                                     <h5 class="form-title mb-1">Add Available Options</h5>
@@ -436,4 +445,50 @@
         $(this).closest('.size-quantity-row').remove();
     });
 });
+// displayed exist prod_size
+document.querySelectorAll('.strike-price, .discount-type, .discount').forEach((element) => {
+        element.addEventListener('input', function() {
+            const index = this.id.split('_')[1];
+            calculatePrice(index);
+        });
+    });
+
+    function calculatePrice(index) {
+        const strikePrice = parseFloat(document.getElementById(`strikePrice_${index}`).value) || 0;
+        const discountType = document.getElementById(`discountType_${index}`).value;
+        const discount = parseFloat(document.getElementById(`discount_${index}`).value) || 0;
+        let finalPrice;
+
+        if (discountType === 'flat') {
+            finalPrice = strikePrice - discount;
+        } else if (discountType === 'percentage') {
+            finalPrice = strikePrice - (strikePrice * (discount / 100));
+        }
+
+        document.getElementById(`price_${index}`).value = finalPrice.toFixed(2);
+    }
+    // Remove exist prod_sizes
+     // Use getElementsByClassName to get all buttons with the class 'remove-size-row'
+     const buttons = document.getElementsByClassName('remove-size-row');
+
+// Iterate over the HTMLCollection and attach event listeners
+Array.from(buttons).forEach(button => {
+    button.addEventListener('click', function() {
+        const index = this.getAttribute('data-index');
+        
+        // Show confirmation dialog
+        if (confirm("Are you sure you want to remove this item?")) {
+            removeSizeRow(index);
+        }
+    });
+});
+
+function removeSizeRow(index) {
+    const row = document.getElementById('sizeRow_' + index);
+    if (row) {
+        row.remove();
+    }
+}
+
+  
 </script>
