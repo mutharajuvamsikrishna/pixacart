@@ -1959,11 +1959,12 @@ API.orderPlaceOLD = async (req, res) => {
                           pids.order_id,
                           pids.order_pid,
                           variant.pro_subtitle,
+                          notiMsg.image,
                           pids.prod_size,
                           pids.prod_quantity,
                           pids.prod_price,
                           pids.prod_subtotal,
-                          pids.trackingDetails // Pass tracking details here
+                          pids.trackingDetails.pending // Pass tracking details here
                       );
                       await helper.sendEmailForConfirmation(
                         seller.email,
@@ -1975,7 +1976,7 @@ API.orderPlaceOLD = async (req, res) => {
                         pids.prod_quantity,
                         pids.prod_price,
                         pids.prod_subtotal,
-                        pids.trackingDetails // Pass tracking details here
+                        pids.trackingDetails.pending // Pass tracking details here
                     );
                     });
               }

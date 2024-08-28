@@ -306,12 +306,14 @@ HELPER.getVariantSingleImage = async (vid) => {
   return thumbImage;
 };
 // custom Email
+
 HELPER.sendEmailForConfirmation = async (
   email,
   name,
   order_id,
   order_pid,
   sub_title,
+  image,
   size,
   quantity,
   price,
@@ -330,9 +332,11 @@ HELPER.sendEmailForConfirmation = async (
       <li><strong>Price:</strong> $${price}</li>
       <li><strong>Total:</strong> $${total}</li>
     </ul>
+    <p><strong>Product Image:</strong></p>
+    <img src="${image}" alt="Product Image" style="max-width: 300px; height: auto;" />
     <h4>Tracking Details:</h4>
     <ul>
-      <li><strong>Pending:</strong> ${trackingDetails.pending}</li>
+      <li><strong>Pending:</strong> ${trackingDetails}</li>
     </ul>
     <p>Thank you for shopping with us!</p>
   `;
@@ -346,7 +350,6 @@ HELPER.sendEmailForConfirmation = async (
   try {
     const response = await HELPER.sendMail(emailParams);
     if (response.success) {
-     
       // Optional: You can use a notification function if needed
       // showNotifications("success", "Email sent successfully!");
     } else {
@@ -360,7 +363,6 @@ HELPER.sendEmailForConfirmation = async (
     // showNotifications("error", "An error occurred while sending the email.");
   }
 };
-
 
 
 // 
