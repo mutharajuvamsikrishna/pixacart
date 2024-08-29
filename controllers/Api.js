@@ -1950,6 +1950,9 @@ API.orderPlaceOLD = async (req, res) => {
                                         image : await helper.getVariantSingleImage(element.vid),
                                         body : await helper.getNotiMsg(insertNoti.noti_status, type = 1) // type 1 for order
                                       };
+                        const findArrey=variant.prod_sizes;
+                         const findStrikeOutPrice=findArrey.find((e=>e.size===pids.prod_size))     
+                             
                                       const user = await UserModel.findById(pids.order_uid);
                                       const seller= await UserModel.findById(seller_id);
                         await helper.sendNotification(notiMsg, token);
@@ -1962,9 +1965,11 @@ API.orderPlaceOLD = async (req, res) => {
                           notiMsg.image,
                           pids.prod_size,
                           pids.prod_quantity,
+                         findStrikeOutPrice.strikePrice,
+                         findStrikeOutPrice.discount,
                           pids.prod_price,
                           pids.prod_subtotal,
-                          pids.trackingDetails.pending // Pass tracking details here
+                         "Pending" // Pass tracking details here
                       );
                       await helper.sendEmailForConfirmation(
                         seller.email,
@@ -1972,11 +1977,14 @@ API.orderPlaceOLD = async (req, res) => {
                         pids.order_id,
                         pids.order_pid,
                         variant.pro_subtitle,
+                        notiMsg.image,
                         pids.prod_size,
                         pids.prod_quantity,
+                        findStrikeOutPrice.strikePrice,
+                        findStrikeOutPrice.discount,
                         pids.prod_price,
                         pids.prod_subtotal,
-                        pids.trackingDetails.pending // Pass tracking details here
+                        "Pending" // Pass tracking details here
                     );
                     });
               }

@@ -316,19 +316,30 @@ HELPER.sendEmailForConfirmation = async (
   image,
   size,
   quantity,
+  strikePrice,
+  discount,
   price,
   total,
   trackingDetails
 ) => {
+  
+  let names="";
+  if(trackingDetails=="Pending"){
+ names="Placed Successfully";
+  }else{
+    names=trackingDetails.toUpperCase();
+  }
   const emailContent = `
     <p>Dear ${name},</p>
-    <p>Your order has been placed successfully. Here are the details:</p>
+    <p>Your order has been ${names}. Here are the details:</p>
     <ul>
       <li><strong>Order ID:</strong> ${order_id}</li>
       <li><strong>Product ID:</strong> ${order_pid}</li>
       <li><strong>Subtitle:</strong> ${sub_title}</li>
       <li><strong>Size:</strong> ${size}</li>
       <li><strong>Quantity:</strong> ${quantity}</li>
+       <li><strong>StrikeOut Price:</strong> ${strikePrice}</li>
+        <li><strong>Discount:</strong> ${discount}</li>
       <li><strong>Price:</strong> $${price}</li>
       <li><strong>Total:</strong> $${total}</li>
     </ul>
@@ -336,14 +347,14 @@ HELPER.sendEmailForConfirmation = async (
     <img src="${image}" alt="Product Image" style="max-width: 300px; height: auto;" />
     <h4>Tracking Details:</h4>
     <ul>
-      <li><strong>Pending:</strong> ${trackingDetails}</li>
+      <li><strong>Status:</strong> ${trackingDetails}</li>
     </ul>
     <p>Thank you for shopping with us!</p>
   `;
 
   const emailParams = {
     to: email,
-    subject: "Product to Deliver",
+    subject: `Your Pixacart Order ID:${order_id} ${names}`,
     message: emailContent,
   };
 

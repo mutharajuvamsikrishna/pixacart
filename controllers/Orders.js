@@ -4,6 +4,7 @@ const router     = express.Router();
 const mongoose   = require('mongoose');
 const moment            = require('moment'); 
 const UserModel  = mongoose.model('users');
+const productsVariantsModel  = mongoose.model('products_variants');
 const categoryModel  = mongoose.model('category');
 const subCategoryModel  = mongoose.model('sub_category');
 const brandModel = mongoose.model('brands');
@@ -745,6 +746,67 @@ ORDERS.sellerOrdersList = async (req, res) => {
                                     body : await helper.getNotiMsg(orderStatus, type = 1) // type 1 for order
                                 };
                     await helper.sendNotification(notiMsg, token);
+                    try {
+                        const user = await UserModel.findById(orderDetails.order_uid);
+                        const seller = await UserModel.findById(orderDetails.seller_id);
+                        let variant = await productsVariantsModel.findOne({ _id: orderDetails.order_vid });
+                        
+                        if (!variant) {
+                            throw new Error('Variant not found');
+                        }
+                        
+                        const findArrey = variant.prod_sizes;
+                        const findStrikeOutPrice = findArrey.find(e => e.size === orderDetails.prod_size);
+                        
+                        if (!findStrikeOutPrice) {
+                            throw new Error('Strike out price not found for the given size');
+                        }
+                        const ordersid = orderDetails.order_id._id.toString();  // Extract the ID and convert to string
+                     
+                   const updatedTrackingDetail = Object.entries(orderDetails.trackingDetails)
+                   .filter(([key, value]) => value && new Date(value) > new Date(orderDetails.createdAt))
+                   .reduce((acc, [key, value]) => ({ [key]: value }), {});
+           
+               // Extract the key name (e.g., 'readytoDispatch')
+               const updatedStatus = Object.keys(updatedTrackingDetail)[0];
+          
+
+                        await helper.sendEmailForConfirmation(
+                            user.email,
+                            user.fullname,
+                           ordersid,
+                            orderDetails.order_pid,
+                            variant.pro_subtitle,
+                            notiMsg.image,
+                            orderDetails.prod_size,
+                            orderDetails.prod_quantity,
+                            findStrikeOutPrice.strikePrice,
+                            findStrikeOutPrice.discount,
+                            orderDetails.prod_price,
+                            orderDetails.prod_subtotal,
+                            updatedStatus // Pass tracking details here
+                        );
+                    
+                        await helper.sendEmailForConfirmation(
+                            seller.email,
+                            seller.fullname,
+                            ordersid,
+                            orderDetails.order_pid,
+                            variant.pro_subtitle,
+                            notiMsg.image,
+                            orderDetails.prod_size,
+                            orderDetails.prod_quantity,
+                            findStrikeOutPrice.strikePrice,
+                            findStrikeOutPrice.discount,
+                            orderDetails.prod_price,
+                            orderDetails.prod_subtotal,
+                            updatedStatus // Pass tracking details here
+                        );
+                    } catch (err) {
+                        console.error('Error during email sending:', err.message);
+                        // You can also send an error response or handle the error in any other way you'd like
+                        res.json({ status: 0, message: 'Error during email sending: ' + err.message });
+                    }
                     
                 }).catch(err=>{
                     res.json({ status: 0 , message: 'Something went wrong. '+ err.message, data: [] });
