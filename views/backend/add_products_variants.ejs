@@ -14,7 +14,7 @@
                     <div class="breadcrumb-list">
                         <ul>
                             <li class="breadcrumb-link">
-                                <a href="index.html"><i class="fas fa-home mr-2"></i>Dashboard</a>
+                                <a href="/index.html"><i class="fas fa-home mr-2"></i>Dashboard</a>
                             </li>
                             <li class="breadcrumb-link active"><%=viewTitle%></li>
                         </ul>
@@ -127,6 +127,50 @@
                                                         <input class="form-control require price" type="number" placeholder="Price" name="prod_sizes[<%= index %>][price]" id="price_<%= index %>" value="<%= sizeQuantity.price %>">
                                                     </div>
                                                 </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="minOrder_<%= index %>" class="col-form-label">Min Order</label>
+                                                        <input class="form-control require" type="number" placeholder="Min Order" name="prod_sizes[<%= index %>][minOrder]" id="minOrder_<%= index %>" value="<%= sizeQuantity.minOrder %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="maxOrder_<%= index %>" class="col-form-label">Max Order</label>
+                                                        <input class="form-control require" type="number" placeholder="Max Order" name="prod_sizes[<%= index %>][maxOrder]" id="maxOrder_<%= index %>" value="<%= sizeQuantity.maxOrder %>">
+                                                    </div>
+                                                </div>
+                                                
+                                                <% if (sizeQuantity.custDiscount && sizeQuantity.custDiscount.length > 0) { %>
+                                                    <% sizeQuantity.custDiscount.forEach((custDisc, custDiscIndex) => { %>
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="custDiscFrom_<%= index %>_<%= custDiscIndex %>" class="col-form-label">Discount From</label>
+                                                                <input class="form-control" type="number" placeholder="From" name="prod_sizes[<%= index %>][custDiscount][<%= custDiscIndex %>][custDiscFrom]" id="custDiscFrom_<%= index %>_<%= custDiscIndex %>" value="<%= custDisc.custDiscFrom %>">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="custDiscTo_<%= index %>_<%= custDiscIndex %>" class="col-form-label">Discount To</label>
+                                                                <input class="form-control" type="number" placeholder="To" name="prod_sizes[<%= index %>][custDiscount][<%= custDiscIndex %>][custDiscTo]" id="custDiscTo_<%= index %>_<%= custDiscIndex %>" value="<%= custDisc.custDiscTo %>">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="custDiscType_<%= index %>_<%= custDiscIndex %>" class="col-form-label">Discount Type</label>
+                                                                <select class="form-control" name="prod_sizes[<%= index %>][custDiscount][<%= custDiscIndex %>][custDiscType]" id="custDiscType_<%= index %>_<%= custDiscIndex %>">
+                                                                    <option value="flat" <%= custDisc.custDiscType === 'flat' ? 'selected' : '' %>>Flat</option>
+                                                                    <option value="percentage" <%= custDisc.custDiscType === 'percentage' ? 'selected' : '' %>>Percentage</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="custDiscount_<%= index %>_<%= custDiscIndex %>" class="col-form-label">Customer Discount</label>
+                                                                <input class="form-control" type="number" placeholder="Discount" name="prod_sizes[<%= index %>][custDiscount][<%= custDiscIndex %>][custDiscount]" id="custDiscount_<%= index %>_<%= custDiscIndex %>" value="<%= custDisc.custDiscount %>">
+                                                            </div>
+                                                        </div>
+                                                    <% }); %>
+                                                <% } %>
                                                 <div class="col-12">
                                                     <button style="height: 40px;" type="button" class="btn btn-danger btn-sm remove-size-row" data-index="<%= index %>">Remove</button>
                                                 </div>
@@ -181,7 +225,18 @@
                                                                 <input class="form-control require price-input" type="number" placeholder="Price" name="prices[<%= i %>]" id="price_<%= i %>" value="<%= prodDetails.prices[i] %>">
                                                             </div>
                                                         </div>
-                                                        
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="minOrder_<%= i %>" class="col-form-label">Min Order</label>
+                                                                <input class="form-control require minOrder-input" type="number" placeholder="Min Order" name="minOrders[<%= i %>]" id="minOrder_<%= i %>" value="<%= prodDetails.minOrders[i] %>">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="maxOrder_<%= i %>" class="col-form-label">Max Order</label>
+                                                                <input class="form-control require maxOrder-input" type="number" placeholder="Max Order" name="maxOrders[<%= i %>]" id="maxOrder_<%= i %>" value="<%= prodDetails.maxOrders[i] %>">
+                                                            </div>
+                                                        </div>
                                                         <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
                                                             <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
                                                                 <% if (prodDetails.sizes.length > 1) { %>
@@ -238,6 +293,20 @@
                                                             <div class="form-group">
                                                                 <label for="price_0" class="col-form-label">Price</label>
                                                                 <input class="form-control require price-input" type="number" placeholder="Price" name="prices[0]" id="price_0" value="" readonly>
+                                                            </div>
+                                                        </div>
+                                                         <!-- min Order -->
+                                                         <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="minOrder_0" class="col-form-label">Min Order</label>
+                                                                <input class="form-control require minOrder-input" type="number" placeholder="Min Order" name="minOrders[0]" id="minOrder_0" value="">
+                                                            </div>
+                                                        </div>
+                                                           <!-- max Order -->
+                                                           <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="maxOrder_0" class="col-form-label">Max Order</label>
+                                                                <input class="form-control require maxOrder-input" type="number" placeholder="Max Order" name="maxOrders[0]" id="maxOrder_0" value="">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -423,6 +492,21 @@
                             <input class="form-control require price-input" type="number" placeholder="Price" name="prices[${index}]" id="price_${index}" value="" readonly>
                         </div>
                     </div>
+                    <!-- min Order -->
+                    <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label for="minOrder_${index}" class="col-form-label">Min Order</label>
+                            <input class="form-control require minOrder-input" type="number" placeholder="Min Order" name="minOrders[${index}]" id="minOrder_${index}" value="">
+                        </div>
+                    </div>
+                     <!-- max Order -->
+                    <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label for="maxOrder_${index}" class="col-form-label">Max Order</label>
+                            <input class="form-control require maxOrder-input" type="number" placeholder="Max Order" name="maxOrders[${index}]" id="maxOrder_${index}" value="">
+                        </div>
+                    </div>
+
                     <!-- Remove Button -->
                     <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
                         <div class="form-group">

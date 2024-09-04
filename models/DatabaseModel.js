@@ -91,7 +91,24 @@ const productSchema = new mongoose.Schema({
     updatedAt :{type: Date, default: Date.now}
 });
 
-
+const customerDiscountSchema = new mongoose.Schema({
+    custDiscFrom: {
+        type: Number,
+        default: 0
+    },
+    custDiscTo: {
+        type: Number,
+        default: 0
+    },
+    custDiscType: {
+        type: String,
+        default: ""
+    },
+    custDiscount: {
+        type: Number,
+        default: 0
+    }
+});
 const productVariantsSchema = new mongoose.Schema({
 
     prod_id: {
@@ -166,7 +183,16 @@ const productVariantsSchema = new mongoose.Schema({
         price: {
             type: Number,
             default: 0
-        }
+        },
+        minOrder: {
+            type: Number,
+            default: 0
+        },
+        maxOrder: {
+            type: Number,
+            default: 0
+        },
+        custDiscount: [customerDiscountSchema]
     }],
     status: {
         type: Number,
