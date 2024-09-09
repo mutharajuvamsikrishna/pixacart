@@ -10,175 +10,176 @@ $(document).ready(function () {
     $("#category_image").removeClass("require");
   });
 
-  $(document).on('click', '.deleteVariant', function(e) {
+  $(document).on("click", ".deleteVariant", function (e) {
     e.preventDefault();
-    let variantId = $(this).data('id');
-    if (confirm('Are you sure you want to delete this variant?')) {
-        $.ajax({
-            url: `/delete_variant/${variantId}`,
-            type: 'DELETE',
-            success: function(response) {
-                alert(response.message);
-               
-                location.reload();
-            },
-            error: function(xhr, status, error) {
-                alert('An error occurred while deleting the variant.');
-            }
-        });
-    }
-});
-
-  $(document).on('click', '.deleteProduct', function(e) {
-    e.preventDefault();
-    let productId = $(this).data('id');
-    $('#confirmDeleteProduct').data('id', productId);
-    $('#deleteProductModal').modal('show');
-});
-
-$('#confirmDeleteProduct').on('click', function() {
-    let productId = $(this).data('id');
-    $.ajax({
-        url: `/delete_product/${productId}`,
-        type: 'DELETE',
-        success: function(response) {
-          alert('Product  deleted successfully');
-            $('#deleteProductModal').modal('hide');
-            location.reload();  
-        },
-        error: function(xhr, status, error) {
-          alert('Product cannot be deleted because it has Variants');
-          location.reload();
-        }
-    });
-});
-
-
-  $(document).on('click', '.deleteAttribute', function() {
-    var attributeId = $(this).data('attribute-id');
-    $('#deleteAttributeModal').modal('show');
-    $('#confirmDelete').off('click').on('click', function() {
+    let variantId = $(this).data("id");
+    if (confirm("Are you sure you want to delete this variant?")) {
       $.ajax({
-        url: '/delete_attribute',
-        method: 'POST',
-        data: { id: attributeId },
-        success: function(response) {
-          if (response.status) {
-            alert('Attribute deleted successfully!');
-            location.reload(); // Refresh the table
-          } else {
-            alert('Failed to delete attribute.');
-          }
+        url: `/delete_variant/${variantId}`,
+        type: "DELETE",
+        success: function (response) {
+          alert(response.message);
+
+          location.reload();
         },
-        error: function() {
-          alert('An error occurred while deleting the attribute.');
-        }
+        error: function (xhr, status, error) {
+          alert("An error occurred while deleting the variant.");
+        },
       });
-      $('#deleteAttributeModal').modal('hide');
+    }
+  });
+
+  $(document).on("click", ".deleteProduct", function (e) {
+    e.preventDefault();
+    let productId = $(this).data("id");
+    $("#confirmDeleteProduct").data("id", productId);
+    $("#deleteProductModal").modal("show");
+  });
+
+  $("#confirmDeleteProduct").on("click", function () {
+    let productId = $(this).data("id");
+    $.ajax({
+      url: `/delete_product/${productId}`,
+      type: "DELETE",
+      success: function (response) {
+        alert("Product  deleted successfully");
+        $("#deleteProductModal").modal("hide");
+        location.reload();
+      },
+      error: function (xhr, status, error) {
+        alert("Product cannot be deleted because it has Variants");
+        location.reload();
+      },
     });
   });
-  
-  $(document).on('click', '.deleteCate', function () {
-    const cateId = $(this).data('cate-id');
-    
-    // Store the category ID in a hidden field or directly in the button for confirmation
-    $('#confirmDeleteCategory').data('cate-id', cateId);
-    
-    // Show the modal
-    $('#deleteCategoryModal').modal('show');
-});
 
-// When the delete is confirmed
-$('#confirmDeleteCategory').on('click', function () {
-    const cateId = $(this).data('cate-id');
+  $(document).on("click", ".deleteAttribute", function () {
+    var attributeId = $(this).data("attribute-id");
+    $("#deleteAttributeModal").modal("show");
+    $("#confirmDelete")
+      .off("click")
+      .on("click", function () {
+        $.ajax({
+          url: "/delete_attribute",
+          method: "POST",
+          data: { id: attributeId },
+          success: function (response) {
+            if (response.status) {
+              alert("Attribute deleted successfully!");
+              location.reload(); // Refresh the table
+            } else {
+              alert("Failed to delete attribute.");
+            }
+          },
+          error: function () {
+            alert("An error occurred while deleting the attribute.");
+          },
+        });
+        $("#deleteAttributeModal").modal("hide");
+      });
+  });
+
+  $(document).on("click", ".deleteCate", function () {
+    const cateId = $(this).data("cate-id");
+
+    // Store the category ID in a hidden field or directly in the button for confirmation
+    $("#confirmDeleteCategory").data("cate-id", cateId);
+
+    // Show the modal
+    $("#deleteCategoryModal").modal("show");
+  });
+
+  // When the delete is confirmed
+  $("#confirmDeleteCategory").on("click", function () {
+    const cateId = $(this).data("cate-id");
 
     $.ajax({
-        url: `/category/delete/${cateId}`, // Backend route to handle deletion
-        type: 'DELETE',
-        success: function (response) {
-            if (response.status === 1) {
-                alert('Category deleted successfully');
-                // Refresh the table or reload the page
-                location.reload();
-            } else {
-              alert(response.message);
-            }
-        },
-        error: function () {
-            alert('Category cannot be deleted because it has subcategories');
-            location.reload();
+      url: `/category/delete/${cateId}`, // Backend route to handle deletion
+      type: "DELETE",
+      success: function (response) {
+        if (response.status === 1) {
+          alert("Category deleted successfully");
+          // Refresh the table or reload the page
+          location.reload();
+        } else {
+          alert(response.message);
         }
+      },
+      error: function () {
+        alert("Category cannot be deleted because it has subcategories");
+        location.reload();
+      },
     });
 
     // Hide the modal after confirmation
-    $('#deleteCategoryModal').modal('hide');
-});
+    $("#deleteCategoryModal").modal("hide");
+  });
 
-$(document).on('click', '.deleteSubCate', function() {
-    const subCateId = $(this).data('cate-id');
+  $(document).on("click", ".deleteSubCate", function () {
+    const subCateId = $(this).data("cate-id");
 
     // Show the delete confirmation modal
-    $('#deleteSubcategoryModal').modal('show');
+    $("#deleteSubcategoryModal").modal("show");
 
     // Attach the subcategory ID to the delete button in the modal
-    $('#confirmDeleteSubcategory').off('click').on('click', function() {
+    $("#confirmDeleteSubcategory")
+      .off("click")
+      .on("click", function () {
         // Perform the DELETE request
         $.ajax({
-            url: `/subcategory/delete/${subCateId}`, // Backend route to handle deletion
-            type: 'DELETE',
-            success: function(response) {
-                if (response.status === 1) {
-                  alert('Subcategory deleted successfully');
-                    $('#deleteSubcategoryModal').modal('hide');
-                    // Optionally, refresh the table or reload the page
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500); // Delay to let the user see the success message
-                } else {
-                  alert(response.message);
-                }
-            },
-            error: function() {
-              alert('Subcategory cannot be deleted because it has products');
-              location.reload();
+          url: `/subcategory/delete/${subCateId}`, // Backend route to handle deletion
+          type: "DELETE",
+          success: function (response) {
+            if (response.status === 1) {
+              alert("Subcategory deleted successfully");
+              $("#deleteSubcategoryModal").modal("hide");
+              // Optionally, refresh the table or reload the page
+              setTimeout(function () {
+                location.reload();
+              }, 1500); // Delay to let the user see the success message
+            } else {
+              alert(response.message);
             }
+          },
+          error: function () {
+            alert("Subcategory cannot be deleted because it has products");
+            location.reload();
+          },
         });
-    });
-    $('#deleteSubcategoryModal').modal('hide');
-});
-
-
-
-    var brandIdToDelete;
-    // When delete icon is clicked, store brand ID and show confirmation modal
-    $(document).on('click', '.deleteBrand', function() {
-      brandIdToDelete = $(this).data('brand-id');
-      $('#deleteBrandModal').modal('show');
-    });
-  
-    // On confirmation, send request to delete the brand
-    $('#confirmDeleteBrand').on('click', function() {
-      $.ajax({
-        url: '/deleteBrand',
-        type: 'POST',
-        data: { id: brandIdToDelete },
-        success: function(response) {
-          if (response.status === 1) {
-            alert('Brand deleted successfully.');
-            // Reload the DataTable after deletion
-            $('.dataTableAjax').DataTable().ajax.reload();
-          } else {
-            alert('Error deleting brand: ' + response.message);
-          }
-          $('#deleteBrandModal').modal('hide');
-        },
-        error: function(error) {
-          alert('Error: ' + error);
-          $('#deleteBrandModal').modal('hide');
-        }
       });
+    $("#deleteSubcategoryModal").modal("hide");
+  });
+
+  var brandIdToDelete;
+  // When delete icon is clicked, store brand ID and show confirmation modal
+  $(document).on("click", ".deleteBrand", function () {
+    brandIdToDelete = $(this).data("brand-id");
+    $("#deleteBrandModal").modal("show");
+  });
+
+  // On confirmation, send request to delete the brand
+  $("#confirmDeleteBrand").on("click", function () {
+    $.ajax({
+      url: "/deleteBrand",
+      type: "POST",
+      data: { id: brandIdToDelete },
+      success: function (response) {
+        if (response.status === 1) {
+          alert("Brand deleted successfully.");
+          // Reload the DataTable after deletion
+          $(".dataTableAjax").DataTable().ajax.reload();
+        } else {
+          alert("Error deleting brand: " + response.message);
+        }
+        $("#deleteBrandModal").modal("hide");
+      },
+      error: function (error) {
+        alert("Error: " + error);
+        $("#deleteBrandModal").modal("hide");
+      },
     });
-  
+  });
+
   $(document).on("click", ".editSubCate", function () {
     let _this = $(this);
     //  $('#addNewSubCateBtn').trigger('click');
@@ -727,7 +728,6 @@ $(document).on("click", ".viewInvoice", async function (e) {
 //   }
 // });
 
-
 $(document).on("click", ".AddTrackingDetail", async function (e) {
   e.preventDefault();
   let _this = $(this);
@@ -762,7 +762,8 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
       }
     }
 
-    HTML += '</select><input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">';
+    HTML +=
+      '</select><input id="swal-input2" class="swal2-input" placeholder="Enter Tracking Id">';
 
     Swal.fire({
       title: "Select Courier Service",
@@ -840,11 +841,11 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
   }
 });
 
-
-
 async function getOrderDetails(orderId) {
   try {
-    const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
+    const response = await fetch(
+      `http://18.61.197.237:3000/api/orders/${orderId}`
+    );
     console.log("order id is");
 
     if (!response.ok) {
@@ -869,7 +870,7 @@ async function getOrderDetails(orderId) {
 async function getOrderData(orderUniqueId) {
   try {
     const response = await fetch(
-      `http://localhost:3000/api/ordersId/${orderUniqueId}`
+      `http://18.61.197.237:3000/api/ordersId/${orderUniqueId}`
     );
     const orderData = await response.json();
     return orderData;
@@ -881,7 +882,9 @@ async function getOrderData(orderUniqueId) {
 
 async function getUserDetails(userId) {
   try {
-    const response = await fetch(`http://localhost:3000/api/users/${userId}`);
+    const response = await fetch(
+      `http://18.61.197.237:3000/api/users/${userId}`
+    );
     const userData = await response.json();
     return userData;
   } catch (error) {
@@ -911,14 +914,14 @@ async function sendEmailToCourier(
       <p>Order User Email: ${userEmail}</p>
       <p>Order User Pin Code: ${postal_code}</p>
       <p>Thank you for your service!</p>
-      <p><a href="http://localhost:3000/orders/markDelivered?orderId=${
+      <p><a href="http://18.61.197.237:3000/orders/markDelivered?orderId=${
         orderIds[0]
       }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
-      <p><a href="http://localhost:3000/enter-otp?orderId=${
+      <p><a href="http://18.61.197.237:3000/enter-otp?orderId=${
         orderIds[0]
       }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
-      <p><a href="http://localhost:3000/send-otp? =${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a></p>
-      <p><a href="http://localhost:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a></p>
+      <p><a href="http://18.61.197.237:3000/send-otp? =${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a></p>
+      <p><a href="http://18.61.197.237:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a></p>
       <p>Best regards,<br>PixaCart</p>
     `,
   };
