@@ -1056,7 +1056,9 @@ PRODUCTS.categorList = async (req, res) => {
                                            <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateCateStatus">
                                            <label class="toggle-label" for="${element._id}"></label>
                                            </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-cate-tax="${element.cate_tax}" data-commi-tax="${element.cate_commission}"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Edit" class="editCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-cate-tax="${element.cate_tax}" data-commi-tax="${element.cate_commission}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
+              <a href="javascript:void(0);" title="Delete" class="deleteCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>`,
+
             ];
           }
 
@@ -1146,8 +1148,9 @@ PRODUCTS.subCategorList = async (req, res) => {
                 <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateSubcateStatus">
                 <label class="toggle-label" for="${element._id}"></label>
               </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray["_id"]}"><i class="fas fa-edit"></i></a>`,
-              `<a href="javascript:void(0);" title="Delete" class="deleteSubCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>` // Add this line
+              `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray["_id"]}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
+              <a href="javascript:void(0);" title="Delete" class="deleteSubCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>` 
+             
             ];
             
           }
@@ -1217,7 +1220,9 @@ PRODUCTS.brandsList = async (req, res) => {
                                            <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateBrandStatus">
                                            <label class="toggle-label" for="${element._id}"></label>
                                            </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editBrand" data-brand-id="${element._id}" data-brand-name="${element.brand_name}"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Edit" class="editBrand" data-brand-id="${element._id}" data-brand-name="${element.brand_name}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a> 
+              <a href="javascript:void(0);" title="Delete" class="deleteBrand" data-brand-id="${element._id}"><i class="fas fa-trash"></i></a>`,
+              
             ];
           }
 
@@ -1228,6 +1233,17 @@ PRODUCTS.brandsList = async (req, res) => {
       });
   } catch (err) {
     res.status(401).json({ status: 0, message: "error " + err });
+  }
+};
+PRODUCTS.deleteBrand = async (req, res) => {
+  try {
+    const brandId = req.body.id;
+
+    await brandModel.findByIdAndDelete(brandId);
+
+    res.status(200).json({ status: 1, message: 'Brand deleted successfully.' });
+  } catch (err) {
+    res.status(400).json({ status: 0, message: 'Error deleting brand: ' + err });
   }
 };
 
@@ -1295,7 +1311,8 @@ PRODUCTS.attributesList = async (req, res) => {
                                            <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateAttributeStatus">
                                            <label class="toggle-label" for="${element._id}"></label>
                                            </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editAttribute" data-attribute-id="${element._id}" data-attribute-name="${element.attribute_name} "data-url="edit_attribute"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Edit" class="editAttribute" data-attribute-id="${element._id}" data-attribute-name="${element.attribute_name} "data-url="edit_attribute" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
+               <a href="javascript:void(0);" title="Delete" class="deleteAttribute" data-attribute-id="${element._id}" data-url="delete_attribute"><i class="fas fa-trash"></i></a>`,
             ];
           });
 
@@ -1306,6 +1323,22 @@ PRODUCTS.attributesList = async (req, res) => {
       });
   } catch (err) {
     res.status(401).json({ status: 0, message: "error " + err });
+  }
+};
+PRODUCTS.deleteAttribute = async (req, res) => {
+  try {
+    const attributeId = req.body.id;
+
+    if (!attributeId) {
+      return res.status(400).json({ status: 0, message: "Invalid Attribute ID" });
+    }
+
+    // Find and delete the attribute by its ID
+    await attributesModel.findByIdAndDelete(attributeId);
+
+    res.status(200).json({ status: 1, message: "Attribute deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: "Error deleting attribute: " + err });
   }
 };
 
@@ -1428,7 +1461,8 @@ PRODUCTS.productsList = async (req, res) => {
                                            </div>`,
               `<a href="/dashboard/add-product/${element._id}" title="Edit" class="editProduct"><i class="fas fa-edit"></i></a>
                                           ${addVarientBtn}
-                                          <a data-href="products_variants_list?prod_id=${element._id}" data-title="Product Variants" data-cls="modal-lg" title="View Variants" class="openModalPopup"><i class="fas fa-list-alt"></i></a>`,
+                                          <a data-href="products_variants_list?prod_id=${element._id}" data-title="Product Variants" data-cls="modal-lg" title="View Variants" class="openModalPopup"><i class="fas fa-list-alt"></i></a>
+                                            <a href="#" title="Delete" class="deleteProduct" data-id="${element._id}"><i class="fas fa-trash-alt"></i></a>`,
             ];
           });
 
@@ -1485,33 +1519,25 @@ PRODUCTS.productsVariantsList = async (req, res) => {
               // Remove the last comma and space
               sizesQuantities = sizesQuantities.slice(0, -2);
             }
-
             MyTbl += `
-                            <tr>
-                                <td>${start++}</td>
-                                <td>${element.pro_sku}</td>
-                                <td>${element.pro_subtitle}</td>
-                                <td>${helper.colorlist(
-                                  JSON.parse(element.prod_attributes).Color
-                                )}</td>
-                                <td>${sizesQuantities}</td>
-                                <td>${element.prod_quantity}</td>
-                                <td>
-                                    <div class="toggle-wrap">
-                                        <input class="toggle-input d-none changeStatus" id="${
-                                          element._id
-                                        }" type="checkbox" ${checked} url="products/updateProductVariantStatus">
-                                        <label class="toggle-label" for="${
-                                          element._id
-                                        }"></label>
-                                    </div>
-                                </td>
-                                <td><a href="/dashboard/add-product-variant/${
-                                  element.prod_id
-                                }/${
-              element._id
-            }" title="Edit Variant"><i class="fas fa-edit"></i></a></td>
-                            </tr>`;
+            <tr>
+                <td>${start++}</td>
+                <td>${element.pro_sku}</td>
+                <td>${element.pro_subtitle}</td>
+                <td>${helper.colorlist(JSON.parse(element.prod_attributes).Color)}</td>
+                <td>${sizesQuantities}</td>
+                <td>${element.prod_quantity}</td>
+                <td>
+                    <div class="toggle-wrap">
+                        <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateProductVariantStatus">
+                        <label class="toggle-label" for="${element._id}"></label>
+                    </div>
+                </td>
+                <td>
+                    <a href="/dashboard/add-product-variant/${element.prod_id}/${element._id}" title="Edit Variant"><i class="fas fa-edit"></i></a>
+                    <a href="#" class="deleteVariant" data-id="${element._id}" title="Delete Variant"><i class="fas fa-trash-alt"></i></a>
+                </td>
+            </tr>`;
           });
 
           MyTbl += `

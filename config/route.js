@@ -4,6 +4,10 @@ const crypto = require('crypto');
 const mongoose=require('mongoose')
 const CourierBoys  = mongoose.model('courier_boys');
 const CourierService  = mongoose.model('courier_services');
+const subCategoryModel  = mongoose.model('sub_category');
+const categoryModel  = mongoose.model('category');
+const productModel  = mongoose.model('products');
+const productVariantsModel  = mongoose.model('products_variants');
 const path = require("path");
 const nodemailer = require("nodemailer");
 const controllers = {
@@ -382,26 +386,116 @@ router.get(
   controllers.middleware.authenticate,
   controllers.products.categorList
 );
+
+router.delete('/category/delete/:id', async (req, res) => {
+  try {
+      const cateId = req.params.id;
+
+      // Check if there are subcategories for this category
+      const hasSubcategories = await subCategoryModel.exists({ parent_id: cateId });
+
+      if (hasSubcategories) {
+          return res.status(400).json({ status: 0, message: 'Category cannot be deleted because it has subcategories' });
+      }
+
+      // If no subcategories, proceed with deletion
+      await categoryModel.findByIdAndDelete(cateId);
+
+      res.status(200).json({ status: 1, message: 'Category deleted successfully' });
+  } catch (error) {
+      res.status(500).json({ status: 0, message: 'Error deleting category: ' + error.message });
+  }
+});
+
 router.get(
   "/subcategory_list",
   controllers.middleware.authenticate,
   controllers.products.subCategorList
 );
+router.delete('/subcategory/delete/:id', async (req, res) => {
+  try {
+      const subCategoryId = req.params.id;
+
+      // Check if the subcategory is referenced in any products
+      const hasProducts = await productModel.exists({ prod_subcate: subCategoryId });
+
+      if (hasProducts) {
+          return res.status(400).json({ status: 0, message: 'Subcategory cannot be deleted because it is associated with products' });
+      }
+
+      // Proceed with deletion if no products are associated
+      const result = await subCategoryModel.findByIdAndDelete(subCategoryId);
+
+      if (result) {
+          res.status(200).json({ status: 1, message: 'Subcategory deleted successfully' });
+      } else {
+          res.status(404).json({ status: 0, message: 'Subcategory not found' });
+      }
+  } catch (err) {
+      res.status(500).json({ status: 0, message: 'Error: ' + err.message });
+  }
+});
+
+
 router.get(
   "/brands_list",
   controllers.middleware.authenticate,
   controllers.products.brandsList
 );
+router.post("/deleteBrand",
+  controllers.middleware.authenticate,
+  controllers.products.deleteBrand
+  );
+
 router.get(
   "/products_list",
   controllers.middleware.authenticate,
   controllers.products.productsList
 );
+
+router.delete('/delete_product/:id', async (req, res) => {
+  try {
+      const productId = req.params.id;
+
+      // Check if there are any variants associated with this product
+      const variantCount = await productVariantsModel.countDocuments({ prod_id: productId });
+
+      if (variantCount > 0) {
+          return res.status(400).json({ status: 0, message: 'Cannot delete product because it has associated variants.' });
+      }
+
+      // If no variants exist, proceed with deleting the product
+      await productModel.findByIdAndDelete(productId);
+
+      res.status(200).json({ status: 1, message: 'Product deleted successfully' });
+  } catch (err) {
+      res.status(500).json({ status: 0, message: 'Error deleting product: ' + err });
+  }
+});
+
+
 router.get(
   "/products_variants_list",
   controllers.middleware.authenticate,
   controllers.products.productsVariantsList
 );
+router.delete('/delete_variant/:id', async (req, res) => {
+  try {
+      const variantId = req.params.id;
+
+     
+      const variant = await productVariantsModel.findByIdAndDelete(variantId);
+
+      if (!variant) {
+          return res.status(404).json({ status: 0, message: 'Variant not found' });
+      }
+
+      res.status(200).json({ status: 1, message: 'Variant deleted successfully' });
+  } catch (err) {
+      res.status(500).json({ status: 0, message: 'Error deleting variant: ' + err });
+  }
+});
+
 router.get(
   "/reviews_list",
   controllers.middleware.authenticate,
@@ -422,6 +516,8 @@ router.get(
   controllers.middleware.authenticate,
   controllers.products.attributesList
 );
+router.post('/delete_attribute', controllers.middleware.authenticate,controllers.products.deleteAttribute);
+
 
 //router.get('/products_list',controllers.middleware.authenticate, controllers.products.productsList);
 

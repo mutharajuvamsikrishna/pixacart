@@ -532,7 +532,7 @@ const courierBoysSchema = new mongoose.Schema({
     phone_number: { type: String, default: null },
     address :{ type: String,default:null},
     city :{ type: String,default:null},
-    postal_code :{ type: String,default:null},
+    postal_code :{ type: String,default:null,unique:true},
     country :{ type: String,default:null},
     state :{ type: String,default:null},
     courierService: { type: mongoose.Schema.Types.ObjectId, ref: 'courier_services' },
