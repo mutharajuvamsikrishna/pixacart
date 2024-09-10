@@ -12,6 +12,7 @@ const productsModel  = mongoose.model('products');
 const ordersModel  = mongoose.model('orders');
 const orderProducts  = mongoose.model('orders_products');
 const courierServicesModel  = mongoose.model('courier_services');
+const courierBoys  = mongoose.model('courier_boys');
 const {validationResult} = require('express-validator');
 const notificationsModel  = mongoose.model('notifications');
 const ordersInvoiceModel     = mongoose.model('orders_invoice');
@@ -376,8 +377,8 @@ ORDERS.orderTransactions = async (req, res) => {
 ORDERS.sellerOrdersList = async (req, res) => {
     try {
         let orderStatus = req.params.status;
-        let query =  {seller_id : await helper.uid(req)};;
-        if(await helper.isAdmin(req)){
+        let query = { seller_id: await helper.uid(req) };
+        if (await helper.isAdmin(req)) {
             query = {};
         }
 
@@ -387,106 +388,129 @@ ORDERS.sellerOrdersList = async (req, res) => {
         columns = ['fullname'];
         var start = req.query.start;
         var dataLimit = req.query.length;
-        // check if global search is enabled and it's value is defined
+        // check if global search is enabled and its value is defined
         if (typeof req.query.search !== 'undefined' && req.query.search.value != '') {
-
             // get global search value
             var text = req.query.search.value;
 
-            for (var i=0; i<columns.length; i++) { //req.query.columns
+            for (var i = 0; i < columns.length; i++) { //req.query.columns
                 requestColumn = req.query.columns[i];
-                
+
                 column = columns[requestColumn.data];
 
                 // if search is enabled for that particular field then create query
                 if (requestColumn.searchable == 'true') {
-                     query[column] = {
-                        $regex: '.*'+ text +'.*', $options:'i',
+                    query[column] = {
+                        $regex: '.*' + text + '.*',
+                        $options: 'i',
                     };
                 }
             }
         }
-        await orderProducts.find(query).populate('seller_id','fullname').populate('order_id','order_uniqueid payment_status payment_mode').populate('order_vid','pro_subtitle pro_sku').populate({ path: "order_uid", match: query  , select: "fullname" }).sort({"group.nome": "asc"}).skip(start).limit(dataLimit).sort({ _id : 'desc' }).then(async (result)=>{
-          
-            var mytable = {
-                draw:req.query.draw,
-                recordsTotal:0,
-                recordsFiltered:0,
-                data:[],
-            }
 
-            mytable.recordsTotal    = await orderProducts.countDocuments(query);
-            mytable.recordsFiltered = await orderProducts.countDocuments(query);
+        await orderProducts.find(query)
+            .populate('seller_id', 'fullname')
+            .populate('order_id', 'order_uniqueid payment_status payment_mode')
+            .populate('order_vid', 'pro_subtitle pro_sku')
+            .populate({ path: "order_uid", match: query, select: "fullname postal_code" })
+            .populate('courier_service', 'service_name')
+            .sort({ "group.nome": "asc" })
+            .skip(start)
+            .limit(dataLimit)
+            .sort({ _id: 'desc' })
+            .then(async (result) => {
 
-           if(result.length > 0){
-              //  console.log(result);
-                let currency_symbol = "$";
-                let currencies = await currenciesModel.findOne({status : 1});
-                if(currencies){
-                    currency_symbol = currencies.currency_symbol;
-                }
-                result.forEach(function(element,key) {
-                    //if(element.order_uid){
+                var mytable = {
+                    draw: req.query.draw,
+                    recordsTotal: 0,
+                    recordsFiltered: 0,
+                    data: [],
+                };
+
+                mytable.recordsTotal = await orderProducts.countDocuments(query);
+                mytable.recordsFiltered = await orderProducts.countDocuments(query);
+
+                if (result.length > 0) {
+                    let currency_symbol = "$";
+                    let currencies = await currenciesModel.findOne({ status: 1 });
+
+                    if (currencies) {
+                        currency_symbol = currencies.currency_symbol;
+                    }
+
+                    result.forEach(async function (element, key) {
+                        // // Fetch the courier boy's name inside the loop
+                        // const orderUserPostalCode = element.order_uid ? element.order_uid.postal_code : null;
+
+                        // const courierBoy = await courierBoys.findOne({
+                        //     courierService: element.courier_service,
+                        //     postal_code: orderUserPostalCode
+                        // });
+
+                        // const courierBoyName = courierBoy ? courierBoy.service_name : 'No Match';
+
                         let lable = '';
                         let track = '';
                         let returnBtn = '';
                         let refundBtn = '';
-                        if(element.order_status == 8){
+
+                        if (element.order_status == 8) {
                             returnBtn = `<a href="javascript:;" title="Accept Return" class="AcceptReturn" action="6"  url="orders/returnRequestAccept" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
                         }
 
-                        if(element.order_status == 7){
-                            refundBtn = `<a  href="javascript:;" title="Generete Refund" class="generateRefund" action="6"  url="orders/generateRefund" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+                        if (element.order_status == 7) {
+                            refundBtn = `<a href="javascript:;" title="Generate Refund" class="generateRefund" action="6"  url="orders/generateRefund" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
                         }
 
                         let invoice = `<a href="javascript:;" title="View Invoice" class="viewInvoice" url="orders/view-invoice" data-invoice-id="${element.invoice_id}"><i class="fas fa-file-invoice"></i></a>`;
 
                         let checkBox = `<input class="checkedOrder" value="${element._id}" id="${element._id}" type="checkbox"> `;
-                        if(element.order_status ==4){
+                        if (element.order_status == 4) {
                             lable = `<a href="javascript:;" title="Generate Lable" class="generateLable" url="orders/generateLabel" data-order-id="${element._id}"><i class="fas fa fa-tag"></i></a>`;
                             track = `<a href="javascript:;" title="Add Tracking Id" class="AddTrackingDetail" action="5"  url="orders/updateOrderStatus" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
-                            checkBox ='';
+                            checkBox = '';
                         }
                         const inArr = [1, 6, 7, 8];
-                        if(inArr.includes(element.order_status)){
-                            checkBox ='';
+                        if (inArr.includes(element.order_status)) {
+                            checkBox = '';
                         }
                         let payStatus = 'Unpaid';
-                        if(element.order_id && element.order_id.payment_status==1){
-
+                        if (element.order_id && element.order_id.payment_status == 1) {
                             payStatus = 'Paid';
                         }
 
+                        mytable.data[key] = [
+                            checkBox + '' + ++start,
+                            (element.order_id) ? element.order_id.order_uniqueid : '',
+                            (element.order_vid) ? element.order_vid.pro_subtitle : '',
+                            (element.order_vid) ? element.order_vid.pro_sku : '',
+                            element.prod_size,
+                            element.prod_quantity,
+                            currency_symbol + '' + element.prod_price,
+                            currency_symbol + '' + element.prod_subtotal,
+                            (element.order_uid) ? element.order_uid.fullname : '',
+                            moment(element.createdAt).format('DD-MMM-YYYY HH:MM'),
+                            (element.seller_id) ? element.seller_id.fullname : '',
+                            `<label class="mb-0 badge badge-${helper.lableClass[element.order_status]}" title="" data-original-title="Pending">${helper.orderStatusLable[element.order_status]}</label>`,
+                            payStatus,
+                            (element.order_id) ? element.order_id.payment_mode : '',
+                            (element.courier_service) ? element.courier_service.service_name : 'N/A',
+                           
+                            invoice + ' ' + lable + ' ' + track + ' ' + returnBtn + ' ' + refundBtn
+                        ];
+                    });
 
-                        mytable.data[key] = [checkBox+''+ ++start,
-                                          (element.order_id) ? element.order_id.order_uniqueid :'',
-                                          (element.order_vid) ? element.order_vid.pro_subtitle : '',
-                                          (element.order_vid) ? element.order_vid.pro_sku : '',
-                                          element.prod_size,
-                                          element.prod_quantity,
-                                          currency_symbol+''+element.prod_price,
-                                          currency_symbol+''+element.prod_subtotal,
-                                          (element.order_uid) ? element.order_uid.fullname : '',
-                                          moment(element.createdAt).format('DD-MMM-YYYY HH:MM'),
-                                          (element.seller_id) ? element.seller_id.fullname : '',
-                                          `<label class="mb-0 badge badge-${helper.lableClass[element.order_status]}" title="" data-original-title="Pending">${helper.orderStatusLable[element.order_status]}</label>` ,
-                                          payStatus,
-                                          (element.order_id) ? element.order_id.payment_mode : '',
-                                          invoice + ' ' + lable + ' '+ track +' '+ returnBtn +' '+ refundBtn
-                                        ];
-                    //}
-                }); 
+                    res.status(200).json(mytable);
 
-                res.status(200).json(mytable);
-                  
-            } else {
-                res.status(200).json(mytable);
-            }
-        });
-      } catch (err) {
-        res.status(401).json({ status : 0, message : 'error '+ err });
-      }
-  };
+                } else {
+                    res.status(200).json(mytable);
+                }
+            });
+    } catch (err) {
+        res.status(401).json({ status: 0, message: 'error ' + err });
+    }
+};
+
 
 
   ORDERS.ordersList = async (req, res) => {

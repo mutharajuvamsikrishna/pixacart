@@ -249,9 +249,23 @@ USER.dashboard = async (req, res) => {
 };
 
 USER.logout = async (req, res) => {
-	  req.session.destroy();
+  if (req.session.user && req.session.user.loginAS) {
+    const loginRole = req.session.user.loginAS;
+
+    req.session.destroy();
     res.clearCookie('AuthTkn');
-	  res.redirect('/login');
+
+    if (loginRole === 'ADMIN' || loginRole === 'SELLER') {
+      res.redirect('/login'); 
+    } else if (loginRole === 'COURIER_SERVICE' || loginRole === 'COURIER_BOY') {
+      res.redirect('/courierservicelogin');
+    } else {
+      res.redirect('/login'); 
+    }
+  } else {
+    
+    res.redirect('/login');
+  }
 };
 
 USER.verify_email = async (req, res) => {

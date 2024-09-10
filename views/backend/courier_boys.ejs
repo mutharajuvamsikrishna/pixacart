@@ -83,7 +83,7 @@
  
        <!-- Modal for Create/Update Courier Service -->
 <!-- Modal for Create/Update Courier Service -->
-<div class="modal fade" id="createCourierServiceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="createCourierServiceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"  data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -133,7 +133,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="location.reload()">Close</button>
                     <button type="button" class="btn btn-primary" onclick="submitCourierService(event)">Submit</button>
                 </div>
             </form>
@@ -208,7 +208,7 @@ function deleteCourierService(serviceId) {
         return; // Stop form submission
     }
     // Change the modal title
-    $('#exampleModalLabel').text('Edit Courier Service');
+    $('#exampleModalLabel').text('Edit Courier Boy');
     
     // Show the modal
     $('#createCourierServiceModal').modal('show');
@@ -250,4 +250,3 @@ if (!serviceName || !email || !password || !phoneNumber) {
     }
 </script>
  
-has context menu
