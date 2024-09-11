@@ -199,7 +199,7 @@ PRODUCTS.create_product_variants = async (req, res) => {
               discount: sizeObj.discount || "",
               price: sizeObj.price || 0,
               minOrder:sizeObj.minOrder||0,
-              maxOrder:sizeObj.maxOrder||0,
+              
           }));
       }
 
@@ -214,7 +214,7 @@ PRODUCTS.create_product_variants = async (req, res) => {
                   discount: req.body.discounts[index] || 0,
                   price: req.body.prices[index] || 0,
                   minOrder:req.body.minOrders[index]||0,
-                  maxOrder:req.body.maxOrders[index]||0,
+             
               };
 
               // If sizesData already contains the size, update it; otherwise, add new size
@@ -269,7 +269,7 @@ PRODUCTS.create_product_variants = async (req, res) => {
                     discount:req.body.discounts[index]||"",
                 price: req.body.prices[index] || 0,  // Add price
                 minOrder:req.body.minOrders[index]||0,
-                maxOrder:req.body.maxOrders[index]||0,
+                
             }));
         }
 
