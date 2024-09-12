@@ -28,7 +28,7 @@
         </div>
         <div class="row">
         <div class="col-xl-12">
-          <form class="card"  action="settings/updateProfile" method="post" autocomplete="off" data-redirect="admin/profile">
+          <form class="card"  action="settings/updateBoyProfile" method="post" autocomplete="off" data-redirect="admin/profile">
             <div class="card-header">
               <h4 class="card-title mb-0">Edit Profile</h4>
               <div class="card-options"><a class="card-options-collapse" href="javascript:;" data-bs-toggle="card-collapse" data-bs-original-title="" title=""><i class="fe fe-chevron-up"></i></a><a class="card-options-remove" href="javascript:;" data-bs-toggle="card-remove" data-bs-original-title="" title=""><i class="fe fe-x"></i></a></div>
@@ -43,7 +43,7 @@
                   <div class="media pc-profile2-img">                        
                       <img alt="" src="<%= userProfile ? userProfile.profile_image : '' %>">
                     <div class="media-body">
-                      <h5 class="mb-1"><%= userProfile ? userProfile.fullname : '' %></h5>
+                      <h5 class="mb-1"><%= userProfile ? userProfile.service_name : '' %></h5>
                       <!--p>DESIGNER</p-->
                     </div>
                   </div>
@@ -51,21 +51,21 @@
               <div class="row">
                 <div class="col-sm-4 col-md-4">
                   <div class="mb-6">
-                    <label class="form-label">Username</label>
-                    <input class="form-control require" type="text" name="uname" placeholder="Username" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.fullname : '' %>">
+                    <label class="form-label">Boy Name</label>
+                    <input class="form-control require" type="text" name="service_name" placeholder="service_name" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.service_name : '' %>">
                   </div>
                    
                 </div>
                 <div class="col-sm-4 col-md-4">
                   <div class="mb-6">
                     <label class="form-label">Email address</label>
-                    <input class="form-control require readonly" type="email" name="uemail" placeholder="Email" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.email : '' %>">
+                    <input class="form-control require readonly" type="email" name="email" placeholder="Email" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.email : '' %>">
                   </div>
                 </div>
                 <div class="col-sm-4 col-md-4">
                   <div class="mb-3">
                     <label class="form-label">Mobile</label>
-                    <input class="form-control require" type="text" name="umobile" placeholder="Mobile" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.mobile : '' %>">
+                    <input class="form-control require" type="text" name="phone_number" placeholder="Mobile" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.phone_number : '' %>">
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -92,19 +92,19 @@
                     <input class="form-control require" type="text" name="country" placeholder="Country" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.country : '' %>">
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
+                <!-- <div class="col-sm-6 col-md-6">
                   <div class="mb-3">
                     <label class="form-label">GST No</label>
                     <input class="form-control" type="text" name="gst_no" placeholder="GST Number" data-bs-original-title="" title="" value="<%= userProfile ? userProfile.gst_no : '' %>">
                   </div>
-                </div>
+                </div> -->
                 <div class="col-sm-6 col-md-6">
                   <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <input class="form-control" type="text" name="pwd" placeholder="Password" data-bs-original-title="" title=""  value="<%= userProfile ? userProfile.password : '' %>">
+                    <input class="form-control" type="text" name="password" placeholder="Password" data-bs-original-title="" title=""  value="<%= userProfile ? userProfile.password : '' %>">
                   </div>
                 </div>
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <!-- <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div class="product-upload-wrap">
                       <ul class="product-upload-list">
                            <li>
@@ -129,7 +129,7 @@
                           </li>
                       </ul>  
                   </div>
-              </div>
+              </div> -->
               </div>
               <input type="hidden" name="user_id" value="<%= userProfile ? userProfile._id : '' %>">
               <button class="btn btn-primary squer-btn" type="submit" data-action="submitMe" data-bs-original-title="" title="">Update Profile</button>

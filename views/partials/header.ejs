@@ -96,29 +96,60 @@
                                   </div>
                               </a>
                               <div class="user-info-box">
-                                  <div class="drop-down-header">
-                                      <h4><% if (locals.user) { %> <%= user.fullname %> <%  } %></h4>
-                                  </div>
-                                  <ul>
-                                      <li>
-                                          <a href="/profile">
-                                              <i class="far fa-edit"></i> Edit Profile
-                                          </a>
-                                      </li>
-                                      <% if (locals.user && user.role == 1 ) { %>
-                                      <li>
-                                          <a href="/settings/web-config">
-                                              <i class="fas fa-cog"></i> Settings
-                                          </a>
-                                      </li>
-                                      <% } %>
-                                      <li>
-                                          <a href="/logout">
-                                              <i class="fas fa-sign-out-alt"></i> logout
-                                          </a>
-                                      </li>
-                                  </ul>
-                              </div>
+                                <div class="drop-down-header">
+
+
+                                    <!-- <h4>
+                                        <% if (locals.user) { %> <%= user.fullname %> <% } %>
+                                    </h4> -->
+                                
+                                        <% if (locals.user && user.loginAS === 'COURIER_SERVICE') { %>
+                                             <h4>
+                                        <% if (locals.user) { %> <%= user.service_name %> <% } %>
+                                    </h4>
+                                        <% } else if (locals.user && user.loginAS === 'COURIER_BOY') { %>
+                                              <h4>
+                                        <% if (locals.user) { %> <%= user.service_name %> <% } %>
+                                    </h4>
+                                        <% } else { %>
+                                             <h4>
+                                        <% if (locals.user) { %> <%= user.fullname %> <% } %>
+                                    </h4>
+                                        <% } %>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <% if (locals.user && user.loginAS === 'COURIER_SERVICE') { %>
+                                            <a href="/courierserviceprofile">
+                                                <i class="far fa-edit"></i>Edit Profile
+                                            </a>
+                                        <% } else if (locals.user && user.loginAS === 'COURIER_BOY') { %>
+                                            <a href="/courierboyprofile">
+                                                <i class="far fa-edit"></i> Edit Profile
+                                            </a>
+                                        <% } else { %>
+                                            <a href="/profile">
+                                                <i class="far fa-edit"></i> Edit Profile
+                                            </a>
+                                        <% } %>
+                                    </li>
+                            
+                                    <% if (locals.user && user.role == 1) { %>
+                                    <li>
+                                        <a href="/settings/web-config">
+                                            <i class="fas fa-cog"></i> Settings
+                                        </a>
+                                    </li>
+                                    <% } %>
+                            
+                                    <li>
+                                        <a href="/logout">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
                           </div>
                       </div>
                   </div>

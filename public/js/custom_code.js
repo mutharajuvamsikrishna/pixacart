@@ -174,7 +174,7 @@ $(document).ready(function () {
         $("#deleteBrandModal").modal("hide");
       },
       error: function (error) {
-        alert("Error: " + error);
+        alert("Brand cannot be deleted because it is associated with products");
         $("#deleteBrandModal").modal("hide");
       },
     });

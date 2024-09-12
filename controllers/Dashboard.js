@@ -23,6 +23,37 @@ const API = require('./Api');
 const fs = require('fs');
 const DASHBOARD = {};
 
+
+
+DASHBOARD.courierdashboard = async (req, res) => {
+    let query = {seller_id : await helper.uid(req)}
+    let isAdmin = await helper.isAdmin(req);
+    let uid = await helper.uid(req)
+    if(isAdmin){
+        delete query.seller_id;
+        uid = '';
+    }
+
+    let currency_symbol = "$";
+    let currencies = await currenciesModel.findOne({status : 1});
+    if(currencies){
+        currency_symbol = currencies.currency_symbol;
+    }
+
+    let userCount = await UserModel.countDocuments({role : 3});
+    
+    let totalSale = await helper.getTotalSale(uid);
+    let dailyOrderCount = await orderProducts.countDocuments(query);
+    let totalRevenue = await helper.getOutstanding(uid);
+    res.render('backend/courierdashboard', {
+            viewTitle : 'Dashboard',
+            pageTitle : 'Dashboard',
+            userCount : userCount,
+            dailyOrderCount : dailyOrderCount,
+            totalSale : currency_symbol+' '+totalSale,
+            totalRevenue : currency_symbol+' '+totalRevenue
+    });
+};
 DASHBOARD.dashboard = async (req, res) => {
     let query = {seller_id : await helper.uid(req)}
     let isAdmin = await helper.isAdmin(req);

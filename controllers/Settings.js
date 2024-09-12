@@ -2,6 +2,8 @@ const mongoose   = require('mongoose');
 const UserModel       = mongoose.model('users');
 const webSettingsModel  = mongoose.model('website_settings');
 const currenciesModel   = mongoose.model('currencies');
+const CourierServiceModel=mongoose.model('courier_services')
+const courierBoyModel=mongoose.model('courier_boys')
 const faqModel   = mongoose.model('help_questions_answers');
 const firbaseNotificationModel = mongoose.model('firebaseNotification')
 const helper     = require('../helpers/my_helper');
@@ -545,6 +547,153 @@ SETTINGS.deleteFaq = async (req, res) => {
     });
 };
 
+
+SETTINGS.updateServiceProfile = async (req, res) => {
+    try {
+        let userData = {};
+        
+        if(!req.body.user_id){
+            res.json({status : 0 , message: 'The user id field required.'});
+            return;
+        }else if(!req.body.service_name) {
+            res.json({status : 0 , message: 'The user name is required.'});
+            return;
+        }else if(!req.body.phone_number){
+            res.json({status : 0 , message: 'Mobile number is required.'});
+            return;
+        }else if(req.body.phone_number && !await helper.validatePhone(req.body.phone_number)){
+            res.json({status : 0 , message: 'Please enter valid mobile number.'});
+            return;
+        }else if(req.body.email && !await helper.validateEmail(req.body.email)){
+            res.json({status : 0 , message: 'Please enter valid  email address.'});
+            return;
+        }
+        else if(req.body.password && req.body.password.length<4){
+            res.json({status : 0 , message: 'Please enter minimum four digit password.'});
+            return;
+        }
+        if (req.body.email) {
+            userData.email = req.body.email;
+        }
+
+        if (req.body.phone_number) {
+            userData.phone_number = req.body.phone_number;
+        }
+        if(req.body.service_name){
+            userData.service_name   = req.body.service_name;
+        }
+
+        if(req.body.password){
+            userData.password = req.body.password;
+        }
+        
+        // if(req.file){
+        //     userData.profile_image = req.file.service_name;
+        // }
+
+        // userData.address      = (req.body.address) ? req.body.address : null ;
+        // userData.city         = (req.body.city) ? req.body.city : null ;
+        // userData.postal_code  = (req.body.postal_code) ? req.body.postal_code : null ;
+        // userData.country      = (req.body.country) ? req.body.country : null ;
+        // userData.gst_no       = (req.body.gst_no) ? req.body.gst_no : null ;
+        userData.updatedAt    = Date.now();
+                
+
+        // if(req.file){
+        //     let  previousImage = await UserModel.findOne({_id: req.body.user_id}).select("profile_image").exec();
+        //     if(previousImage){
+        //             filePath = './public/uploads/users/'+previousImage.profile_image;
+        //             if (fs.existsSync(filePath)) {
+        //                 fs.unlinkSync(filePath); //file removed
+        //             }
+        //     }
+        // }
+        await CourierServiceModel.findOneAndUpdate({'_id':req.body.user_id},userData, {new: true}).then(async result=>{
+        result = result.toObject();
+        res.json({ status: 1 , message: 'Profile Updated Successfully!.', data : [] });
+        }).catch(err=>{
+            res.json({ status:0 , message: 'Something went wrong in update user profile. '+err.message, data : {} });                    
+        });
+     
+  
+      } catch (err) {
+        res.json({status : 0, 'message':err.message, data : {} });
+      }
+  };
+
+  SETTINGS.updateBoyProfile = async (req, res) => {
+    try {
+        let userData = {};
+        
+        if(!req.body.user_id){
+            res.json({status : 0 , message: 'The user id field required.'});
+            return;
+        }else if(!req.body.service_name) {
+            res.json({status : 0 , message: 'The user name is required.'});
+            return;
+        }else if(!req.body.phone_number){
+            res.json({status : 0 , message: 'Mobile number is required.'});
+            return;
+        }else if(req.body.phone_number && !await helper.validatePhone(req.body.phone_number)){
+            res.json({status : 0 , message: 'Please enter valid mobile number.'});
+            return;
+        }else if(req.body.email && !await helper.validateEmail(req.body.email)){
+            res.json({status : 0 , message: 'Please enter valid email address.'});
+            return;
+        }
+        else if(req.body.password && req.body.password.length<4){
+            res.json({status : 0 , message: 'Please enter minimum four digit password.'});
+            return;
+        }
+
+        if (req.body.email) {
+            userData.email = req.body.email;
+        }
+
+        if (req.body.phone_number) {
+            userData.phone_number = req.body.phone_number;
+        }
+        if(req.body.service_name){
+            userData.service_name   = req.body.service_name;
+        }
+
+        if(req.body.password){
+            userData.password = req.body.password;
+        }
+        
+        if(req.file){
+            userData.profile_image = req.file.service_name;
+        }
+
+        userData.address      = (req.body.address) ? req.body.address : null ;
+        userData.city         = (req.body.city) ? req.body.city : null ;
+        userData.postal_code  = (req.body.postal_code) ? req.body.postal_code : null ;
+        userData.country      = (req.body.country) ? req.body.country : null ;
+        // userData.gst_no       = (req.body.gst_no) ? req.body.gst_no : null ;
+        userData.updatedAt    = Date.now();
+                
+
+        // if(req.file){
+        //     let  previousImage = await UserModel.findOne({_id: req.body.user_id}).select("profile_image").exec();
+        //     if(previousImage){
+        //             filePath = './public/uploads/users/'+previousImage.profile_image;
+        //             if (fs.existsSync(filePath)) {
+        //                 fs.unlinkSync(filePath); //file removed
+        //             }
+        //     }
+        // }
+        await courierBoyModel.findOneAndUpdate({'_id':req.body.user_id},userData, {new: true}).then(async result=>{
+        result = result.toObject();
+        res.json({ status: 1 , message: 'Profile Updated Successfully!.', data : [] });
+        }).catch(err=>{
+            res.json({ status:0 , message: 'Something went wrong in update user profile. '+err.message, data : {} });                    
+        });
+     
+  
+      } catch (err) {
+        res.json({status : 0, 'message':err.message, data : {} });
+      }
+  };
 SETTINGS.updateProfile = async (req, res) => {
     try {
         let userData = {};

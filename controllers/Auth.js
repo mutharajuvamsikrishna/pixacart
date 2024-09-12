@@ -71,7 +71,7 @@ USER.api.courierServiceLogin = async (req, res) => {
               status: 1,
               message: "Logged in successfully.",
               data: userData,
-              redirect: 'dashboard',
+              redirect: 'courierdashboard',
           });
       }
  
@@ -105,7 +105,7 @@ USER.api.courierServiceLogin = async (req, res) => {
               status: 1,
               message: "Logged in successfully.",
               data: userData,
-              redirect: 'dashboard',
+              redirect: 'courierdashboard',
           });
       }
  

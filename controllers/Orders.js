@@ -12,6 +12,7 @@ const productsModel  = mongoose.model('products');
 const ordersModel  = mongoose.model('orders');
 const orderProducts  = mongoose.model('orders_products');
 const courierServicesModel  = mongoose.model('courier_services');
+const courierBoysModel  = mongoose.model('courier_boys');
 const {validationResult} = require('express-validator');
 const notificationsModel  = mongoose.model('notifications');
 const ordersInvoiceModel     = mongoose.model('orders_invoice');
@@ -90,27 +91,26 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
     try {
         let orderStatus = req.params.status;
         const courierServiceId = req.session.user.user_id;
- 
- 
+
         let query = {
             courier_service: courierServiceId,
             order_status: orderStatus
         };
- 
+
         // Array of columns that you want to show in the table
-        const columns = ['fullname']; 
+        const columns = ['fullname'];
         const start = parseInt(req.query.start) || 0;
         const dataLimit = parseInt(req.query.length) || 10;
- 
+
         // Check if global search is enabled and its value is defined
         if (req.query.search && req.query.search.value) {
             const text = req.query.search.value;
- 
+
             // Apply search on specified columns
             for (let i = 0; i < columns.length; i++) {
                 const requestColumn = req.query.columns[i];
                 const column = columns[requestColumn.data];
- 
+
                 if (requestColumn.searchable === 'true') {
                     query[column] = {
                         $regex: '.*' + text + '.*', $options: 'i'
@@ -118,27 +118,27 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
                 }
             }
         }
- 
+
         // Fetch orders based on the query
         const result = await orderProducts.find(query)
             .populate('seller_id', 'fullname')
             .populate('order_id', 'order_uniqueid payment_status payment_mode')
             .populate('order_vid', 'pro_subtitle pro_sku')
-            .populate({ path: 'order_uid', select: 'fullname' })
+            .populate({ path: 'order_uid', select: 'fullname postal_code' })
             .sort({ _id: 'desc' })
             .skip(start)
             .limit(dataLimit);
- 
+
         const totalRecords = await orderProducts.countDocuments(query);
         const filteredRecords = totalRecords; // Total filtered records
- 
+
         const mytable = {
             draw: parseInt(req.query.draw) || 1,
             recordsTotal: totalRecords,
             recordsFiltered: filteredRecords,
             data: []
         };
- 
+
         // Prepare data for response
         if (result.length > 0) {
             let currency_symbol = "$";
@@ -146,40 +146,55 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
             if (currencies) {
                 currency_symbol = currencies.currency_symbol;
             }
- 
-            result.forEach((element, index) => {
+
+            for (let index = 0; index < result.length; index++) {
+                const element = result[index];
+
                 let label = '';
                 let track = '';
                 let returnBtn = '';
                 let refundBtn = '';
- 
+
                 if (element.order_status === 8) {
                     returnBtn = `<a href="javascript:;" title="Accept Return" class="AcceptReturn" action="6" url="orders/returnRequestAccept" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
                 }
- 
+
                 if (element.order_status === 7) {
                     refundBtn = `<a href="javascript:;" title="Generate Refund" class="generateRefund" action="6" url="orders/generateRefund" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
                 }
- 
+
                 const invoice = `<a href="javascript:;" title="View Invoice" class="viewInvoice" url="orders/view-invoice" data-invoice-id="${element.invoice_id}"><i class="fas fa-file-invoice"></i></a>`;
- 
+
                 let checkBox = `<input class="checkedOrder" value="${element._id}" id="${element._id}" type="checkbox"> `;
                 if (element.order_status === 4) {
                     label = `<a href="javascript:;" title="Generate Label" class="generateLabel" url="orders/generateLabel" data-order-id="${element._id}"><i class="fas fa fa-tag"></i></a>`;
                     track = `<a href="javascript:;" title="Add Tracking Id" class="AddTrackingDetail" action="5" url="orders/updateOrderStatus" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
                     checkBox = '';
                 }
- 
+
                 const inArr = [1, 6, 7, 8];
                 if (inArr.includes(element.order_status)) {
                     checkBox = '';
                 }
- 
+
                 let payStatus = 'Unpaid';
                 if (element.order_id && element.order_id.payment_status === 1) {
                     payStatus = 'Paid';
                 }
- 
+
+                // Fetch courier boy's name based on postal code
+                let courierBoyName = 'Not Assigned'; // Default value
+
+                // Use 'await' to fetch courier boy details properly
+                const courierBoy = await courierBoysModel.findOne({
+                    courierService: courierServiceId,
+                    postal_code: element.order_uid.postal_code // Match user's postal code
+                });
+
+                if (courierBoy && courierBoy.fullname) {
+                    courierBoyName = courierBoy.fullname;
+                }
+
                 mytable.data.push([
                     checkBox + '' + (start + index + 1), // Row number adjusted here
                     (element.order_id) ? element.order_id.order_uniqueid : '',
@@ -195,10 +210,11 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
                     `<label class="mb-0 badge badge-${helper.lableClass[element.order_status]}" title="" data-original-title="Pending">${helper.orderStatusLable[element.order_status]}</label>`,
                     payStatus,
                     (element.order_id) ? element.order_id.payment_mode : '',
+                    courierBoyName,
                     invoice + ' ' + label + ' ' + track + ' ' + returnBtn + ' ' + refundBtn
                 ]);
-            });
- 
+            }
+
             res.status(200).json(mytable);
         } else {
             res.status(200).json(mytable);
@@ -207,6 +223,7 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
         res.status(401).json({ status: 0, message: 'Error: ' + err.message });
     }
 };
+
 
 
 ORDERS.courierboy_ServicesOrders = async (req, res) => {

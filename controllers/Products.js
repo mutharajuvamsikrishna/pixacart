@@ -1235,10 +1235,34 @@ PRODUCTS.brandsList = async (req, res) => {
     res.status(401).json({ status: 0, message: "error " + err });
   }
 };
+// PRODUCTS.deleteBrand = async (req, res) => {
+//   try {
+//     const brandId = req.body.id;
+
+//     await brandModel.findByIdAndDelete(brandId);
+
+//     res.status(200).json({ status: 1, message: 'Brand deleted successfully.' });
+//   } catch (err) {
+//     res.status(400).json({ status: 0, message: 'Error deleting brand: ' + err });
+//   }
+// };
+
 PRODUCTS.deleteBrand = async (req, res) => {
   try {
     const brandId = req.body.id;
 
+    // Check if any product is associated with this brand
+    const productsUsingBrand = await productsModel.find({ prod_brand: brandId });
+
+    if (productsUsingBrand.length > 0) {
+      // If there are products using the brand, prevent deletion
+      return res.status(400).json({
+        status: 0,
+        message: 'Brand cannot be deleted because it is associated with products.',
+      });
+    }
+
+    // If no products are using the brand, proceed with deletion
     await brandModel.findByIdAndDelete(brandId);
 
     res.status(200).json({ status: 1, message: 'Brand deleted successfully.' });
@@ -1246,6 +1270,7 @@ PRODUCTS.deleteBrand = async (req, res) => {
     res.status(400).json({ status: 0, message: 'Error deleting brand: ' + err });
   }
 };
+
 
 PRODUCTS.attributesList = async (req, res) => {
   try {

@@ -1,5 +1,7 @@
 const mongoose   = require('mongoose');
 const UserModel  = mongoose.model('users');
+const CourierServiceModel=mongoose.model('courier_services')
+const courierBoyModel=mongoose.model('courier_boys')
 const withdrawRequestModel  = mongoose.model('withdraw_request');
 const moment            = require('moment'); 
 const config          = require('../config/config');
@@ -20,6 +22,48 @@ ADMIN.profile = async (req, res) => {
     }
     let notiCount = 0;
     res.render('backend/profile', {
+            viewTitle : 'User Profile',
+            pageTitle : 'User Profile',
+            userProfile : userProfile,
+            notiCount : notiCount
+    });
+};
+
+ADMIN.courierServiceProfile = async (req, res) => {
+    let userProfile = await CourierServiceModel.findOne({_id: req.session.user.user_id}).exec();
+    if(userProfile){
+        req.session.user.service_name    = userProfile.service_name;
+        if(userProfile.profile_image != null){
+            userProfile.profile_image = config.APP_URL+'uploads/users/'+userProfile.profile_image;
+            req.session.user.profile_image    = userProfile.profile_image;
+        }else{
+            userProfile.profile_image = config.USER_DEFAULT_IMAGE;
+            req.session.user.profile_image    = userProfile.profile_image;
+        }
+    }
+    let notiCount = 0;
+    res.render('backend/courierServiceProfile', {
+            viewTitle : 'User Profile',
+            pageTitle : 'User Profile',
+            userProfile : userProfile,
+            notiCount : notiCount
+    });
+};
+
+ADMIN.courierBoyProfile = async (req, res) => {
+    let userProfile = await courierBoyModel.findOne({_id: req.session.user.user_id}).exec();
+    if(userProfile){
+        req.session.user.service_name    = userProfile.service_name;
+        // if(userProfile.profile_image != null){
+        //     userProfile.profile_image = config.APP_URL+'uploads/users/'+userProfile.profile_image;
+        //     req.session.user.profile_image    = userProfile.profile_image;
+        // }else{
+        //     userProfile.profile_image = config.USER_DEFAULT_IMAGE;
+        //     req.session.user.profile_image    = userProfile.profile_image;
+        // }
+    }
+    let notiCount = 0;
+    res.render('backend/courierBoyProfile', {
             viewTitle : 'User Profile',
             pageTitle : 'User Profile',
             userProfile : userProfile,

@@ -275,6 +275,16 @@ router.get(
   controllers.admin.profile
 );
 router.get(
+  "/courierserviceprofile",
+  controllers.middleware.authenticate,
+  controllers.admin.courierServiceProfile
+);
+router.get(
+  "/courierboyprofile",
+  controllers.middleware.authenticate,
+  controllers.admin.courierBoyProfile
+);
+router.get(
   "/admin/withdraw-request",
   controllers.middleware.authenticate,
   controllers.admin.sellerWithdrawsRequest
@@ -302,6 +312,11 @@ router.get(
   "/dashboard",
   controllers.middleware.authenticate,
   controllers.dashboard.dashboard
+);
+router.get(
+  "/courierdashboard",
+  controllers.middleware.authenticate,
+  controllers.dashboard.courierdashboard
 );
 router.get(
   "/dashboard/category",
@@ -719,7 +734,7 @@ router.get(
   "/support/ticket-reply/:id",
   controllers.middleware.authenticate,
   controllers.support.ticketReply
-);
+); 
 router.get(
   "/support/sp_category_list",
   controllers.middleware.authenticate,
@@ -812,6 +827,16 @@ router.post(
   "/settings/updateProfile",
   upload.single("users_image"),
   controllers.settings.updateProfile
+);
+router.post(
+  "/settings/updateServiceProfile",
+  upload.single("users_image"),
+  controllers.settings.updateServiceProfile
+);
+router.post(
+  "/settings/updateBoyProfile",
+  upload.single("users_image"),
+  controllers.settings.updateBoyProfile
 );
 router.post(
   "/settings/uploadWebImages",
