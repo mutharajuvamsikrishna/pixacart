@@ -117,18 +117,9 @@
             <div class="pc-other-feilds">
               <div class="pc-checkbox">
                 <label>
-                  <input
-                    type="checkbox"
-                    name="remember_me"
-                    class="pc-checkbox"
-                    <%
-                    if
-                    (cookies.email)
-                    {
-                    %
-                  />
-                  checked <% } %> />
-
+                    <input type="checkbox" name="remember_me" class="pc-checkbox"
+                    <% if (cookies.email) { %> checked <% } %> />
+                    
                   <span>Remember Me</span>
                 </label>
               </div>
