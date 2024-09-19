@@ -249,12 +249,14 @@ USER.dashboard = async (req, res) => {
 };
 
 USER.logout = async (req, res) => {
+  // If session contains a logged-in user and login role
   if (req.session.user && req.session.user.loginAS) {
     const loginRole = req.session.user.loginAS;
 
     req.session.destroy();
     res.clearCookie('AuthTkn');
 
+    // Redirect based on the user's role
     if (loginRole === 'ADMIN' || loginRole === 'SELLER') {
       res.redirect('/login'); 
     } else if (loginRole === 'COURIER_SERVICE' || loginRole === 'COURIER_BOY') {
@@ -262,11 +264,45 @@ USER.logout = async (req, res) => {
     } else {
       res.redirect('/login'); 
     }
-  } else {
-    
+  } 
+  // Check if the user is logged in via OAuth (like Google)
+  else if (req.user) {
+    req.logout(function(err) {
+      if (err) {
+        console.log("Error logging out from OAuth:", err);
+        return res.redirect('/error'); // Handle error if needed
+      }
+      
+      res.clearCookie('AuthTkn');
+      res.redirect('/login');  // Redirect to login page after Google logout
+    });
+  }
+  // If the user is not logged in at all
+  else {
     res.redirect('/login');
   }
 };
+
+
+// USER.logout = async (req, res) => {
+//   if (req.session.user && req.session.user.loginAS) {
+//     const loginRole = req.session.user.loginAS;
+
+//     req.session.destroy();
+//     res.clearCookie('AuthTkn');
+
+//     if (loginRole === 'ADMIN' || loginRole === 'SELLER') {
+//       res.redirect('/login'); 
+//     } else if (loginRole === 'COURIER_SERVICE' || loginRole === 'COURIER_BOY') {
+//       res.redirect('/courierservicelogin');
+//     } else {
+//       res.redirect('/login'); 
+//     }
+//   } else {
+    
+//     res.redirect('/login');
+//   }
+// };
 
 USER.verify_email = async (req, res) => {
     try {
