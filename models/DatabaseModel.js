@@ -65,7 +65,7 @@ const productSchema = new mongoose.Schema({
                    ref: 'users',
                    required:true
                 },
-    prod_name:{ type: String,default:null},
+    prod_name:{ type: String,default:null,unique: true,required: true},
     prod_description    :{ type: String, default:null},
     prod_cate :{ type: mongoose.Schema.Types.ObjectId,
                  ref: 'category',

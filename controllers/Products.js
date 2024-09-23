@@ -25,6 +25,16 @@ PRODUCTS.create_product = async (req, res) => {
   postData.prod_brand = req.body.pro_brand;
   postData.prod_unit = req.body.pro_unit;
 
+
+  const existingProduct = await productsModel.findOne({ prod_name: postData.prod_name });
+  if (existingProduct && (!req.body.id || existingProduct._id.toString() !== req.body.id)) { 
+      return res.status(400).json({
+          status: 0,
+          message: "Product name already exists.",
+      });
+  }
+
+
   if (req.files) {
     for (let i = 0; i < req.files.length; i++) {
       await helper.createThumb(
