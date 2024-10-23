@@ -117,20 +117,10 @@
             <div class="pc-other-feilds">
               <div class="pc-checkbox">
                 <label>
-                  <input
-                    type="checkbox"
-                    name="remember_me"
-                    class="pc-checkbox"
-                    <%
-                    if
-                    (cookies.email)
-                    {
-                    %
-                  />
-
-                  checked <% } %> />
-
-                  <span>Remember Me</span>
+                  <input type="checkbox" name="rememberMe" id="rememberMe" 
+                  <%= cookies.email ? 'checked' : '' %> />
+           <label for="rememberMe">Remember Me</label>
+           
                 </label>
               </div>
               <a class="forgot-pws-btn" href="/forgot-pws">Forgot Password?</a>
@@ -149,7 +139,7 @@
             </p>
             <p class="pc-register-text">
               Login with google
-              <a href="http://18.61.197.237:3000/auth/google/">Click Here</a>
+              <a href="http://localhost:3000/auth/google/">Click Here</a>
             </p>
           </form>
         </div>

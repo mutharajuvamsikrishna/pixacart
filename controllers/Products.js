@@ -716,6 +716,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
         return res.status(401).json({
           status: 0,
           message: "Sub category name already exists, Please try another one.",
+          data: ""
         });
       }
 
