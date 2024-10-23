@@ -402,26 +402,7 @@ router.get(
   controllers.products.categorList
 );
 
-router.delete('/category/delete/:id', async (req, res) => {
-  try {
-      const cateId = req.params.id;
-
-      // Check if there are subcategories for this category
-      const hasSubcategories = await subCategoryModel.exists({ parent_id: cateId });
-
-      if (hasSubcategories) {
-          return res.status(400).json({ status: 0, message: 'Category cannot be deleted because it has subcategories' });
-      }
-
-      // If no subcategories, proceed with deletion
-      await categoryModel.findByIdAndDelete(cateId);
-
-      res.status(200).json({ status: 1, message: 'Category deleted successfully' });
-  } catch (error) {
-      res.status(500).json({ status: 0, message: 'Error deleting category: ' + error.message });
-  }
-});
-
+router.delete('/category/delete/:id', controllers.middleware.authenticate,controllers.products.delete_category);
 router.get(
   "/subcategory_list",
   controllers.middleware.authenticate,
@@ -762,16 +743,19 @@ router.post(
 router.post(
   "/create_category",
   upload.single("category_image"),
+  controllers.middleware.authenticate,
   controllers.products.create_category
 );
 router.post(
   "/create_subcategory",
   upload.single("subcategory_image"),
+  controllers.middleware.authenticate,
   controllers.products.create_subcategory
 );
 router.post(
   "/create_brand",
   upload.single("brands_image"),
+   controllers.middleware.authenticate,
   controllers.products.create_brand
 );
 router.post(

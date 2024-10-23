@@ -415,6 +415,41 @@ PRODUCTS.deleteProductVariantThumb = async (req, res) => {
   }
 };
 
+
+
+
+
+PRODUCTS.delete_category = async (req, res) => {
+  try {
+    const cateId = req.params.id;
+
+    // Check if the category exists
+    const category = await categoryModel.findById(cateId);
+    if (!category) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Category not found.',
+      });
+    }
+
+    // Check if there are subcategories for this category
+    const hasSubcategories = await subCategoryModel.exists({ parent_id: cateId });
+    if (hasSubcategories) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Category cannot be deleted because it has subcategories.',
+      });
+    }
+
+    // If no subcategories, proceed with deletion
+    await categoryModel.findByIdAndDelete(cateId);
+
+    res.status(200).json({ status: 1, message: 'Category deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ status: 0, message: 'Error deleting category: ' + error.message });
+  }
+};
+
 PRODUCTS.create_category = async (req, res) => {
   postData = {};
 
@@ -680,7 +715,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       if (checkCateExist) {
         return res.status(401).json({
           status: 0,
-          message: "Category name already exists, Please try another one.",
+          message: "Sub category name already exists, Please try another one.",
         });
       }
 
@@ -700,7 +735,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       await subCategoryModel.findOneAndUpdate({ _id: req.body.id }, postData);
       return res.status(200).json({
         status: 1,
-        message: "Category Updated Successfully!",
+        message: "Sub Category Updated Successfully!",
         data: req.body.id,
       });
     } else {
@@ -711,7 +746,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       if (check) {
         return res.status(401).json({
           status: 0,
-          message: "Category name already exists, Please try another one.",
+          message: "Sub Category name already exists, Please try another one.",
         });
       }
 
@@ -719,7 +754,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       let creatRes = await subCategoryModel.create(postData);
       return res.status(200).json({
         status: 1,
-        message: "Category Added Successfully!",
+        message: "Sub Category Added Successfully!",
         data: creatRes,
       });
     }
