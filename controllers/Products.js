@@ -1259,11 +1259,19 @@ PRODUCTS.brandsList = async (req, res) => {
 
 PRODUCTS.deleteBrand = async (req, res) => {
   try {
-    const brandId = req.body.id;
+    const brandId = req.body.id; // Extract the id from the body
+
+    // Check if the brand exists
+    const brand = await brandModel.findById(brandId);
+    if (!brand) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Brand not found.',
+      });
+    }
 
     // Check if any product is associated with this brand
     const productsUsingBrand = await productsModel.find({ prod_brand: brandId });
-
     if (productsUsingBrand.length > 0) {
       // If there are products using the brand, prevent deletion
       return res.status(400).json({
@@ -1280,6 +1288,9 @@ PRODUCTS.deleteBrand = async (req, res) => {
     res.status(400).json({ status: 0, message: 'Error deleting brand: ' + err });
   }
 };
+
+
+
 
 
 PRODUCTS.attributesList = async (req, res) => {

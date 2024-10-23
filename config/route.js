@@ -457,10 +457,10 @@ router.get(
   controllers.middleware.authenticate,
   controllers.products.brandsList
 );
-router.post("/deleteBrand",
-  controllers.middleware.authenticate,
-  controllers.products.deleteBrand
-  );
+router.post("/deleteBrand", controllers.middleware.authenticate, controllers.products.deleteBrand);
+
+
+
 
 router.get(
   "/products_list",

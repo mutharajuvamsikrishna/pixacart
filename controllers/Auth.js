@@ -208,7 +208,6 @@ USER.login = async (req, res) => {
         verifyType : verifyType,
         verifyMsg : verifyMsg
     });
-   
 };
 
 USER.register = async (req, res) => {
