@@ -386,7 +386,7 @@ USER.api.login = async (req, res) => {
                 }
 
                 const token = jwt.sign(userData,config.keys.secret, { expiresIn: '1d'});
-                res.cookie('AuthTkn', token , { maxAge: 1000 * 60 * 15 }); // would expire after 15 minutes
+                // res.cookie('AuthTkn', token , { maxAge: 1000 * 60 * 15 }); // would expire after 15 minutes
                 userData.token = token;
                 req.session.user = userData;
                 

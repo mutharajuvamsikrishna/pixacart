@@ -1,13 +1,13 @@
 const router = require("express").Router();
 const multer = require("multer");
-const crypto = require('crypto');
-const mongoose=require('mongoose')
-const CourierBoys  = mongoose.model('courier_boys');
-const CourierService  = mongoose.model('courier_services');
-const subCategoryModel  = mongoose.model('sub_category');
-const categoryModel  = mongoose.model('category');
-const productModel  = mongoose.model('products');
-const productVariantsModel  = mongoose.model('products_variants');
+const crypto = require("crypto");
+const mongoose = require("mongoose");
+const CourierBoys = mongoose.model("courier_boys");
+const CourierService = mongoose.model("courier_services");
+const subCategoryModel = mongoose.model("sub_category");
+const categoryModel = mongoose.model("category");
+const productModel = mongoose.model("products");
+const productVariantsModel = mongoose.model("products_variants");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const controllers = {
@@ -22,7 +22,7 @@ const controllers = {
   api: require("../controllers/Api"),
   settings: require("../controllers/Settings"),
   support: require("../controllers/Support"),
-  courier_service: require('../controllers/courierServiceController'),
+  courier_service: require("../controllers/courierServiceController"),
 };
 const validationRules = require("./ValidationRules");
 const storage = multer.diskStorage({
@@ -47,71 +47,117 @@ var upload = multer({
       }*/
 });
 
-router.delete('/delete_courier_boy/:id', (req, res) => {
+router.delete("/delete_courier_boy/:id", (req, res) => {
   const serviceId = req.params.id;
 
   // Use Mongoose to delete the courier service by ID
   CourierBoys.findByIdAndDelete(serviceId, (err) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
-      res.status(200).send({ message: 'Courier boy deleted successfully!' });
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Courier boy deleted successfully!" });
   });
 });
-router.delete('/delete_courier_service/:id', (req, res) => {
+router.delete("/delete_courier_service/:id", (req, res) => {
   const serviceId = req.params.id;
 
   // Use Mongoose to delete the courier service by ID
   CourierService.findByIdAndDelete(serviceId, (err) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
-      res.status(200).send({ message: 'Courier service deleted successfully!' });
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Courier service deleted successfully!" });
   });
 });
 
-router.get('/api/courierService/:courierServiceId/:postalCode', async (req, res) => {
-  const { courierServiceId, postalCode } = req.params;
+router.get(
+  "/api/courierService/:courierServiceId/:postalCode",
+  async (req, res) => {
+    const { courierServiceId, postalCode } = req.params;
 
-  try {
+    try {
       const courierBoysList = await CourierBoys.find({
-          courierService: courierServiceId,
-          postal_code: postalCode
+        courierService: courierServiceId,
+        postal_code: postalCode,
       });
       if (!courierBoysList || courierBoysList.length === 0) {
-          return res.status(404).json({ message: 'No courier boys found for the given postal code and courier service ID' });
+        return res
+          .status(404)
+          .json({
+            message:
+              "No courier boys found for the given postal code and courier service ID",
+          });
       }
       res.status(200).json(courierBoysList);
-  } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    } catch (error) {
+      res.status(500).json({ message: "Server error", error });
+    }
   }
-});
-router.get('/api/courierService/:courierServiceId', async (req, res) => {
+);
+router.get("/api/courierService/:courierServiceId", async (req, res) => {
   const { courierServiceId } = req.params;
 
   try {
-      const courierBoysList = await CourierBoys.find({ courierService: courierServiceId });
-      if (!courierBoysList || courierBoysList.length === 0) {
-          return res.status(404).json({ message: 'No courier boys found for the given courier service ID' });
-      }
-      res.status(200).json(courierBoysList);
+    const courierBoysList = await CourierBoys.find({
+      courierService: courierServiceId,
+    });
+    if (!courierBoysList || courierBoysList.length === 0) {
+      return res
+        .status(404)
+        .json({
+          message: "No courier boys found for the given courier service ID",
+        });
+    }
+    res.status(200).json(courierBoysList);
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 });
-router.get('/courier_orders_list/:status',controllers.middleware.authenticate, controllers.orders.courier_ServicesOrders);
-router.get('/courierboy_orders_list/:status',controllers.middleware.authenticate, controllers.orders.courierboy_ServicesOrders);
+router.get(
+  "/courier_orders_list/:status",
+  controllers.middleware.authenticate,
+  controllers.orders.courier_ServicesOrders
+);
+router.get(
+  "/courierboy_orders_list/:status",
+  controllers.middleware.authenticate,
+  controllers.orders.courierboy_ServicesOrders
+);
 
-router.get('/dashboard/courierServicesOrders',controllers.middleware.authenticate, controllers.orders.courierServicesOrders);
-router.get('/dashboard/courierboyServicesOrders',controllers.middleware.authenticate, controllers.orders.courierboyServicesOrders);
-router.get('/dashboard/courier_boys_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierBoys);
- 
-router.get('/courierservicelogin',  controllers.auth.logincourier);
-router.post('/courierservicelogin',upload.array(), controllers.auth.api.courierServiceLogin);
-router.post('/api/getProductVariants',upload.array(), controllers.auth.api.getProductVariantDetails);
+router.get(
+  "/dashboard/courierServicesOrders",
+  controllers.middleware.authenticate,
+  controllers.orders.courierServicesOrders
+);
+router.get(
+  "/dashboard/courierboyServicesOrders",
+  controllers.middleware.authenticate,
+  controllers.orders.courierboyServicesOrders
+);
+router.get(
+  "/dashboard/courier_boys_list",
+  controllers.middleware.authenticate,
+  controllers.courier_service.getAllCourierBoys
+);
+
+router.get("/courierservicelogin", controllers.auth.logincourier);
+router.post(
+  "/courierservicelogin",
+  upload.array(),
+  controllers.auth.api.courierServiceLogin
+);
+router.post(
+  "/api/getProductVariants",
+  upload.array(),
+  controllers.auth.api.getProductVariantDetails
+);
 router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
-router.post('/dashboard/create_or_update_courier_boys',controllers.middleware.authenticate, controllers.courier_service.createOrUpdateCourierBoy);
+router.post(
+  "/dashboard/create_or_update_courier_boys",
+  controllers.middleware.authenticate,
+  controllers.courier_service.createOrUpdateCourierBoy
+);
 router.post(
   "/dashboard/create_or_update_courier_service",
   controllers.middleware.authenticate,
@@ -122,9 +168,6 @@ router.get(
   controllers.middleware.authenticate,
   controllers.courier_service.getAllCourierServices
 );
-
-
-
 
 function checkFileType(file, cb) {
   if (file.fieldname === "certificate") {
@@ -194,17 +237,17 @@ router.get("/send-otp", async (req, res) => {
   const { userEmail } = req.query;
 
   if (!userEmail) {
-      return res.status(400).send("Email is required.");
+    return res.status(400).send("Email is required.");
   }
 
   const otpCode = crypto.randomInt(100000, 999999).toString();
-  otpStore[userEmail] = { otp: otpCode, status: 'sent' };
+  otpStore[userEmail] = { otp: otpCode, status: "sent" };
 
   const mailOptions = {
-      from: "santhakumar4343@gmail.com",
-      to: userEmail,
-      subject: "Your OTP Code",
-      html: `
+    from: "santhakumar4343@gmail.com",
+    to: userEmail,
+    subject: "Your OTP Code",
+    html: `
           <p>Hello,</p>
           <p>Your OTP code for verification is: <strong>${otpCode}</strong></p>
           <p>Please use this code to complete your verification process.</p>
@@ -215,17 +258,17 @@ router.get("/send-otp", async (req, res) => {
   };
 
   try {
-      await transporter.sendMail(mailOptions);
-      res.send("OTP sent successfully!");
+    await transporter.sendMail(mailOptions);
+    res.send("OTP sent successfully!");
   } catch (error) {
-      console.error("Email error: ", error);
-      res.status(500).send("Failed to send OTP.");
+    console.error("Email error: ", error);
+    res.status(500).send("Failed to send OTP.");
   }
 });
 
-  router.get('/verify-otp', (req, res) => {
-    const { userEmail } = req.query;
-    res.send(`
+router.get("/verify-otp", (req, res) => {
+  const { userEmail } = req.query;
+  res.send(`
       <form action="/verify-otp" method="POST">
         <input type="hidden" name="userEmail" value="${userEmail}" />
         <label for="otp">Enter OTP:</label>
@@ -233,25 +276,25 @@ router.get("/send-otp", async (req, res) => {
         <button type="submit">Verify OTP</button>
       </form>
     `);
-  });
-  
-  router.post('/verify-otp', (req, res) => {
-    const { userEmail, otp } = req.body;
-  
-    if (otpStore[userEmail] && otpStore[userEmail].otp === otp) {
-      otpStore[userEmail].status = 'verified';
-      res.send('OTP verified successfully!');
-    } else {
-      res.send('Invalid OTP. Please try again.');
-    }
-  });
-  // Endpoint to get OTP status
-router.get('/otp-status', (req, res) => {
-    const { userEmail } = req.query;
-    const otpStatus = otpStore[userEmail]?.status || 'not_sent';
-    res.json({ status: otpStatus });
-  });
-  
+});
+
+router.post("/verify-otp", (req, res) => {
+  const { userEmail, otp } = req.body;
+
+  if (otpStore[userEmail] && otpStore[userEmail].otp === otp) {
+    otpStore[userEmail].status = "verified";
+    res.send("OTP verified successfully!");
+  } else {
+    res.send("Invalid OTP. Please try again.");
+  }
+});
+// Endpoint to get OTP status
+router.get("/otp-status", (req, res) => {
+  const { userEmail } = req.query;
+  const otpStatus = otpStore[userEmail]?.status || "not_sent";
+  res.json({ status: otpStatus });
+});
+
 //const {check} = require('express-validator');
 router.use(
   ["/login", "/register", "/forgot-pws"],
@@ -402,46 +445,32 @@ router.get(
   controllers.products.categorList
 );
 
-router.delete('/category/delete/:id', controllers.middleware.authenticate,controllers.products.delete_category);
+// Use DELETE method without the `:id` parameter in the URL
+router.delete(
+  "/category/delete",
+  controllers.middleware.authenticate,
+  controllers.products.delete_category
+);
+
 router.get(
   "/subcategory_list",
   controllers.middleware.authenticate,
   controllers.products.subCategorList
 );
-router.delete('/subcategory/delete/:id', async (req, res) => {
-  try {
-      const subCategoryId = req.params.id;
-
-      // Check if the subcategory is referenced in any products
-      const hasProducts = await productModel.exists({ prod_subcate: subCategoryId });
-
-      if (hasProducts) {
-          return res.status(400).json({ status: 0, message: 'Subcategory cannot be deleted because it is associated with products' });
-      }
-
-      // Proceed with deletion if no products are associated
-      const result = await subCategoryModel.findByIdAndDelete(subCategoryId);
-
-      if (result) {
-          res.status(200).json({ status: 1, message: 'Subcategory deleted successfully' });
-      } else {
-          res.status(404).json({ status: 0, message: 'Subcategory not found' });
-      }
-  } catch (err) {
-      res.status(500).json({ status: 0, message: 'Error: ' + err.message });
-  }
-});
-
+router.delete("/subcategory/delete",  controllers.middleware.authenticate,
+  controllers.products.delete_subcategory
+);
 
 router.get(
   "/brands_list",
   controllers.middleware.authenticate,
   controllers.products.brandsList
 );
-router.post("/deleteBrand", controllers.middleware.authenticate, controllers.products.deleteBrand);
-
-
-
+router.delete(
+  "/deleteBrand",
+  controllers.middleware.authenticate,
+  controllers.products.deleteBrand
+);
 
 router.get(
   "/products_list",
@@ -449,25 +478,12 @@ router.get(
   controllers.products.productsList
 );
 
-router.delete('/delete_product/:id', async (req, res) => {
-  try {
-      const productId = req.params.id;
-
-      // Check if there are any variants associated with this product
-      const variantCount = await productVariantsModel.countDocuments({ prod_id: productId });
-
-      if (variantCount > 0) {
-          return res.status(400).json({ status: 0, message: 'Cannot delete product because it has associated variants.' });
-      }
-
-      // If no variants exist, proceed with deleting the product
-      await productModel.findByIdAndDelete(productId);
-
-      res.status(200).json({ status: 1, message: 'Product deleted successfully' });
-  } catch (err) {
-      res.status(500).json({ status: 0, message: 'Error deleting product: ' + err });
-  }
-});
+// Use DELETE method without the `:id` parameter in the URL
+router.delete(
+  "/delete_product",
+  controllers.middleware.authenticate,
+  controllers.products.delete_product
+);
 
 
 router.get(
@@ -475,20 +491,46 @@ router.get(
   controllers.middleware.authenticate,
   controllers.products.productsVariantsList
 );
-router.delete('/delete_variant/:id', async (req, res) => {
+// router.delete("/delete_variant/:id", async (req, res) => {
+//   try {
+//     const variantId = req.params.id;
+
+//     const variant = await productVariantsModel.findByIdAndDelete(variantId);
+
+//     if (!variant) {
+//       return res.status(404).json({ status: 0, message: "Variant not found" });
+//     }
+
+//     res
+//       .status(200)
+//       .json({ status: 1, message: "Variant deleted successfully" });
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ status: 0, message: "Error deleting variant: " + err });
+//   }
+// });
+
+// Use a POST or DELETE method, but without the `:id` parameter in the URL
+router.delete("/delete_variant", async (req, res) => {
   try {
-      const variantId = req.params.id;
+    // Extract the variantId from the request body
+    const variantId = req.body.variantId;
 
-     
-      const variant = await productVariantsModel.findByIdAndDelete(variantId);
+    if (!variantId) {
+      return res.status(400).json({ status: 0, message: "Variant ID is required" });
+    }
 
-      if (!variant) {
-          return res.status(404).json({ status: 0, message: 'Variant not found' });
-      }
+    // Use the variantId from the form data to find and delete the variant
+    const variant = await productVariantsModel.findByIdAndDelete(variantId);
 
-      res.status(200).json({ status: 1, message: 'Variant deleted successfully' });
+    if (!variant) {
+      return res.status(404).json({ status: 0, message: "Variant not found" });
+    }
+
+    res.status(200).json({ status: 1, message: "Variant deleted successfully" });
   } catch (err) {
-      res.status(500).json({ status: 0, message: 'Error deleting variant: ' + err });
+    res.status(500).json({ status: 0, message: "Error deleting variant: " + err });
   }
 });
 
@@ -512,8 +554,11 @@ router.get(
   controllers.middleware.authenticate,
   controllers.products.attributesList
 );
-router.post('/delete_attribute', controllers.middleware.authenticate,controllers.products.deleteAttribute);
-
+router.post(
+  "/delete_attribute",
+  controllers.middleware.authenticate,
+  controllers.products.deleteAttribute
+);
 
 //router.get('/products_list',controllers.middleware.authenticate, controllers.products.productsList);
 
@@ -715,7 +760,7 @@ router.get(
   "/support/ticket-reply/:id",
   controllers.middleware.authenticate,
   controllers.support.ticketReply
-); 
+);
 router.get(
   "/support/sp_category_list",
   controllers.middleware.authenticate,
@@ -755,7 +800,7 @@ router.post(
 router.post(
   "/create_brand",
   upload.single("brands_image"),
-   controllers.middleware.authenticate,
+  controllers.middleware.authenticate,
   controllers.products.create_brand
 );
 router.post(
@@ -786,6 +831,7 @@ router.post(
 router.post(
   "/create_product_variant",
   upload.array("products_variant_image", 5),
+  controllers.middleware.authenticate,
   controllers.products.create_product_variants
 );
 

@@ -12,15 +12,17 @@ Middleware.sessionChecker = (req, res, next) => {
 }
 
 
-// Define authentication middleware BEFORE your routes
+// Define authentication middleware BEFORE your routes   && req.cookies[config.sessID]
 Middleware.authenticate = function (req, res, next) {
-    if (req.session.user && req.cookies[config.sessID]) {
+    if (req.session.user ) {
         next();
     } else {
         res.redirect('/login');
     }
     //next();
 }
+
+
 
 Middleware.checkJWT = (req, res, next) => {
     if(!req.headers || !req.headers.authorization){

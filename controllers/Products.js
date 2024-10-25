@@ -421,7 +421,15 @@ PRODUCTS.deleteProductVariantThumb = async (req, res) => {
 
 PRODUCTS.delete_category = async (req, res) => {
   try {
-    const cateId = req.params.id;
+    // Extract the cateId from the request body
+    const cateId = req.body.cateId;
+
+    if (!cateId) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Category ID is required.',
+      });
+    }
 
     // Check if the category exists
     const category = await categoryModel.findById(cateId);
@@ -447,6 +455,107 @@ PRODUCTS.delete_category = async (req, res) => {
     res.status(200).json({ status: 1, message: 'Category deleted successfully.' });
   } catch (error) {
     res.status(500).json({ status: 0, message: 'Error deleting category: ' + error.message });
+  }
+};
+
+
+PRODUCTS.delete_product = async (req, res) => {
+  try {
+    // Extract the productId from the request body
+    const productId = req.body.productId;
+
+    if (!productId) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Product ID is required.',
+      });
+    }
+
+    // Check if the product exists
+    const product = await productsModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Product not found.',
+      });
+    }
+
+    // Check if there are any variants associated with this product
+    const variantCount = await productsVariantsModel.countDocuments({
+      prod_id: productId,
+    });
+
+    if (variantCount > 0) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Cannot delete product because it has associated variants.',
+      });
+    }
+
+    // If no variants exist, proceed with deleting the product
+    await productModel.findByIdAndDelete(productId);
+
+    res.status(200).json({
+      status: 1,
+      message: 'Product deleted successfully.',
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 0,
+      message: 'Error deleting product: ' + err.message,
+    });
+  }
+};
+
+
+
+
+PRODUCTS.delete_subcategory = async (req, res) => {
+  try {
+    // Extract the subCategoryId from the request body
+    const subCategoryId = req.body.subCategoryId;
+
+    if (!subCategoryId) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Subcategory ID is required.',
+      });
+    }
+
+    // Check if the subcategory exists
+    const subcategory = await subCategoryModel.findById(subCategoryId);
+    if (!subcategory) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Subcategory not found.',
+      });
+    }
+
+    // Check if the subcategory is referenced in any products
+    const hasProducts = await productsModel.exists({
+      prod_subcate: subCategoryId,
+    });
+
+    if (hasProducts) {
+      return res.status(400).json({
+        status: 0,
+        message:
+          'Subcategory cannot be deleted because it is associated with products.',
+      });
+    }
+
+    // Proceed with deletion if no products are associated
+    await subCategoryModel.findByIdAndDelete(subCategoryId);
+
+    res.status(200).json({
+      status: 1,
+      message: 'Subcategory deleted successfully.',
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 0,
+      message: 'Error deleting subcategory: ' + err.message,
+    });
   }
 };
 
