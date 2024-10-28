@@ -418,7 +418,6 @@ PRODUCTS.deleteProductVariantThumb = async (req, res) => {
 
 
 
-
 PRODUCTS.delete_category = async (req, res) => {
   try {
     // Extract the cateId from the request body
@@ -459,6 +458,7 @@ PRODUCTS.delete_category = async (req, res) => {
 };
 
 
+
 PRODUCTS.delete_product = async (req, res) => {
   try {
     // Extract the productId from the request body
@@ -493,7 +493,7 @@ PRODUCTS.delete_product = async (req, res) => {
     }
 
     // If no variants exist, proceed with deleting the product
-    await productModel.findByIdAndDelete(productId);
+    await productsModel.findByIdAndDelete(productId);
 
     res.status(200).json({
       status: 1,
@@ -1262,7 +1262,7 @@ PRODUCTS.subCategorList = async (req, res) => {
     await subCategoryModel
       .aggregate([
         {
-          $match: query,
+          $match: {},
         },
         {
           $lookup: {

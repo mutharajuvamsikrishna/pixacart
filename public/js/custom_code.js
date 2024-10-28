@@ -38,11 +38,14 @@ $(document).ready(function () {
 
   $("#confirmDeleteProduct").on("click", function () {
     let productId = $(this).data("id");
+
     $.ajax({
-      url: `/delete_product/${productId}`,
+      url: `/delete_product`, // Backend route to handle deletion
       type: "DELETE",
+      contentType: "application/json",
+      data: JSON.stringify({ productId: productId }), // Send productId as JSON in the request body
       success: function (response) {
-        alert("Product  deleted successfully");
+        alert("Product deleted successfully");
         $("#deleteProductModal").modal("hide");
         location.reload();
       },
@@ -94,8 +97,10 @@ $(document).ready(function () {
     const cateId = $(this).data("cate-id");
 
     $.ajax({
-      url: `/category/delete/${cateId}`, // Backend route to handle deletion
+      url: `/category/delete`, // Backend route to handle deletion
       type: "DELETE",
+      contentType: "application/json",
+      data: JSON.stringify({ cateId: cateId }), // Send cateId as JSON in the request body
       success: function (response) {
         if (response.status === 1) {
           alert("Category deleted successfully");
@@ -127,8 +132,10 @@ $(document).ready(function () {
       .on("click", function () {
         // Perform the DELETE request
         $.ajax({
-          url: `/subcategory/delete/${subCateId}`, // Backend route to handle deletion
+          url: `/subcategory/delete`, // Backend route to handle deletion
           type: "DELETE",
+          contentType: "application/json",
+          data: JSON.stringify({ subCategoryId: subCateId }), // Send subCategoryId as JSON in the request body
           success: function (response) {
             if (response.status === 1) {
               alert("Subcategory deleted successfully");
@@ -147,7 +154,6 @@ $(document).ready(function () {
           },
         });
       });
-    $("#deleteSubcategoryModal").modal("hide");
   });
 
   var brandIdToDelete;
@@ -160,9 +166,10 @@ $(document).ready(function () {
   // On confirmation, send request to delete the brand
   $("#confirmDeleteBrand").on("click", function () {
     $.ajax({
-      url: "/deleteBrand",
-      type: "POST",
-      data: { id: brandIdToDelete },
+      url: "/deleteBrand", // Backend route to handle deletion
+      type: "DELETE",
+      contentType: "application/json",
+      data: JSON.stringify({ id: brandIdToDelete }), // Send brandIdToDelete as JSON in the request body
       success: function (response) {
         if (response.status === 1) {
           alert("Brand deleted successfully.");
