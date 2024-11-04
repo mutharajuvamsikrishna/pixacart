@@ -47,8 +47,13 @@ var upload = multer({
       }*/
 });
 
-router.delete("/delete_courier_boy/:id", (req, res) => {
-  const serviceId = req.params.id;
+router.get(
+  "/delete_courier_boy",
+  controllers.middleware.authenticate,
+  controllers.auth.api.deleteCourierBoy
+);
+router.delete("/delete_courier_boy", (req, res) => {
+  const serviceId = req.body.id; // Extract ID from the request body
 
   // Use Mongoose to delete the courier service by ID
   CourierBoys.findByIdAndDelete(serviceId, (err) => {
@@ -58,8 +63,9 @@ router.delete("/delete_courier_boy/:id", (req, res) => {
     res.status(200).send({ message: "Courier boy deleted successfully!" });
   });
 });
-router.delete("/delete_courier_service/:id", (req, res) => {
-  const serviceId = req.params.id;
+
+router.delete("/delete_courier_service", (req, res) => {
+  const serviceId = req.body.id;
 
   // Use Mongoose to delete the courier service by ID
   CourierService.findByIdAndDelete(serviceId, (err) => {
@@ -155,6 +161,7 @@ router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
 router.post(
   "/dashboard/create_or_update_courier_boys",
+  upload.none(),
   controllers.middleware.authenticate,
   controllers.courier_service.createOrUpdateCourierBoy
 );

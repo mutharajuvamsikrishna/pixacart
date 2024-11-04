@@ -115,7 +115,28 @@ USER.api.courierServiceLogin = async (req, res) => {
   } catch (err) {
       res.status(500).json({ error: 'Internal server error.' });
   }
+
 };
+
+USER.api.deleteCourierBoy = async (req, res) => {
+  const serviceId = req.body.id; // Extract ID from the request body
+
+  try {
+    // Use Mongoose to delete the courier service by ID
+    const result = await CourierBoysModel.findByIdAndDelete(serviceId);
+
+    // Check if a document was found and deleted
+    if (!result) {
+      return res.status(404).send({ message: "Courier boy not found!" });
+    }
+
+    res.status(200).send({ message: "Courier boy deleted successfully!" });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+
 // Product Variant Details
 USER.api.getProductVariantDetails = async (req, res) => {
   try {

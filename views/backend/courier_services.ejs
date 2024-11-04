@@ -134,7 +134,9 @@
 function deleteCourierService(serviceId) {
     $.ajax({
         type: 'DELETE',
-        url: `/delete_courier_service/${serviceId}`, // Update the URL based on your route
+        url: `/delete_courier_service`, // Update the URL to match your route without the ID
+        contentType: 'application/json', // Specify JSON content type
+        data: JSON.stringify({ id: serviceId }), // Send the ID in the request body as JSON
         success: function(response) {
             Swal.fire(
                 'Deleted!',
@@ -145,11 +147,19 @@ function deleteCourierService(serviceId) {
             location.reload(); // or use DataTable's row.remove()
         },
         error: function(err) {
-            Swal.fire(
-                'Error!',
-                'There was an error deleting the service.',
-                'error'
-            );
+            if (err.status === 404) {
+                Swal.fire(
+                    'Not Found!',
+                    'Courier service not found.',
+                    'warning'
+                );
+            } else {
+                Swal.fire(
+                    'Error!',
+                    'There was an error deleting the service.',
+                    'error'
+                );
+            }
             console.error('Error:', err);
         }
     });
