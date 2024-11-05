@@ -307,6 +307,52 @@ HELPER.getVariantSingleImage = async (vid) => {
 };
 // custom Email
 
+const axios = require("axios");
+
+HELPER.sendEmailToCourierBoy = async ({
+  email,
+  orderId,
+  trackingId,
+  orderDetails,
+}) => {
+  const subject = `Order ${orderId} Ready to Dispatch`;
+  const body = `
+        Dear Courier Partner,
+        The following order is now ready for dispatch:
+        
+        Order ID: ${orderId}
+        Product: ${orderDetails.product}
+        Size: ${orderDetails.size}
+        Quantity: ${orderDetails.quantity}
+        Tracking ID: ${trackingId}
+
+        Please prepare for pickup and delivery.
+
+        Thank you!
+    `;
+
+  const emailData = {
+    to: email,
+    subject: subject,
+    text: body, // You can use plain text for this field
+    html: body.replace(/\n/g, "<br>"), // Convert line breaks to <br> tags for HTML
+  };
+
+  try {
+    const response = await axios.post(
+      "http://18.61.197.237:3000/api/send-email",
+      emailData
+    );
+    if (response.data.status === 1) {
+      console.log("Email sent successfully to courier boy!");
+    } else {
+      console.error("Failed to send email:", response.data.message);
+    }
+  } catch (error) {
+    console.error("Error sending email to courier boy:", error);
+  }
+};
+
 HELPER.sendEmailForConfirmation = async (
   email,
   name,
@@ -322,12 +368,11 @@ HELPER.sendEmailForConfirmation = async (
   total,
   trackingDetails
 ) => {
-  
-  let names="";
-  if(trackingDetails=="Pending"){
- names="Placed Successfully";
-  }else{
-    names=trackingDetails.toUpperCase();
+  let names = "";
+  if (trackingDetails == "Pending") {
+    names = "Placed Successfully";
+  } else {
+    names = trackingDetails.toUpperCase();
   }
   const emailContent = `
     <p>Dear ${name},</p>
@@ -375,8 +420,7 @@ HELPER.sendEmailForConfirmation = async (
   }
 };
 
-
-// 
+//
 HELPER.sendNotification = async (notiMsg, token) => {
   // console.log(token)
   var resp = {};
@@ -424,24 +468,22 @@ HELPER.deductSizeInventory = async (prod_vid, size, qty) => {
   if (prod_vid && size) {
     try {
       const result = await productsVariantsModel.findOneAndUpdate(
-        { _id: mongoose.Types.ObjectId(prod_vid), 'prod_sizes.size': size },
-        { $inc: { 'prod_sizes.$.quantity': qty } },
+        { _id: mongoose.Types.ObjectId(prod_vid), "prod_sizes.size": size },
+        { $inc: { "prod_sizes.$.quantity": qty } },
         { new: true }
       );
 
       if (result) {
-      
       } else {
-        console.log('No matching document found.');
+        console.log("No matching document found.");
       }
     } catch (error) {
-      console.error('Error updating size inventory:', error);
+      console.error("Error updating size inventory:", error);
     }
   } else {
-    console.error('Product variant ID and size are required.');
+    console.error("Product variant ID and size are required.");
   }
 };
-
 
 HELPER.deductInventory = async (prod_vid, qty) => {
   if (prod_vid) {

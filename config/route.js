@@ -100,6 +100,30 @@ router.get(
     }
   }
 );
+
+
+router.get('/api/courierBoy/:postalCode', async (req, res) => {
+  try {
+    const { postalCode } = req.params;
+
+    // Validate postalCode
+    if (!postalCode) {
+      return res.status(400).json({ status: 0, message: "Postal code is required" });
+    }
+
+    // Query the database to find courier boys with matching postal codes
+    const courierBoys = await CourierBoys.find({ postal_code: postalCode, status: 1 });
+
+    if (courierBoys.length === 0) {
+      return res.status(404).json({ status: 0, message: "No courier boys found for this postal code" });
+    }
+
+    return res.status(200).json({ status: 1, message: "Courier boys retrieved successfully", data: courierBoys });
+  } catch (error) {
+    console.error("Error fetching courier boys by postal code:", error);
+    return res.status(500).json({ status: 0, message: "Server error" });
+  }
+});
 router.get("/api/courierService/:courierServiceId", async (req, res) => {
   const { courierServiceId } = req.params;
 
