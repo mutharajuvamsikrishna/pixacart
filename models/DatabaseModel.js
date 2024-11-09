@@ -279,6 +279,7 @@ const orderProductsSchema = new mongoose.Schema({
                         ref: 'courier_services',
                         //required:true
                     },
+    order_courier_boy: { type: mongoose.Schema.Types.ObjectId, ref: 'courier_boys' },
     trackingDetails : { type: Object,default:null},
     cancel_reason : { type: String,default:null},
     returnDetails : { type: Object,default:null},

@@ -235,59 +235,184 @@ ORDERS.courier_ServicesOrders = async (req, res) => {
   }
 };
 
+// ORDERS.courierboy_ServicesOrders = async (req, res) => {
+//   try {
+//     let orderStatus = req.params.status;
+//     const courierServiceId = req.session.user.courierService;
+//     const courierBoyPostalCode = req.session.user.postal_code;
+
+//     let query = {
+//       courier_service: courierServiceId,
+//       order_status: orderStatus,
+//     };
+
+//     // Array of columns that you want to show in the table
+//     const columns = ["fullname"];
+//     const start = parseInt(req.query.start) || 0;
+//     const dataLimit = parseInt(req.query.length) || 10;
+
+//     // Check if global search is enabled and its value is defined
+//     if (req.query.search && req.query.search.value) {
+//       const text = req.query.search.value;
+
+//       // Apply search on specified columns
+//       for (let i = 0; i < columns.length; i++) {
+//         const requestColumn = req.query.columns[i];
+//         const column = columns[requestColumn.data];
+
+//         if (requestColumn.searchable === "true") {
+//           query[column] = {
+//             $regex: ".*" + text + ".*",
+//             $options: "i",
+//           };
+//         }
+//       }
+//     }
+
+//     // Fetch orders based on the query and postal code matching
+//     const result = await orderProducts
+//       .find(query)
+//       .populate("seller_id", "fullname")
+//       .populate("order_id", "order_uniqueid payment_status payment_mode")
+//       .populate("order_vid", "pro_subtitle pro_sku")
+//       .populate({ path: "order_uid", select: "fullname postal_code email" }) // Include postal_code from order_uid
+//       .sort({ _id: "desc" })
+//       .skip(start)
+//       .limit(dataLimit);
+
+//     // Filter results by matching the courier boy's postal code with the customer's postal code
+//     const filteredResult = result.filter(
+//       (order) =>
+//         order.order_uid && order.order_uid.postal_code === courierBoyPostalCode
+//     );
+
+//     const totalRecords = await orderProducts.countDocuments(query);
+//     const filteredRecords = filteredResult.length; // Total filtered records
+
+//     const mytable = {
+//       draw: parseInt(req.query.draw) || 1,
+//       recordsTotal: totalRecords,
+//       recordsFiltered: filteredRecords,
+//       data: [],
+//     };
+
+//     // Prepare data for response
+//     if (filteredResult.length > 0) {
+//       let currency_symbol = "$";
+//       const currencies = await currenciesModel.findOne({ status: 1 });
+//       if (currencies) {
+//         currency_symbol = currencies.currency_symbol;
+//       }
+
+//       filteredResult.forEach((element, index) => {
+//         let label = "";
+//         let track = "";
+//         let returnBtn = "";
+//         let refundBtn = "";
+
+//         if (element.order_status === 8) {
+//           returnBtn = `<a href="javascript:;" title="Accept Return" class="AcceptReturn" action="6" url="orders/returnRequestAccept" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+//         }
+
+//         if (element.order_status === 7) {
+//           refundBtn = `<a href="javascript:;" title="Generate Refund" class="generateRefund" action="6" url="orders/generateRefund" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+//         }
+
+//         const invoice = `<a href="javascript:;" title="View Invoice" class="viewInvoice" url="orders/view-invoice" data-invoice-id="${element.invoice_id}"><i class="fas fa-file-invoice"></i></a>`;
+
+//         let checkBox = `<input class="checkedOrder" value="${element._id}" id="${element._id}" type="checkbox">`;
+//         if (element.order_status === 4) {
+//           label = `<a href="javascript:;" title="Generate Label" class="generateLabel" url="orders/generateLabel" data-order-id="${element._id}"><i class="fas fa fa-tag"></i></a>`;
+//           track = `<a href="javascript:;" title="Add Tracking Id" class="AddTrackingDetail" action="5" url="orders/updateOrderStatus" data-order-id="${element._id}"><i class="fas fa-map-marker"></i></a>`;
+//           checkBox = "";
+//         }
+
+//         const inArr = [1, 6, 7, 8];
+//         if (inArr.includes(element.order_status)) {
+//           checkBox = "";
+//         }
+
+//         let payStatus = "Unpaid";
+//         if (element.order_id && element.order_id.payment_status === 1) {
+//           payStatus = "Paid";
+//         }
+//         // const sendOtpBtn = `<button class="btn btn-secondary send-otp-btn" data-email="${element.order_uid ? element.order_uid.email : ''}" data-toggle="modal" data-target="#otpModal">Send OTP</button>`;
+//         const sendOtpBtn = `<button class="btn btn-secondary send-otp-btn" data-email="${
+//           element.order_uid ? element.order_uid.email : ""
+//         }" data-order-id="${
+//           element._id
+//         }" data-toggle="modal" data-target="#otpModal">Send OTP</button>`;
+
+//         mytable.data.push([
+//           checkBox + "" + (start + index + 1), // Row number adjusted here
+//           element.order_id ? element.order_id.order_uniqueid : "",
+//           element.order_vid ? element.order_vid.pro_subtitle : "",
+//           element.order_vid ? element.order_vid.pro_sku : "",
+//           element.prod_size,
+//           element.prod_quantity,
+//           currency_symbol + "" + element.prod_price,
+//           currency_symbol + "" + element.prod_subtotal,
+//           element.order_uid ? element.order_uid.fullname : "",
+//           element.order_uid ? element.order_uid.email : "",
+
+//           moment(element.createdAt).format("DD-MMM-YYYY HH:MM"),
+//           element.seller_id ? element.seller_id.fullname : "",
+//           `<label class="mb-0 badge badge-${
+//             helper.lableClass[element.order_status]
+//           }" title="" data-original-title="Pending">${
+//             helper.orderStatusLable[element.order_status]
+//           }</label>`,
+//           payStatus,
+//           element.order_id ? element.order_id.payment_mode : "",
+//           invoice +
+//             " " +
+//             label +
+//             " " +
+//             track +
+//             " " +
+//             returnBtn +
+//             " " +
+//             refundBtn,
+//           sendOtpBtn,
+//         ]);
+//       });
+
+//       res.status(200).json(mytable);
+//     } else {
+//       res.status(200).json(mytable);
+//     }
+//   } catch (err) {
+//     res.status(401).json({ status: 0, message: "Error: " + err.message });
+//   }
+// };
+
 ORDERS.courierboy_ServicesOrders = async (req, res) => {
   try {
-    let orderStatus = req.params.status;
-    const courierServiceId = req.session.user.courierService;
-    const courierBoyPostalCode = req.session.user.postal_code; // Fetch logged-in courier boy's postal code
+    const courierBoyId = req.session.user.user_id; // Fetch courier boy ID from session
 
+    // Fetch orders assigned to this courier boy where order_id is available in the orderProduct schema
     let query = {
-      courier_service: courierServiceId,
-      order_status: orderStatus,
+      order_courier_boy: courierBoyId, // Match orders by courier boy ID
+      order_id: { $exists: true }, // Ensure the order_id field exists
     };
 
-    // Array of columns that you want to show in the table
     const columns = ["fullname"];
     const start = parseInt(req.query.start) || 0;
     const dataLimit = parseInt(req.query.length) || 10;
 
-    // Check if global search is enabled and its value is defined
-    if (req.query.search && req.query.search.value) {
-      const text = req.query.search.value;
-
-      // Apply search on specified columns
-      for (let i = 0; i < columns.length; i++) {
-        const requestColumn = req.query.columns[i];
-        const column = columns[requestColumn.data];
-
-        if (requestColumn.searchable === "true") {
-          query[column] = {
-            $regex: ".*" + text + ".*",
-            $options: "i",
-          };
-        }
-      }
-    }
-
-    // Fetch orders based on the query and postal code matching
+    // Fetch orders based on the query
     const result = await orderProducts
       .find(query)
       .populate("seller_id", "fullname")
       .populate("order_id", "order_uniqueid payment_status payment_mode")
       .populate("order_vid", "pro_subtitle pro_sku")
-      .populate({ path: "order_uid", select: "fullname postal_code email" }) // Include postal_code from order_uid
+      .populate({ path: "order_uid", select: "fullname postal_code email" })
       .sort({ _id: "desc" })
       .skip(start)
       .limit(dataLimit);
 
-    // Filter results by matching the courier boy's postal code with the customer's postal code
-    const filteredResult = result.filter(
-      (order) =>
-        order.order_uid && order.order_uid.postal_code === courierBoyPostalCode
-    );
-
     const totalRecords = await orderProducts.countDocuments(query);
-    const filteredRecords = filteredResult.length; // Total filtered records
+    const filteredRecords = result.length;
 
     const mytable = {
       draw: parseInt(req.query.draw) || 1,
@@ -296,15 +421,14 @@ ORDERS.courierboy_ServicesOrders = async (req, res) => {
       data: [],
     };
 
-    // Prepare data for response
-    if (filteredResult.length > 0) {
+    if (result.length > 0) {
       let currency_symbol = "$";
       const currencies = await currenciesModel.findOne({ status: 1 });
       if (currencies) {
         currency_symbol = currencies.currency_symbol;
       }
 
-      filteredResult.forEach((element, index) => {
+      result.forEach((element, index) => {
         let label = "";
         let track = "";
         let returnBtn = "";
@@ -336,7 +460,7 @@ ORDERS.courierboy_ServicesOrders = async (req, res) => {
         if (element.order_id && element.order_id.payment_status === 1) {
           payStatus = "Paid";
         }
-        // const sendOtpBtn = `<button class="btn btn-secondary send-otp-btn" data-email="${element.order_uid ? element.order_uid.email : ''}" data-toggle="modal" data-target="#otpModal">Send OTP</button>`;
+
         const sendOtpBtn = `<button class="btn btn-secondary send-otp-btn" data-email="${
           element.order_uid ? element.order_uid.email : ""
         }" data-order-id="${
@@ -344,7 +468,7 @@ ORDERS.courierboy_ServicesOrders = async (req, res) => {
         }" data-toggle="modal" data-target="#otpModal">Send OTP</button>`;
 
         mytable.data.push([
-          checkBox + "" + (start + index + 1), // Row number adjusted here
+          checkBox + "" + (start + index + 1),
           element.order_id ? element.order_id.order_uniqueid : "",
           element.order_vid ? element.order_vid.pro_subtitle : "",
           element.order_vid ? element.order_vid.pro_sku : "",
@@ -354,8 +478,7 @@ ORDERS.courierboy_ServicesOrders = async (req, res) => {
           currency_symbol + "" + element.prod_subtotal,
           element.order_uid ? element.order_uid.fullname : "",
           element.order_uid ? element.order_uid.email : "",
-
-          moment(element.createdAt).format("DD-MMM-YYYY HH:MM"),
+          moment(element.createdAt).format("DD-MMM-YYYY HH:mm"),
           element.seller_id ? element.seller_id.fullname : "",
           `<label class="mb-0 badge badge-${
             helper.lableClass[element.order_status]
@@ -774,6 +897,7 @@ ORDERS.updateOrderStatus = async (req, res) => {
             if (courierData.status === 1 && courierData.data.length > 0) {
               const matchedCourierBoy = courierData.data[0]; // Get the first matched courier boy
               const courierEmail = matchedCourierBoy.email;
+              updateData.order_courier_boy = matchedCourierBoy._id;
 
               await helper.sendEmailToCourierBoy({
                 email: courierEmail,
