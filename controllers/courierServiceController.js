@@ -119,6 +119,79 @@ const getAllCourierBoys = async (req, res) => {
     }
 };
 
+const getAllProductsBySeller = async (req, res) => {
+    try {
+        // Get the seller ID from the request body
+        const sellerId = req.body.sellerId;
+
+        if (!sellerId) {
+            return res.status(400).json({ status: 0, message: 'Seller ID is required.' });
+        }
+
+        // Find products associated with the given seller ID
+        const products = await productsModel.find({ prod_sellerid: sellerId });
+
+        if (products.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No products found for this seller.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Products retrieved successfully.', data: products });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve products.', data: err.message });
+    }
+};
+
+const getAllOrdersBySellerId = async (req, res) => {
+    try {  // Get the seller ID from the request body
+        const sellerId = req.body.sellerId;
+
+        if (!sellerId) {
+            return res.status(400).json({ status: 0, message: 'Seller ID is required.' });
+        }
+
+        // Find products associated with the given seller ID
+        const orderProduct = await orderProducts.find({ seller_id: sellerId });
+
+
+        if (orderProduct.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No Orders found for this seller.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Orders retrieved successfully.', data: orderProduct });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Orders.', data: err.message });
+    }
+};
+const getAllUsersByRole = async (req, res) => {
+    try {
+        // Get the role from the request body and convert it to a number
+        const role = Number(req.body.role);
+        console.log(req.body);
+
+        if (!role) {
+            return res.status(400).json({ status: 0, message: 'Role is required.' });
+        }
+
+        // If role is 1, retrieve all users
+        let userList;
+        if (role === 1) {
+            userList = await users.find(); // Use the users model to query the database
+        } else {
+            return res.status(403).json({ status: 0, message: 'Access denied. Only role 1 can view all users.' });
+        }
+
+        if (userList.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No users found.' });
+        }
+
+        // Return the users in the response
+        res.json({ status: 1, message: 'Users retrieved successfully.', data: userList });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve users.', data: err.message });
+    }
+};
 
 
 
@@ -126,5 +199,9 @@ module.exports = {
     createOrUpdateCourierService,
     createOrUpdateCourierBoy,
     getAllCourierServices,
-    getAllCourierBoys
+    getAllCourierBoys,
+    getAllProductsBySeller,
+    getAllOrdersBySellerId,
+    getAllUsersByRole
+
 };

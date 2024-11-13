@@ -101,7 +101,10 @@ router.get('/courierboy_orders_list/:status',controllers.middleware.authenticate
 router.get('/dashboard/courierServicesOrders',controllers.middleware.authenticate, controllers.orders.courierServicesOrders);
 router.get('/dashboard/courierboyServicesOrders',controllers.middleware.authenticate, controllers.orders.courierboyServicesOrders);
 router.get('/dashboard/courier_boys_list', controllers.middleware.authenticate,controllers.courier_service.getAllCourierBoys);
- 
+router.get('/dashboard/getproductsbyseller', controllers.courier_service.getAllProductsBySeller);
+router.get('/dashboard/getordersbyseller', controllers.courier_service.getAllOrdersBySellerId);
+router.get('/dashboard/getusersbyrole', controllers.courier_service.getAllUsersByRole);
+
 router.get('/courierservicelogin',  controllers.auth.logincourier);
 router.post('/courierservicelogin',upload.array(), controllers.auth.api.courierServiceLogin);
 router.post('/api/getProductVariants',upload.array(), controllers.auth.api.getProductVariantDetails);
