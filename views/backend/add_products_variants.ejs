@@ -14,7 +14,7 @@
                     <div class="breadcrumb-list">
                         <ul>
                             <li class="breadcrumb-link">
-                                <a href="index.html"><i class="fas fa-home mr-2"></i>Dashboard</a>
+                                <a href="/index.html"><i class="fas fa-home mr-2"></i>Dashboard</a>
                             </li>
                             <li class="breadcrumb-link active"><%=viewTitle%></li>
                         </ul>
@@ -127,9 +127,16 @@
                                                         <input class="form-control require price" type="number" placeholder="Price" name="prod_sizes[<%= index %>][price]" id="price_<%= index %>" value="<%= sizeQuantity.price %>">
                                                     </div>
                                                 </div>
-                                                <div class="col-12">
-                                                    <button style="height: 40px;" type="button" class="btn btn-danger btn-sm remove-size-row" data-index="<%= index %>">Remove</button>
+                                                <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                    <div class="form-group">
+                                                        <label for="minOrder_<%= index %>" class="col-form-label">Min Order</label>
+                                                        <input class="form-control require" type="number" placeholder="Min Order" name="prod_sizes[<%= index %>][minOrder]" id="minOrder_<%= index %>" value="<%= sizeQuantity.minOrder %>">
+                                                    </div>
                                                 </div>
+                                                
+                                            
+                                                 
+                                                
                                             </div>
                                             <% });
                                         } %>
@@ -181,7 +188,13 @@
                                                                 <input class="form-control require price-input" type="number" placeholder="Price" name="prices[<%= i %>]" id="price_<%= i %>" value="<%= prodDetails.prices[i] %>">
                                                             </div>
                                                         </div>
-                                                        
+                                                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="minOrder_<%= i %>" class="col-form-label">Min Order</label>
+                                                                <input class="form-control require minOrder-input" type="number" placeholder="Min Order" name="minOrders[<%= i %>]" id="minOrder_<%= i %>" value="<%= prodDetails.minOrders[i] %>">
+                                                            </div>
+                                                        </div>
+                                                       
                                                         <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
                                                             <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
                                                                 <% if (prodDetails.sizes.length > 1) { %>
@@ -240,6 +253,14 @@
                                                                 <input class="form-control require price-input" type="number" placeholder="Price" name="prices[0]" id="price_0" value="" readonly>
                                                             </div>
                                                         </div>
+                                                         <!-- min Order -->
+                                                         <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="minOrder_0" class="col-form-label">Min Order</label>
+                                                                <input class="form-control require minOrder-input" type="number" placeholder="Min Order" name="minOrders[0]" id="minOrder_0" value="">
+                                                            </div>
+                                                        </div>
+                                                         
                                                     </div>
                                                 </div>
                                             <% } %>
@@ -423,6 +444,15 @@
                             <input class="form-control require price-input" type="number" placeholder="Price" name="prices[${index}]" id="price_${index}" value="" readonly>
                         </div>
                     </div>
+                    <!-- min Order -->
+                    <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
+                        <div class="form-group">
+                            <label for="minOrder_${index}" class="col-form-label">Min Order</label>
+                            <input class="form-control require minOrder-input" type="number" placeholder="Min Order" name="minOrders[${index}]" id="minOrder_${index}" value="">
+                        </div>
+                    </div>
+                    
+
                     <!-- Remove Button -->
                     <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
                         <div class="form-group">

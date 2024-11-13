@@ -1,7 +1,10 @@
 
+const mongoose =require("mongoose")
 const CourierService = require('../models/DatabaseModel').courierServices;
 const CourierBoys = require('../models/DatabaseModel').courierBoys;
-
+const orderProducts = mongoose.model('orders_products');
+const productsModel = mongoose.model("products");
+const users        = mongoose.model('users');
 const createOrUpdateCourierService = async (req, res) => {
     let postData = {
         service_name: req.body.service_name,
