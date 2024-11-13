@@ -65,7 +65,7 @@ const productSchema = new mongoose.Schema({
                    ref: 'users',
                    required:true
                 },
-    prod_name:{ type: String,default:null},
+    prod_name:{ type: String,default:null,unique: true,required: true},
     prod_description    :{ type: String, default:null},
     prod_cate :{ type: mongoose.Schema.Types.ObjectId,
                  ref: 'category',
@@ -279,6 +279,7 @@ const orderProductsSchema = new mongoose.Schema({
                         ref: 'courier_services',
                         //required:true
                     },
+    order_courier_boy: { type: mongoose.Schema.Types.ObjectId, ref: 'courier_boys' },
     trackingDetails : { type: Object,default:null},
     cancel_reason : { type: String,default:null},
     returnDetails : { type: Object,default:null},
@@ -532,8 +533,8 @@ const courierBoysSchema = new mongoose.Schema({
     phone_number: { type: String, default: null },
     address :{ type: String,default:null},
     city :{ type: String,default:null},
-    postal_code :{ type: String,default:null},
-    country :{ type: String,default:null},
+    postal_code :{ type: String,default:null,unique:true},
+    country :{ type: String,default:null}, 
     state :{ type: String,default:null},
     courierService: { type: mongoose.Schema.Types.ObjectId, ref: 'courier_services' },
     status: { type: Number, default: 1 },

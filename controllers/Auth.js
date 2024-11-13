@@ -71,7 +71,7 @@ USER.api.courierServiceLogin = async (req, res) => {
               status: 1,
               message: "Logged in successfully.",
               data: userData,
-              redirect: 'dashboard',
+              redirect: 'courierdashboard',
           });
       }
  
@@ -105,7 +105,7 @@ USER.api.courierServiceLogin = async (req, res) => {
               status: 1,
               message: "Logged in successfully.",
               data: userData,
-              redirect: 'dashboard',
+              redirect: 'courierdashboard',
           });
       }
  
@@ -115,7 +115,28 @@ USER.api.courierServiceLogin = async (req, res) => {
   } catch (err) {
       res.status(500).json({ error: 'Internal server error.' });
   }
+
 };
+
+USER.api.deleteCourierBoy = async (req, res) => {
+  const serviceId = req.body.id; // Extract ID from the request body
+
+  try {
+    // Use Mongoose to delete the courier service by ID
+    const result = await CourierBoysModel.findByIdAndDelete(serviceId);
+
+    // Check if a document was found and deleted
+    if (!result) {
+      return res.status(404).send({ message: "Courier boy not found!" });
+    }
+
+    res.status(200).send({ message: "Courier boy deleted successfully!" });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+
 // Product Variant Details
 USER.api.getProductVariantDetails = async (req, res) => {
   try {
@@ -208,7 +229,6 @@ USER.login = async (req, res) => {
         verifyType : verifyType,
         verifyMsg : verifyMsg
     });
-   
 };
 
 USER.register = async (req, res) => {
@@ -249,10 +269,60 @@ USER.dashboard = async (req, res) => {
 };
 
 USER.logout = async (req, res) => {
-	  req.session.destroy();
+  // If session contains a logged-in user and login role
+  if (req.session.user && req.session.user.loginAS) {
+    const loginRole = req.session.user.loginAS;
+
+    req.session.destroy();
     res.clearCookie('AuthTkn');
-	  res.redirect('/login');
+
+    // Redirect based on the user's role
+    if (loginRole === 'ADMIN' || loginRole === 'SELLER') {
+      res.redirect('/login'); 
+    } else if (loginRole === 'COURIER_SERVICE' || loginRole === 'COURIER_BOY') {
+      res.redirect('/courierservicelogin');
+    } else {
+      res.redirect('/login'); 
+    }
+  } 
+  // Check if the user is logged in via OAuth (like Google)
+  else if (req.user) {
+    req.logout(function(err) {
+      if (err) {
+        console.log("Error logging out from OAuth:", err);
+        return res.redirect('/error'); // Handle error if needed
+      }
+      
+      res.clearCookie('AuthTkn');
+      res.redirect('/login');  // Redirect to login page after Google logout
+    });
+  }
+  // If the user is not logged in at all
+  else {
+    res.redirect('/login');
+  }
 };
+
+
+// USER.logout = async (req, res) => {
+//   if (req.session.user && req.session.user.loginAS) {
+//     const loginRole = req.session.user.loginAS;
+
+//     req.session.destroy();
+//     res.clearCookie('AuthTkn');
+
+//     if (loginRole === 'ADMIN' || loginRole === 'SELLER') {
+//       res.redirect('/login'); 
+//     } else if (loginRole === 'COURIER_SERVICE' || loginRole === 'COURIER_BOY') {
+//       res.redirect('/courierservicelogin');
+//     } else {
+//       res.redirect('/login'); 
+//     }
+//   } else {
+    
+//     res.redirect('/login');
+//   }
+// };
 
 USER.verify_email = async (req, res) => {
     try {
@@ -337,7 +407,7 @@ USER.api.login = async (req, res) => {
                 }
 
                 const token = jwt.sign(userData,config.keys.secret, { expiresIn: '1d'});
-                res.cookie('AuthTkn', token , { maxAge: 1000 * 60 * 15 }); // would expire after 15 minutes
+                // res.cookie('AuthTkn', token , { maxAge: 1000 * 60 * 15 }); // would expire after 15 minutes
                 userData.token = token;
                 req.session.user = userData;
                 

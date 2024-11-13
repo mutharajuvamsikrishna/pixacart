@@ -25,6 +25,16 @@ PRODUCTS.create_product = async (req, res) => {
   postData.prod_brand = req.body.pro_brand;
   postData.prod_unit = req.body.pro_unit;
 
+
+  const existingProduct = await productsModel.findOne({ prod_name: postData.prod_name });
+  if (existingProduct && (!req.body.id || existingProduct._id.toString() !== req.body.id)) { 
+      return res.status(400).json({
+          status: 0,
+          message: "Product name already exists.",
+      });
+  }
+
+
   if (req.files) {
     for (let i = 0; i < req.files.length; i++) {
       await helper.createThumb(
@@ -412,6 +422,150 @@ PRODUCTS.deleteProductVariantThumb = async (req, res) => {
   }
 };
 
+
+
+
+PRODUCTS.delete_category = async (req, res) => {
+  try {
+    // Extract the cateId from the request body
+    const cateId = req.body.cateId;
+
+    if (!cateId) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Category ID is required.',
+      });
+    }
+
+    // Check if the category exists
+    const category = await categoryModel.findById(cateId);
+    if (!category) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Category not found.',
+      });
+    }
+
+    // Check if there are subcategories for this category
+    const hasSubcategories = await subCategoryModel.exists({ parent_id: cateId });
+    if (hasSubcategories) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Category cannot be deleted because it has subcategories.',
+      });
+    }
+
+    // If no subcategories, proceed with deletion
+    await categoryModel.findByIdAndDelete(cateId);
+
+    res.status(200).json({ status: 1, message: 'Category deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ status: 0, message: 'Error deleting category: ' + error.message });
+  }
+};
+
+
+
+PRODUCTS.delete_product = async (req, res) => {
+  try {
+    // Extract the productId from the request body
+    const productId = req.body.productId;
+
+    if (!productId) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Product ID is required.',
+      });
+    }
+
+    // Check if the product exists
+    const product = await productsModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Product not found.',
+      });
+    }
+
+    // Check if there are any variants associated with this product
+    const variantCount = await productsVariantsModel.countDocuments({
+      prod_id: productId,
+    });
+
+    if (variantCount > 0) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Cannot delete product because it has associated variants.',
+      });
+    }
+
+    // If no variants exist, proceed with deleting the product
+    await productsModel.findByIdAndDelete(productId);
+
+    res.status(200).json({
+      status: 1,
+      message: 'Product deleted successfully.',
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 0,
+      message: 'Error deleting product: ' + err.message,
+    });
+  }
+};
+
+
+
+
+PRODUCTS.delete_subcategory = async (req, res) => {
+  try {
+    // Extract the subCategoryId from the request body
+    const subCategoryId = req.body.subCategoryId;
+
+    if (!subCategoryId) {
+      return res.status(400).json({
+        status: 0,
+        message: 'Subcategory ID is required.',
+      });
+    }
+
+    // Check if the subcategory exists
+    const subcategory = await subCategoryModel.findById(subCategoryId);
+    if (!subcategory) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Subcategory not found.',
+      });
+    }
+
+    // Check if the subcategory is referenced in any products
+    const hasProducts = await productsModel.exists({
+      prod_subcate: subCategoryId,
+    });
+
+    if (hasProducts) {
+      return res.status(400).json({
+        status: 0,
+        message:
+          'Subcategory cannot be deleted because it is associated with products.',
+      });
+    }
+
+    // Proceed with deletion if no products are associated
+    await subCategoryModel.findByIdAndDelete(subCategoryId);
+
+    res.status(200).json({
+      status: 1,
+      message: 'Subcategory deleted successfully.',
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 0,
+      message: 'Error deleting subcategory: ' + err.message,
+    });
+  }
+};
+
 PRODUCTS.create_category = async (req, res) => {
   postData = {};
 
@@ -677,7 +831,8 @@ PRODUCTS.create_subcategory = async (req, res) => {
       if (checkCateExist) {
         return res.status(401).json({
           status: 0,
-          message: "Category name already exists, Please try another one.",
+          message: "Sub category name already exists, Please try another one.",
+          data: ""
         });
       }
 
@@ -697,7 +852,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       await subCategoryModel.findOneAndUpdate({ _id: req.body.id }, postData);
       return res.status(200).json({
         status: 1,
-        message: "Category Updated Successfully!",
+        message: "Sub Category Updated Successfully!",
         data: req.body.id,
       });
     } else {
@@ -708,7 +863,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       if (check) {
         return res.status(401).json({
           status: 0,
-          message: "Category name already exists, Please try another one.",
+          message: "Sub Category name already exists, Please try another one.",
         });
       }
 
@@ -716,7 +871,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       let creatRes = await subCategoryModel.create(postData);
       return res.status(200).json({
         status: 1,
-        message: "Category Added Successfully!",
+        message: "Sub Category Added Successfully!",
         data: creatRes,
       });
     }
@@ -1063,7 +1218,9 @@ PRODUCTS.categorList = async (req, res) => {
                                            <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateCateStatus">
                                            <label class="toggle-label" for="${element._id}"></label>
                                            </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-cate-tax="${element.cate_tax}" data-commi-tax="${element.cate_commission}"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Edit" class="editCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-cate-tax="${element.cate_tax}" data-commi-tax="${element.cate_commission}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
+              <a href="javascript:void(0);" title="Delete" class="deleteCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>`,
+
             ];
           }
 
@@ -1112,7 +1269,7 @@ PRODUCTS.subCategorList = async (req, res) => {
     await subCategoryModel
       .aggregate([
         {
-          $match: query,
+          $match: {},
         },
         {
           $lookup: {
@@ -1153,8 +1310,9 @@ PRODUCTS.subCategorList = async (req, res) => {
                 <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateSubcateStatus">
                 <label class="toggle-label" for="${element._id}"></label>
               </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray["_id"]}"><i class="fas fa-edit"></i></a>`,
-              `<a href="javascript:void(0);" title="Delete" class="deleteSubCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>` // Add this line
+              `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray["_id"]}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
+              <a href="javascript:void(0);" title="Delete" class="deleteSubCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>` 
+             
             ];
             
           }
@@ -1224,7 +1382,9 @@ PRODUCTS.brandsList = async (req, res) => {
                                            <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateBrandStatus">
                                            <label class="toggle-label" for="${element._id}"></label>
                                            </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editBrand" data-brand-id="${element._id}" data-brand-name="${element.brand_name}"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Edit" class="editBrand" data-brand-id="${element._id}" data-brand-name="${element.brand_name}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a> 
+              <a href="javascript:void(0);" title="Delete" class="deleteBrand" data-brand-id="${element._id}"><i class="fas fa-trash"></i></a>`,
+              
             ];
           }
 
@@ -1237,6 +1397,53 @@ PRODUCTS.brandsList = async (req, res) => {
     res.status(401).json({ status: 0, message: "error " + err });
   }
 };
+// PRODUCTS.deleteBrand = async (req, res) => {
+//   try {
+//     const brandId = req.body.id;
+
+//     await brandModel.findByIdAndDelete(brandId);
+
+//     res.status(200).json({ status: 1, message: 'Brand deleted successfully.' });
+//   } catch (err) {
+//     res.status(400).json({ status: 0, message: 'Error deleting brand: ' + err });
+//   }
+// };
+
+PRODUCTS.deleteBrand = async (req, res) => {
+  try {
+    const brandId = req.body.id; // Extract the id from the body
+
+    // Check if the brand exists
+    const brand = await brandModel.findById(brandId);
+    if (!brand) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Brand not found.',
+      });
+    }
+
+    // Check if any product is associated with this brand
+    const productsUsingBrand = await productsModel.find({ prod_brand: brandId });
+    if (productsUsingBrand.length > 0) {
+      // If there are products using the brand, prevent deletion
+      return res.status(400).json({
+        status: 0,
+        message: 'Brand cannot be deleted because it is associated with products.',
+      });
+    }
+
+    // If no products are using the brand, proceed with deletion
+    await brandModel.findByIdAndDelete(brandId);
+
+    res.status(200).json({ status: 1, message: 'Brand deleted successfully.' });
+  } catch (err) {
+    res.status(400).json({ status: 0, message: 'Error deleting brand: ' + err });
+  }
+};
+
+
+
+
 
 PRODUCTS.attributesList = async (req, res) => {
   try {
@@ -1302,7 +1509,8 @@ PRODUCTS.attributesList = async (req, res) => {
                                            <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateAttributeStatus">
                                            <label class="toggle-label" for="${element._id}"></label>
                                            </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editAttribute" data-attribute-id="${element._id}" data-attribute-name="${element.attribute_name} "data-url="edit_attribute"><i class="fas fa-edit"></i></a>`,
+              `<a href="javascript:void(0);" title="Edit" class="editAttribute" data-attribute-id="${element._id}" data-attribute-name="${element.attribute_name} "data-url="edit_attribute" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
+               <a href="javascript:void(0);" title="Delete" class="deleteAttribute" data-attribute-id="${element._id}" data-url="delete_attribute"><i class="fas fa-trash"></i></a>`,
             ];
           });
 
@@ -1313,6 +1521,22 @@ PRODUCTS.attributesList = async (req, res) => {
       });
   } catch (err) {
     res.status(401).json({ status: 0, message: "error " + err });
+  }
+};
+PRODUCTS.deleteAttribute = async (req, res) => {
+  try {
+    const attributeId = req.body.id;
+
+    if (!attributeId) {
+      return res.status(400).json({ status: 0, message: "Invalid Attribute ID" });
+    }
+
+    // Find and delete the attribute by its ID
+    await attributesModel.findByIdAndDelete(attributeId);
+
+    res.status(200).json({ status: 1, message: "Attribute deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: "Error deleting attribute: " + err });
   }
 };
 
@@ -1435,7 +1659,8 @@ PRODUCTS.productsList = async (req, res) => {
                                            </div>`,
               `<a href="/dashboard/add-product/${element._id}" title="Edit" class="editProduct"><i class="fas fa-edit"></i></a>
                                           ${addVarientBtn}
-                                          <a data-href="products_variants_list?prod_id=${element._id}" data-title="Product Variants" data-cls="modal-lg" title="View Variants" class="openModalPopup"><i class="fas fa-list-alt"></i></a>`,
+                                          <a data-href="products_variants_list?prod_id=${element._id}" data-title="Product Variants" data-cls="modal-lg" title="View Variants" class="openModalPopup"><i class="fas fa-list-alt"></i></a>
+                                            <a href="#" title="Delete" class="deleteProduct" data-id="${element._id}"><i class="fas fa-trash-alt"></i></a>`,
             ];
           });
 
@@ -1492,33 +1717,25 @@ PRODUCTS.productsVariantsList = async (req, res) => {
               // Remove the last comma and space
               sizesQuantities = sizesQuantities.slice(0, -2);
             }
-
             MyTbl += `
-                            <tr>
-                                <td>${start++}</td>
-                                <td>${element.pro_sku}</td>
-                                <td>${element.pro_subtitle}</td>
-                                <td>${helper.colorlist(
-                                  JSON.parse(element.prod_attributes).Color
-                                )}</td>
-                                <td>${sizesQuantities}</td>
-                                <td>${element.prod_quantity}</td>
-                                <td>
-                                    <div class="toggle-wrap">
-                                        <input class="toggle-input d-none changeStatus" id="${
-                                          element._id
-                                        }" type="checkbox" ${checked} url="products/updateProductVariantStatus">
-                                        <label class="toggle-label" for="${
-                                          element._id
-                                        }"></label>
-                                    </div>
-                                </td>
-                                <td><a href="/dashboard/add-product-variant/${
-                                  element.prod_id
-                                }/${
-              element._id
-            }" title="Edit Variant"><i class="fas fa-edit"></i></a></td>
-                            </tr>`;
+            <tr>
+                <td>${start++}</td>
+                <td>${element.pro_sku}</td>
+                <td>${element.pro_subtitle}</td>
+                <td>${helper.colorlist(JSON.parse(element.prod_attributes).Color)}</td>
+                <td>${sizesQuantities}</td>
+                <td>${element.prod_quantity}</td>
+                <td>
+                    <div class="toggle-wrap">
+                        <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateProductVariantStatus">
+                        <label class="toggle-label" for="${element._id}"></label>
+                    </div>
+                </td>
+                <td>
+                    <a href="/dashboard/add-product-variant/${element.prod_id}/${element._id}" title="Edit Variant"><i class="fas fa-edit"></i></a>
+                    <a href="#" class="deleteVariant" data-id="${element._id}" title="Delete Variant"><i class="fas fa-trash-alt"></i></a>
+                </td>
+            </tr>`;
           });
 
           MyTbl += `

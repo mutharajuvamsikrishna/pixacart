@@ -83,7 +83,7 @@
  
        <!-- Modal for Create/Update Courier Service -->
 <!-- Modal for Create/Update Courier Service -->
-<div class="modal fade" id="createCourierServiceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="createCourierServiceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"  data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -133,7 +133,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="location.reload()">Close</button>
                     <button type="button" class="btn btn-primary" onclick="submitCourierService(event)">Submit</button>
                 </div>
             </form>
@@ -167,28 +167,35 @@ function confirmDelete(serviceId, serviceName) {
 function deleteCourierService(serviceId) {
     $.ajax({
         type: 'DELETE',
-        url: `/delete_courier_boy/${serviceId}`, // Update the URL based on your route
+        url: `/delete_courier_boy`, // Updated URL
+        contentType: 'application/json', // Specify JSON content type
+        data: JSON.stringify({ id: serviceId }), // Send ID as JSON
         success: function(response) {
             Swal.fire(
                 'Deleted!',
-                'The courier Boy has been deleted.',
+                'The courier boy has been deleted.',
                 'success'
             );
-            // Optionally reload the table or remove the row from the table
-            location.reload(); // or use DataTable's row.remove()
+            location.reload(); // or remove the row from the table
         },
         error: function(err) {
-            Swal.fire(
-                'Error!',
-                'There was an error deleting the boy.',
-                'error'
-            );
+            if (err.status === 404) {
+                Swal.fire(
+                    'Not Found!',
+                    'Courier boy not found.',
+                    'warning'
+                );
+            } else {
+                Swal.fire(
+                    'Error!',
+                    'There was an error deleting the boy.',
+                    'error'
+                );
+            }
             console.error('Error:', err);
         }
     });
 }
-
-
 
 
     function editCourierService(id, serviceName, email, phoneNumber,address,city,postal_code,country,state) {
@@ -208,7 +215,7 @@ function deleteCourierService(serviceId) {
         return; // Stop form submission
     }
     // Change the modal title
-    $('#exampleModalLabel').text('Edit Courier Service');
+    $('#exampleModalLabel').text('Edit Courier Boy');
     
     // Show the modal
     $('#createCourierServiceModal').modal('show');
@@ -250,4 +257,3 @@ if (!serviceName || !email || !password || !phoneNumber) {
     }
 </script>
  
-has context menu
