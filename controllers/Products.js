@@ -13,6 +13,7 @@ const promotionalBannerModel = mongoose.model("promotional_banner");
 const config = require("../config/config");
 const helper = require("../helpers/my_helper");
 const fs = require("fs");
+const { product_reviews } = require("./Dashboard");
 const PRODUCTS = {};
 
 PRODUCTS.create_product = async (req, res) => {
@@ -31,6 +32,7 @@ PRODUCTS.create_product = async (req, res) => {
       return res.status(400).json({
           status: 0,
           message: "Product name already exists.",
+          data:existingProduct
       });
   }
 
@@ -56,7 +58,7 @@ PRODUCTS.create_product = async (req, res) => {
           .json({
             status: 1,
             message: "Product Updated Successfully!",
-            data: req.body.id,
+            data: postData,
             redirect: "dashboard/products",
           });
       })
@@ -96,6 +98,103 @@ PRODUCTS.create_product = async (req, res) => {
   }
 };
 
+
+
+PRODUCTS.getAllProductVariants = async (req, res) => {
+  try {
+   
+   
+
+   
+    const orders = await productsVariantsModel.find();
+
+    if (orders.length === 0) {
+      return res.status(404).json({ status: 0, message: 'No Variants found.' });
+    }
+
+    // Return the orders in the response
+    res.json({ status: 1, message: 'Variants retrieved successfully.', data: orders });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: 'Failed to retrieve Variants.', data: err.message });
+  }
+};
+
+
+PRODUCTS.getAllSellerProductVariants = async (req, res) => {
+  try {
+   
+   
+
+   const sellerId= req.body.sellerId;
+    const orders = await productsVariantsModel.find({prod_sellerid:sellerId});
+
+    if (orders.length === 0) {
+      return res.status(404).json({ status: 0, message: 'No Variants found.' });
+    }
+
+    // Return the orders in the response
+    res.json({ status: 1, message: 'Variants retrieved successfully.', data: orders });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: 'Failed to retrieve Variants.', data: err.message });
+  }
+};
+
+PRODUCTS.getAllSingleVariants = async (req, res) => {
+  try {
+   
+   
+
+   const varnt_id= req.body.variantId;
+    const orders = await productsVariantsModel.find({_id:variantId});
+
+    if (orders.length === 0) {
+      return res.status(404).json({ status: 0, message: 'No Variants found.' });
+    }
+
+    // Return the orders in the response
+    res.json({ status: 1, message: 'Variants retrieved successfully.', data: orders });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: 'Failed to retrieve Variants.', data: err.message });
+  }
+};
+
+PRODUCTS.getProductReviews= async (req, res) => {
+  try {
+   
+   
+
+   const prodId= req.body.prodId;
+    const reviews = await ratingReviewModel.find({rating_pid:prodId});
+
+    if (reviews.length === 0) {
+      return res.status(404).json({ status: 0, message: 'No Reviews found.' });
+    }
+
+    // Return the orders in the response
+    res.json({ status: 1, message: 'Product reviews retrieved successfully.', data: reviews });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: 'Failed to retrieve reviews.', data: err.message });
+  }
+};
+
+PRODUCTS.getAllProductReviews= async (req, res) => {
+  try {
+   
+   
+
+   
+    const reviews = await ratingReviewModel.find();
+
+    if (reviews.length === 0) {
+      return res.status(404).json({ status: 0, message: 'No Reviews found.' });
+    }
+
+    // Return the orders in the response
+    res.json({ status: 1, message: 'Product reviews retrieved successfully.', data: reviews });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: 'Failed to retrieve reviews.', data: err.message });
+  }
+};
 // PRODUCTS.create_product_variants = async (req, res) => {
 
 //     postData ={};
@@ -832,7 +931,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
         return res.status(401).json({
           status: 0,
           message: "Sub category name already exists, Please try another one.",
-          data: ""
+          data: checkCateExist
         });
       }
 
@@ -853,7 +952,7 @@ PRODUCTS.create_subcategory = async (req, res) => {
       return res.status(200).json({
         status: 1,
         message: "Sub Category Updated Successfully!",
-        data: req.body.id,
+        data: postData,
       });
     } else {
       let check = await subCategoryModel.findOne({
@@ -864,6 +963,8 @@ PRODUCTS.create_subcategory = async (req, res) => {
         return res.status(401).json({
           status: 0,
           message: "Sub Category name already exists, Please try another one.",
+         data:check
+
         });
       }
 
@@ -911,7 +1012,7 @@ PRODUCTS.create_brand = async (req, res) => {
             .json({
               status: 0,
               message: "Brand name already exists, Please try another one.",
-              data: "",
+              data: checkBrandExist,
             });
         } else {
           if (req.file) {
@@ -944,7 +1045,7 @@ PRODUCTS.create_brand = async (req, res) => {
                 .json({
                   status: 1,
                   message: "Brand Updated Successfully!",
-                  data: req.body.id,
+                  data:postData,
                 });
             })
             .catch((err) => {

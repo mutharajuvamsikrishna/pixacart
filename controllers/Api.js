@@ -611,6 +611,42 @@ API.categorList = async (req, res) => {
       }
   };
 
+
+  API.subCategorLists = async (req, res) => {
+    try {
+        const where = { status: 1 }; // Only fetch active subcategories
+
+        // Apply filters
+        if (req.body.sub_cate_id) {
+            where._id = req.body.sub_cate_id;
+        }
+        if (req.body.cate_id) {
+            where.parent_id = req.body.cate_id;
+        }
+        if (req.body.cate_name) {
+            where.cate_name = new RegExp(req.body.cate_name, 'i'); // Case-insensitive search
+        }
+
+        // Fetch all subcategories matching the filter
+        const subCategories = await subCategoryModel.find(where)
+            .populate('parent_id', 'cate_name') // Populate parent category name
+            .sort({ createdAt: -1 }); // Sort by creation date, newest first
+
+        return res.status(200).json({
+            success: true,
+            data: subCategories,
+            message: 'Subcategories fetched successfully'
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong, please try again later',
+            error: error.message
+        });
+    }
+};
   API.subCategorList = async (req, res) => {
     try {
       var start     = (req.body.start) ? req.body.start : 0 ;

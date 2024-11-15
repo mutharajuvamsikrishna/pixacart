@@ -1,5 +1,6 @@
 
-const mongoose =require("mongoose")
+const mongoose =require("mongoose");
+const { courierServices, courierBoys } = require("../models/DatabaseModel");
 const CourierService = require('../models/DatabaseModel').courierServices;
 const CourierBoys = require('../models/DatabaseModel').courierBoys;
 const orderProducts = mongoose.model('orders_products');
@@ -17,7 +18,7 @@ const createOrUpdateCourierService = async (req, res) => {
         try {
             const checkServiceExist = await CourierService.findOne({ service_name: req.body.service_name, _id: { $ne: req.body.id } });
             if (checkServiceExist) {
-                return res.status(401).json({ status: 0, message: 'Courier Service already exists.', data: '' });
+                return res.status(401).json({ status: 0, message: 'Courier Service already exists.', data: checkServiceExist });
             }
             postData.updatedAt = Date.now();
             const updatedService = await CourierService.findOneAndUpdate({ _id: req.body.id }, postData, { new: true });
@@ -82,7 +83,7 @@ console.log('requestbody is',req.body);
             // Check for duplicate courier boys with the same email, excluding the current ID
             const checkServiceExist = await CourierBoys.findOne({ email, _id: { $ne: id } });
             if (checkServiceExist) {
-                return res.status(401).json({ status: 0, message: 'Courier Boy already exists.', data: '' });
+                return res.status(401).json({ status: 0, message: 'Courier Boy already exists.', data: checkServiceExist });
             }
  
             postData.updatedAt = Date.now();
@@ -145,6 +146,155 @@ const getAllProductsBySeller = async (req, res) => {
     }
 };
 
+const getAllProductsForAdmin = async (req, res) => {
+    try {
+        
+    
+
+       
+
+        // Find products associated with the given seller ID
+        const products = await productsModel.find();
+
+        if (products.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No products found for this seller.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Products retrieved successfully.', data: products });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve products.', data: err.message });
+    }
+};
+
+
+const getAllcourierServices = async (req, res) => {
+    try {
+
+        // Find products associated with the given seller ID
+        const services = await courierServices.find();
+
+        if (services.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No Courier Services found.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Services retrieved successfully.', data: services });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Services.', data: err.message });
+    }
+};
+
+
+const getAllcourierBoys = async (req, res) => {
+    try {
+
+        // Find products associated with the given seller ID
+        const boys = await courierBoys.find();
+
+        if (boys.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No Courier Boys found.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Boys retrieved successfully.', data: boys });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Boys.', data: err.message });
+    }
+};
+const getCourierBoysByService= async (req, res) => {
+    try {
+         const serviceId=req.body.serviceId;
+
+        // Find products associated with the given seller ID
+        const boys = await courierBoys.find({courierService:serviceId});
+
+        if (boys.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No Courier Boys found.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Boys retrieved successfully.', data: boys });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Boys.', data: err.message });
+    }
+};
+
+const getCourierBoysOrdersWithStatus= async (req, res) => {
+    try {
+         const serviceId=req.body.serviceId;
+         const orderStatus=req.body.orderStatus;
+
+        // Find products associated with the given seller ID
+        const boys = await orderProducts.find({order_courier_boy:serviceId,order_status:orderStatus});
+
+        if (boys.length === 0) {
+            return res.status(404).json({ status: 0, message: `No order Found for Courier Boy With Status ${orderStatus}.` });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Boy Orders retrieved successfully.', data: boys });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Boy Orders.', data: err.message });
+    }
+};
+
+const getCourierBoysOrders= async (req, res) => {
+    try {
+         const serviceId=req.body.serviceId;
+         
+
+        // Find products associated with the given seller ID
+        const boys = await orderProducts.find({order_courier_boy:serviceId});
+
+        if (boys.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No order Found for Courier Boy.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Boy Orders retrieved successfully.', data: boys });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Boy Orders.', data: err.message });
+    }
+};
+
+const getCourierServiceOrders= async (req, res) => {
+    try {
+         const serviceId=req.body.serviceId;
+         
+
+        // Find products associated with the given seller ID
+        const boys = await orderProducts.find({courier_service:serviceId});
+
+        if (boys.length === 0) {
+            return res.status(404).json({ status: 0, message: 'No order Found for Courier Service.' });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Service Orders retrieved successfully.', data: boys });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Service Orders.', data: err.message });
+    }
+};
+const getCourierServiceOrdersWithStatus= async (req, res) => {
+    try {
+         const serviceId=req.body.serviceId;
+         const orderStatus=req.body.orderStatus;
+         
+
+        // Find products associated with the given seller ID
+        const boys = await orderProducts.find({courier_service:serviceId,order_status:orderStatus});
+
+        if (boys.length === 0) {
+            return res.status(404).json({ status: 0, message: `No order Found for Courier Service With Status ${orderStatus}.` });
+        }
+
+        // Return the products in the response
+        res.json({ status: 1, message: 'Courier Service Orders retrieved successfully.', data: boys });
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Failed to retrieve Courier Service Orders.', data: err.message });
+    }
+};
 const getAllOrdersBySellerId = async (req, res) => {
     try {  // Get the seller ID from the request body
         const sellerId = req.body.sellerId;
@@ -205,6 +355,7 @@ module.exports = {
     getAllCourierBoys,
     getAllProductsBySeller,
     getAllOrdersBySellerId,
-    getAllUsersByRole
+ getCourierBoysOrdersWithStatus,
+    getAllUsersByRole,getAllProductsForAdmin,getAllcourierServices,getCourierBoysByService,getAllcourierBoys,getCourierBoysOrders,getCourierServiceOrders,getCourierServiceOrdersWithStatus,
 
 };

@@ -541,6 +541,90 @@ ORDERS.orderTransactions = async (req, res) => {
   });
 };
 
+ORDERS.getAllOrders = async (req, res) => {
+  try {
+    // Find all products without filtering by seller ID
+    const products = await orderProducts.find();
+
+    if (products.length === 0) {
+      return res.status(404).json({ status: 0, message: "No Orders found." });
+    }
+
+    // Return the products in the response
+    res.json({
+      status: 1,
+      message: "Orders retrieved successfully.",
+      data: products,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        status: 0,
+        message: "Failed to retrieve Orders.",
+        data: err.message,
+      });
+  }
+};
+
+ORDERS.getSellerOrdersBasedOnStatus = async (req, res) => {
+  try {
+    const seller_id = req.body.sellerId;
+    const orderStatus = req.body.orderStatus;
+
+    // Find orders filtered by the given seller ID
+    const orders = await orderProducts.find({
+      seller_id: seller_id,
+      order_status: orderStatus,
+    });
+
+    if (orders.length === 0) {
+      return res.status(404).json({ status: 0, message: "No Orders found." });
+    }
+
+    // Return the orders in the response
+    res.json({
+      status: 1,
+      message: "Orders retrieved successfully.",
+      data: orders,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        status: 0,
+        message: "Failed to retrieve Orders.",
+        data: err.message,
+      });
+  }
+};
+ORDERS.getSellerOrders = async (req, res) => {
+  try {
+    const seller_id = req.body.sellerId;
+
+    const orders = await orderProducts.find({ seller_id: seller_id });
+
+    if (orders.length === 0) {
+      return res.status(404).json({ status: 0, message: "No Orders found." });
+    }
+
+    // Return the orders in the response
+    res.json({
+      status: 1,
+      message: "Orders retrieved successfully.",
+      data: orders,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        status: 0,
+        message: "Failed to retrieve Orders.",
+        data: err.message,
+      });
+  }
+};
+
 ORDERS.sellerOrdersList = async (req, res) => {
   try {
     let orderStatus = req.params.status;
@@ -890,7 +974,7 @@ ORDERS.updateOrderStatus = async (req, res) => {
           try {
             // Fetch the list of courier boys for the customer's postal code
             const response = await fetch(
-              `http://18.61.197.237:3000/api/courierBoy/${user.postal_code}`
+              `http://98.130.54.134:3000/api/courierBoy/${user.postal_code}`
             );
             const courierData = await response.json();
 

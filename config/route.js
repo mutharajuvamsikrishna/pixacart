@@ -55,26 +55,58 @@ router.get(
 router.delete("/delete_courier_boy", (req, res) => {
   const serviceId = req.body.id; // Extract ID from the request body
 
-  // Use Mongoose to delete the courier service by ID
-  CourierBoys.findByIdAndDelete(serviceId, (err) => {
+  // Find the courier boy by ID first
+  CourierBoys.findById(serviceId, (err, courierBoy) => {
     if (err) {
-      return res.status(500).send(err);
+      return res.status(500).send({ message: "Internal server error" });
     }
-    res.status(200).send({ message: "Courier boy deleted successfully!" });
+    if (!courierBoy) {
+      // If courier boy is not found, return 404 with message
+      return res.status(404).send({
+        message: `Courier boy with ID ${serviceId} not found.`,
+      });
+    }
+
+    // If found, proceed to delete
+    CourierBoys.findByIdAndDelete(serviceId, (err) => {
+      if (err) {
+        return res.status(500).send({ message: "Failed to delete courier boy" });
+      }
+      return res.status(200).send({
+        message: "Courier boy deleted successfully!",
+      });
+    });
   });
 });
+
 
 router.delete("/delete_courier_service", (req, res) => {
-  const serviceId = req.body.id;
+  const serviceId = req.body.id; // Extract ID from the request body
 
-  // Use Mongoose to delete the courier service by ID
-  CourierService.findByIdAndDelete(serviceId, (err) => {
+  // Find the courier service by ID first
+  CourierService.findById(serviceId, (err, courierService) => {
     if (err) {
-      return res.status(500).send(err);
+      return res.status(500).send({ message: "Internal server error" });
     }
-    res.status(200).send({ message: "Courier service deleted successfully!" });
+    if (!courierService) {
+      // If courier service is not found, return 404 with message
+      return res.status(404).send({
+        message: `Courier service with ID ${serviceId} not found.`,
+      });
+    }
+
+    // If found, proceed to delete
+    CourierService.findByIdAndDelete(serviceId, (err) => {
+      if (err) {
+        return res.status(500).send({ message: "Failed to delete courier service" });
+      }
+      return res.status(200).send({
+        message: "Courier service deleted successfully!",
+      });
+    });
   });
 });
+
 
 router.get(
   "/api/courierService/:courierServiceId/:postalCode",
@@ -182,6 +214,9 @@ router.post(
   controllers.auth.api.getProductVariantDetails
 );
 router.get("/api/orders/:orderId", controllers.orders.getOrderProductDetails);
+router.get("/orders/getAllOrders", controllers.orders.getAllOrders);
+router.get("/orders/getSellerOrders", controllers.orders.getSellerOrders);
+router.get("/orders/getSellerOrdersBasesOnStatus", controllers.orders.getSellerOrdersBasedOnStatus);
 router.get("/api/ordersId/:orderId", controllers.orders.getOrderDetails);
 router.post(
   "/dashboard/create_or_update_courier_boys",
@@ -200,6 +235,14 @@ router.get(
   controllers.courier_service.getAllCourierServices
 );
 router.get('/dashboard/getproductsbyseller', controllers.courier_service.getAllProductsBySeller);
+router.get('/dashboard/getAllProductforAdmin', controllers.courier_service.getAllProductsForAdmin);
+router.get('/dashboard/getAllCourierServices', controllers.courier_service.getAllcourierServices);
+router.get('/dashboard/getCourierBoysByService', controllers.courier_service.getCourierBoysByService);
+router.get('/dashboard/getCourierBoys', controllers.courier_service.getAllcourierBoys);
+router.get('/dashboard/getCourierBoyOrdersWithStatus', controllers.courier_service.getCourierBoysOrdersWithStatus);
+router.get('/dashboard/getCourierBoyOrders', controllers.courier_service.getCourierBoysOrders);
+router.get('/dashboard/getCourierServiceOrdersWithStatus', controllers.courier_service.getCourierServiceOrdersWithStatus);
+router.get('/dashboard/getCourierServiceOrders', controllers.courier_service.getCourierServiceOrders);
 router.get('/dashboard/getordersbyseller', controllers.courier_service.getAllOrdersBySellerId);
 router.get('/dashboard/getusersbyrole', controllers.courier_service.getAllUsersByRole);
 
@@ -436,6 +479,31 @@ router.get(
   controllers.dashboard.add_product_variants
 );
 router.get(
+  "/dashboard/getAllVariants",
+  
+  controllers.products.getAllProductVariants
+);
+router.get(
+  "/dashboard/getAllSellerVariants",
+  
+  controllers.products.getAllSellerProductVariants
+);
+router.get(
+  "/dashboard/getAllSingleVariant",
+  
+  controllers.products.getAllSingleVariants
+);
+router.get(
+  "/dashboard/getProductReviews",
+  
+  controllers.products.getProductReviews
+);
+router.get(
+  "/dashboard/getAllProductReviews",
+  
+  controllers.products.getAllProductReviews
+);
+router.get(
   "/dashboard/add-product-variant/:id/:vid",
   controllers.middleware.authenticate,
   controllers.dashboard.add_product_variants
@@ -486,6 +554,12 @@ router.delete(
   controllers.products.delete_category
 );
 
+router.post(
+  "/get/getSubCategories",
+  upload.array(),
+  controllers.middleware.checkJWT,
+  controllers.api.subCategorLists
+);
 router.get(
   "/subcategory_list",
   controllers.middleware.authenticate,
