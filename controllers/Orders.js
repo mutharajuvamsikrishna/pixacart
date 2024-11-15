@@ -557,13 +557,11 @@ ORDERS.getAllOrders = async (req, res) => {
       data: products,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        status: 0,
-        message: "Failed to retrieve Orders.",
-        data: err.message,
-      });
+    res.status(500).json({
+      status: 0,
+      message: "Failed to retrieve Orders.",
+      data: err.message,
+    });
   }
 };
 
@@ -589,13 +587,11 @@ ORDERS.getSellerOrdersBasedOnStatus = async (req, res) => {
       data: orders,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        status: 0,
-        message: "Failed to retrieve Orders.",
-        data: err.message,
-      });
+    res.status(500).json({
+      status: 0,
+      message: "Failed to retrieve Orders.",
+      data: err.message,
+    });
   }
 };
 ORDERS.getSellerOrders = async (req, res) => {
@@ -615,13 +611,11 @@ ORDERS.getSellerOrders = async (req, res) => {
       data: orders,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        status: 0,
-        message: "Failed to retrieve Orders.",
-        data: err.message,
-      });
+    res.status(500).json({
+      status: 0,
+      message: "Failed to retrieve Orders.",
+      data: err.message,
+    });
   }
 };
 
@@ -974,7 +968,7 @@ ORDERS.updateOrderStatus = async (req, res) => {
           try {
             // Fetch the list of courier boys for the customer's postal code
             const response = await fetch(
-              `http://98.130.54.134:3000/api/courierBoy/${user.postal_code}`
+              `http://18.61.197.237:3000/api/courierBoy/${user.postal_code}`
             );
             const courierData = await response.json();
 
