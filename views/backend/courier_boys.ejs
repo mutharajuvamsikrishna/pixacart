@@ -63,8 +63,9 @@
                                             <td><%= service.state %></td>
                                             <td><%= service.status === 1 ? 'Active' : 'Inactive' %></td>
                                             <td>
-                                                <button class="btn btn-primary" onclick="editCourierService('<%= service._id %>', '<%= service.service_name %>', '<%= service.email %>', '<%= service.phone_number %>', '<%= service.address %>','<%= service.address %>','<%= service.city %>','<%= service.postal_code %>','<%= service.country %>','<%= service.state %>')">Edit</button>
-                                                <button class="btn btn-danger" onclick="confirmDelete('<%= service._id %>', '<%= service.service_name %>')">Delete</button>
+                                                
+                                                <i class="fas fa-edit m-2" onclick="editCourierService('<%= service._id %>', '<%= service.service_name %>', '<%= service.email %>', '<%= service.phone_number %>', '<%= service.address %>','<%= service.address %>','<%= service.city %>','<%= service.postal_code %>','<%= service.country %>','<%= service.state %>')"></i>
+                                                <i class="fas fa-trash" onclick="confirmDelete('<%= service._id %>', '<%= service.service_name %>')"></i>
                                             </td> 
                                         </tr>
                                     <% }); %>
