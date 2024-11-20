@@ -340,7 +340,7 @@ HELPER.sendEmailToCourierBoy = async ({
 
   try {
     const response = await axios.post(
-      "http://98.130.54.134:3000/api/send-email",
+      "http://localhost:3000/api/send-email",
       emailData
     );
     if (response.data.status === 1) {

@@ -9,25 +9,26 @@ $(document).ready(function () {
     $("#cate_commission").val(_this.attr("data-commi-tax"));
     $("#category_image").removeClass("require");
   });
-
   $(document).on("click", ".deleteVariant", function (e) {
     e.preventDefault();
     let variantId = $(this).data("id");
     if (confirm("Are you sure you want to delete this variant?")) {
-      $.ajax({
-        url: `/delete_variant/${variantId}`,
-        type: "DELETE",
-        success: function (response) {
-          alert(response.message);
-
-          location.reload();
-        },
-        error: function (xhr, status, error) {
-          alert("An error occurred while deleting the variant.");
-        },
-      });
+        $.ajax({
+            url: "/delete_variant",
+            type: "DELETE",
+            contentType: "application/json", // Specify the content type for JSON payload
+            data: JSON.stringify({ variantId: variantId }), // Send variantId in the request body
+            success: function (response) {
+                alert(response.message);
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                alert("An error occurred while deleting the variant.");
+            },
+        });
     }
-  });
+});
+
 
   $(document).on("click", ".deleteProduct", function (e) {
     e.preventDefault();
@@ -850,9 +851,7 @@ $(document).on("click", ".AddTrackingDetail", async function (e) {
 
 async function getOrderDetails(orderId) {
   try {
-    const response = await fetch(
-      `http://98.130.54.134:3000/api/orders/${orderId}`
-    );
+    const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
     console.log("order id is");
 
     if (!response.ok) {
@@ -877,7 +876,7 @@ async function getOrderDetails(orderId) {
 async function getOrderData(orderUniqueId) {
   try {
     const response = await fetch(
-      `http://98.130.54.134:3000/api/ordersId/${orderUniqueId}`
+      `http://localhost:3000/api/ordersId/${orderUniqueId}`
     );
     const orderData = await response.json();
     return orderData;
@@ -889,9 +888,7 @@ async function getOrderData(orderUniqueId) {
 
 async function getUserDetails(userId) {
   try {
-    const response = await fetch(
-      `http://98.130.54.134:3000/api/users/${userId}`
-    );
+    const response = await fetch(`http://localhost:3000/api/users/${userId}`);
     const userData = await response.json();
     return userData;
   } catch (error) {
@@ -921,14 +918,14 @@ async function sendEmailToCourier(
       <p>Order User Email: ${userEmail}</p>
       <p>Order User Pin Code: ${postal_code}</p>
       <p>Thank you for your service!</p>
-      <p><a href="http://98.130.54.134:3000/orders/markDelivered?orderId=${
+      <p><a href="http://localhost:3000/orders/markDelivered?orderId=${
         orderIds[0]
       }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Delivered</a></p>
-      <p><a href="http://98.130.54.134:3000/enter-otp?orderId=${
+      <p><a href="http://localhost:3000/enter-otp?orderId=${
         orderIds[0]
       }" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Enter OTP</a></p>
-      <p><a href="http://98.130.54.134:3000/send-otp? =${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a></p>
-      <p><a href="http://98.130.54.134:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a></p>
+      <p><a href="http://localhost:3000/send-otp? =${userEmail}" style="background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Send OTP</a></p>
+      <p><a href="http://localhost:3000/verify-otp?userEmail=${userEmail}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify OTP</a></p>
       <p>Best regards,<br>PixaCart</p>
     `,
   };
