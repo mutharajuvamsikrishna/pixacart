@@ -53,44 +53,9 @@ passport.deserializeUser(function (obj, cb) {
   cb(null, obj);
 });
 
-const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/callback",
-    },
-    async function (accessToken, refreshToken, profile, done) {
-      console.log("Google Profile:", profile); // Log the profile object
 
-      try {
-        const email = profile.emails[0].value; // Safely access profile.emails
-        let user = await UserModel.findOne({ email });
-
-        if (user) {
-          return done(null, user);
-        } else {
-          let newUser = new UserModel({
-            fullname: profile.displayName,
-            email: email,
-            profile_image: profile.photos[0].value,
-            role: 2,
-            status: 1,
-          });
-          await newUser.save();
-          return done(null, newUser);
-        }
-      } catch (err) {
-        return done(err, false);
-      }
-    }
-  )
-);
 
 // Routes
 app.get(

@@ -968,7 +968,7 @@ ORDERS.updateOrderStatus = async (req, res) => {
           try {
             // Fetch the list of courier boys for the customer's postal code
             const response = await fetch(
-              `http://localhost:3000/api/courierBoy/${user.postal_code}`
+              `http://18.60.35.136:3000/api/courierBoy/${user.postal_code}`
             );
             const courierData = await response.json();
 
