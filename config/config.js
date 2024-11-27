@@ -1,13 +1,13 @@
-const BASE_URL = "http://18.60.35.136:3000/";
+const BASE_URL = "http://18.60.35.136:3000";
 const data = {
   PORT: 3000,
 
-  APP_NAME: "Qiker",
+  APP_NAME: "Quick Mart",
 
   APP_URL: BASE_URL,
 
   MONGODB_CONNECTION_URL:
-    "mongodb://ec2-98-130-37-171.ap-south-2.compute.amazonaws.com:27017/config",
+    "mongodb://127.0.0.1/admin",
 
   FIREBASE_NOTIFICATION_SERVER_KEY:
     "AAAAwxnAHdw:APA91bFfq-vIlBkUjKCcdGuk0l1VlrLLTfcqOv-_kfft7q77t8pArr-lUBjbnMv4wg7gEUr2w1U41Gv2ywKSn1FDtO6K2ApBYTILt6vkqFC6d5x0MnsUT6gMEALOpWuqWmdEeCh0g-iI",

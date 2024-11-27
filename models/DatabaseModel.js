@@ -166,6 +166,10 @@ const productVariantsSchema = new mongoose.Schema({
         price: {
             type: Number,
             default: 0
+        },
+        minOrder:{
+            type:Number,
+            default:0
         }
     }],
     status: {
