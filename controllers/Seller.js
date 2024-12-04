@@ -61,76 +61,66 @@ SELLER.createWithdrawRequest = async (req, res)  => {
  }
 
 
-SELLER.sellersList = async (req, res) => {
+ SELLER.sellersList = async (req, res) => {
     try {
-        
         var query = {};
-
         query['role'] = 2;
 
-        // array of columns that you want to show in table
-        columns = ['fullname'];
-        var start = req.query.start;
-        var dataLimit = req.query.length;
-        // check if global search is enabled and it's value is defined
-        if (typeof req.query.search !== 'undefined' && req.query.search.value != '') {
+        // Pagination
+        var start = parseInt(req.query.start) || 0;
+        var dataLimit = parseInt(req.query.length) || 10;
 
-            // get global search value
+        // Global search
+        if (req.query.search && req.query.search.value) {
             var text = req.query.search.value;
-
-           
-            for (var i=0; i<req.query.columns.length; i++) {
-                requestColumn = req.query.columns[i];
-                column = columns[requestColumn.data];
-
-                // if search is enabled for that particular field then create query
-                if (requestColumn.searchable == 'true') {
-                    query[column] = {
-                        $regex: text,
-                    };
-                }
-            }
+            query['$or'] = [
+                { fullname: { $regex: text, $options: 'i' } },
+                { email: { $regex: text, $options: 'i' } },
+                { mobile: { $regex: text, $options: 'i' } }
+            ];
         }
-        await UserModel.find(query).skip(start).limit(dataLimit).sort({ _id : 'desc' }).then(async (result)=>{
-            var mytable = {
-                draw:req.query.draw,
-                recordsTotal:0,
-                recordsFiltered:0,
-                data:[],
-            }
 
-            mytable.recordsTotal    = await UserModel.countDocuments(query);
-            mytable.recordsFiltered = await UserModel.countDocuments(query);
+        // Fetch data
+        const result = await UserModel.find(query)
+            .skip(start)
+            .limit(dataLimit)
+            .sort({ _id: -1 });
 
-           if(result.length > 0){
-                for(const [key,element] of Object.entries(result)) {
+        // Prepare response
+        let sellers = [];
+        for (const element of result) {
+            let totalOrder = await orderProducts.countDocuments({ seller_id: element._id });
 
-                    let totalOrder = await orderProducts.countDocuments({seller_id : element._id });
-                    let checked =  (element.status) ? 'checked' : '';
-                    mytable.data[key] = [ ++start,
-                                          element.fullname,
-                                          element.email,
-                                          element.mobile,
-                                          totalOrder,
-                                          `<div class="toggle-wrap">
-                                          <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="seller/updateSellerStatus">
-                                          <label class="toggle-label" for="${element._id}"></label>
-                                          </div>`,
-                                          `<a href="order_transactions/${element._id}" title="View Transactions" class="viewTransactions" ><i class="fas fa-eye"></i></a>`
-                                        ];
-                }; 
+            sellers.push({
+                _id: element._id,
+                fullname: element.fullname,
+                role: element.role,
+                email: element.email,
+                mobile: element.mobile,
+                password: element.password,
+                profile_image: element.profile_image || null,
+                address: element.address,
+                city: element.city,
+                postal_code: element.postal_code,
+                country: element.country,
+                state: element.state,
+                gst_no: element.gst_no || null,
+                status: element.status,
+                verify_otp: element.verify_otp || "",
+                resetPasswordToken: element.resetPasswordToken || null,
+                firebase_token: element.firebase_token || "",
+                createdAt: element.createdAt,
+                updatedAt: element.updatedAt,
+                totalOrder: totalOrder
+            });
+        }
 
-                res.status(200).json(mytable);
-                  
-            } else {
-                res.status(200).json(mytable);
-            }
-        });
-      } catch (err) {
-            res.status(401).json({ status : 0, message : 'error '+ err });
-      }
-  };
-  
+        res.status(200).json(sellers); // Return array of seller objects
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'Error: ' + err.message });
+    }
+};
+
 
   SELLER.withdrawRequestList = async (req, res) => {
     try {
