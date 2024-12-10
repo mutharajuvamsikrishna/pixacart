@@ -540,6 +540,13 @@ ORDERS.orderTransactions = async (req, res) => {
     seller_id: seller_id,
   });
 };
+ORDERS.getAllOrderTransactions = async (req, res) => {
+  res.render("backend/allorder_transaction", {
+    viewTitle: "Orders Transactions",
+    pageTitle: "All Seller Transactions",
+    seller_id: "", // Pass an empty value since we aren't filtering by seller_id
+  });
+};
 
 ORDERS.getAllOrders = async (req, res) => {
   try {
@@ -646,7 +653,6 @@ ORDERS.sellerOrdersList = async (req, res) => {
         requestColumn = req.query.columns[i];
 
         column = columns[requestColumn.data];
-
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
@@ -656,6 +662,8 @@ ORDERS.sellerOrdersList = async (req, res) => {
         }
       }
     }
+    console.log(query)
+    
     await orderProducts
       .find(query)
       .populate("seller_id", "fullname")
@@ -793,8 +801,8 @@ ORDERS.ordersList = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }
@@ -1733,8 +1741,8 @@ ORDERS.transactionsList = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }
@@ -1766,6 +1774,97 @@ ORDERS.transactionsList = async (req, res) => {
                 ++start,
                 element.sub_orderid.prod_unique_id,
                 customerName,
+                element.debit,
+                element.credit,
+                element.balance,
+                helper.entryAgaints[element.entry_againts],
+                element.remark,
+                moment(element.createdAt).format("DD-MMM-YYYY HH:MM"),
+              ];
+            }
+          }
+
+          res.status(200).json(mytable);
+        } else {
+          res.status(200).json(mytable);
+        }
+      });
+  } catch (err) {
+    res.status(401).json({ status: 0, message: "error " + err });
+  }
+};
+
+ORDERS.getAllTransactionsList = async (req, res) => {
+  try {
+    var query = {}; // Remove the seller_id filter to fetch all records
+
+    // Add entry_againts filter as needed
+    query.entry_againts = { $in: [1, 2, 3, 4] };
+
+    // Array of columns that you want to show in table
+    columns = ["remark"];
+
+    var start = req.query.start;
+    var dataLimit = req.query.length;
+
+    // Check if global search is enabled and it's value is defined
+    if (
+      typeof req.query.search !== "undefined" &&
+      req.query.search.value != ""
+    ) {
+      // Get global search value
+      var text = req.query.search.value;
+
+      for (var i = 0; i < req.query.columns.length; i++) {
+        let requestColumn = req.query.columns[i];
+        let column = columns[requestColumn.data];
+
+        // If search is enabled for that particular field then create query
+        if (requestColumn.searchable == "true") {
+          query[column] = {
+            $regex: text, $options : 'i'
+        };
+        }
+      }
+    }
+
+    // Find the records and populate seller_id
+    await outstandingsModel
+      .find(query)
+      .populate("sub_orderid", "prod_unique_id order_uid")
+      .populate("seller_id", "fullname") // Populate seller's name from seller_id
+      .skip(start)
+      .limit(dataLimit)
+      .sort({ _id: "asc" })
+      .then(async (result) => {
+        var mytable = {
+          draw: req.query.draw,
+          recordsTotal: 0,
+          recordsFiltered: 0,
+          data: [],
+        };
+
+        mytable.recordsTotal = await outstandingsModel.countDocuments(query);
+        mytable.recordsFiltered = await outstandingsModel.countDocuments(query);
+
+        if (result.length > 0) {
+          for (const [key, element] of Object.entries(result)) {
+            if (element.sub_orderid) {
+              let customerName = await helper.getUserDetails(
+                element.sub_orderid.order_uid,
+                "fullname"
+              );
+
+              // Populate seller name
+              let sellerName = element.seller_id
+                ? element.seller_id.fullname
+                : "Unknown";
+
+              mytable.data[key] = [
+                ++start,
+                element.sub_orderid.prod_unique_id,
+                customerName,
+                sellerName, // Seller Name added here
                 element.debit,
                 element.credit,
                 element.balance,

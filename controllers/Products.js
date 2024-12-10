@@ -1337,166 +1337,152 @@ PRODUCTS.categorList = async (req, res) => {
 
 PRODUCTS.subCategorList = async (req, res) => {
   try {
-    var query = {},
+      
+      var query = {},
+
       // array of columns that you want to show in table
-      columns = ["cate_name"];
-    var start = parseInt(req.query.start);
-    var dataLimit = parseInt(req.query.length);
-    // check if global search is enabled and it's value is defined
-    if (
-      typeof req.query.search !== "undefined" &&
-      req.query.search.value != ""
-    ) {
-      // get global search value
-      var text = req.query.search.value;
+      columns = ['cate_name'];
+      var start       = parseInt( req.query.start);
+      var dataLimit   = parseInt(req.query.length);
+      // check if global search is enabled and it's value is defined
+      if (typeof req.query.search !== 'undefined' && req.query.search.value != '') {
 
-      for (var i = 0; i < req.query.columns.length; i++) {
-        requestColumn = req.query.columns[i];
-        column = columns[requestColumn.data];
+          // get global search value
+          var text = req.query.search.value;
 
-        // if search is enabled for that particular field then create query
-        if (
-          requestColumn.searchable == "true" &&
-          typeof column != "undefined"
-        ) {
-          query[column] = {
-            $regex: text,
-            $options: "i",
-          };
-        }
+         
+          for (var i=0; i<req.query.columns.length; i++) {
+              requestColumn = req.query.columns[i];
+              column = columns[requestColumn.data];
+
+              // if search is enabled for that particular field then create query
+              if (requestColumn.searchable == 'true' && typeof column != 'undefined' ) {
+                  query[column] = {
+                      $regex: text, $options : 'i'
+                  };
+              }
+          }
       }
-    }
-
-    await subCategoryModel
-      .aggregate([
-        {
-          $match: {},
-        },
-        {
-          $lookup: {
-            from: "categories",
-            localField: "parent_id",
-            foreignField: "_id",
-            as: "catArray",
+     
+      
+      await subCategoryModel.aggregate([
+          { 
+              $match: query 
           },
-        },
-        {
-          $unwind: "$catArray",
-        },
-      ])
-      .skip(start)
-      .limit(dataLimit)
-      .sort({ _id: "desc" })
-      .then(async (result) => {
-        var mytable = {
-          draw: req.query.draw,
-          recordsTotal: 0,
-          recordsFiltered: 0,
-          data: [],
-        };
-
-        mytable.recordsTotal = await subCategoryModel.countDocuments();
-        mytable.recordsFiltered = await subCategoryModel.countDocuments(query);
-
-        if (result.length > 0) {
-          for (const [key, element] of Object.entries(result)) {
-            let checked = element.status ? "checked" : "";
-            let thumb = await helper.getThumb(element.cate_image);
-            mytable.data[key] = [
-              ++start,
-              '<img width="50px" src="/uploads/subcategory/' + thumb + '">',
-              element.cate_name,
-              element.catArray["cate_name"],
-              `<div class="toggle-wrap">
-                <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateSubcateStatus">
-                <label class="toggle-label" for="${element._id}"></label>
-              </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray["_id"]}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a>
-              <a href="javascript:void(0);" title="Delete" class="deleteSubCate" data-cate-id="${element._id}"><i class="fa fa-trash"></i></a>` 
-             
-            ];
-            
+          {
+            "$lookup": {
+              "from": "categories",
+              "localField": "parent_id",
+              "foreignField": "_id",
+              "as": "catArray"
+            }
+          },
+          {
+              $unwind: "$catArray",
+          }
+          
+        ]).skip(start).limit(dataLimit).sort({ _id : 'desc' }).then(async (result)=>{
+          var mytable = {
+              draw:req.query.draw,
+              recordsTotal:0,
+              recordsFiltered:0,
+              data:[],
           }
 
-          res.status(200).json(mytable);
-        } else {
-          res.status(200).json(mytable);
-        }
+          mytable.recordsTotal    = await subCategoryModel.countDocuments();
+          mytable.recordsFiltered = await subCategoryModel.countDocuments(query);
+
+         if(result.length > 0){
+              for(const [key ,element] of Object.entries(result)){
+                  let checked =  (element.status) ? 'checked' : '';
+                  let thumb = await helper.getThumb(element.cate_image);
+                  mytable.data[key] = [ ++start,
+                                      '<img width="50px" src="/uploads/subcategory/'+ thumb +'">',
+                                      element.cate_name,
+                                      element.catArray['cate_name'],
+                                        `<div class="toggle-wrap">
+                                         <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateSubcateStatus">
+                                         <label class="toggle-label" for="${element._id}"></label>
+                                         </div>`,
+                                        `<a href="javascript:void(0);" title="Edit" class="editSubCate" data-cate-id="${element._id}" data-cate-name="${element.cate_name}" data-maincate-id="${element.catArray['_id']}"><i class="fas fa-edit"></i></a>`
+                                      ];
+              }; 
+
+              res.status(200).json(mytable);
+                
+          } else {
+              res.status(200).json(mytable);
+          }
       });
-  } catch (err) {
-    res.status(401).json({ status: 0, message: "error " + err });
-  }
+    } catch (err) {
+      res.status(401).json({ status : 0, message : 'error '+ err });
+    }
 };
+
 
 PRODUCTS.brandsList = async (req, res) => {
   try {
-    var query = {},
+      
+      var query = {},
+
       // array of columns that you want to show in table
-      columns = ["brand_name"];
-    var start = req.query.start;
-    var dataLimit = req.query.length;
-    // check if global search is enabled and it's value is defined
-    if (
-      typeof req.query.search !== "undefined" &&
-      req.query.search.value != ""
-    ) {
-      // get global search value
-      var text = req.query.search.value;
+      columns = ['brand_name'];
+      var start       = parseInt( req.query.start);
+      var dataLimit   = parseInt(req.query.length);
+      // check if global search is enabled and it's value is defined
+      if (typeof req.query.search !== 'undefined' && req.query.search.value != '') {
 
-      for (var i = 0; i < req.query.columns.length; i++) {
-        requestColumn = req.query.columns[i];
-        column = columns[requestColumn.data];
+          // get global search value
+          var text = req.query.search.value;
 
-        // if search is enabled for that particular field then create query
-        if (requestColumn.searchable == "true") {
-          query[column] = {
-            $regex: text,
-          };
-        }
+         
+          for (var i=0; i<req.query.columns.length; i++) {
+              requestColumn = req.query.columns[i];
+              column = columns[requestColumn.data];
+
+              // if search is enabled for that particular field then create query
+              if (requestColumn.searchable == 'true') {
+                  query[column] = {
+                    $regex: text, $options : 'i'
+                  };
+              }
+          }
       }
-    }
-    await brandModel
-      .find(query)
-      .skip(start)
-      .limit(dataLimit)
-      .sort({ _id: "desc" })
-      .then(async (result) => {
-        var mytable = {
-          draw: req.query.draw,
-          recordsTotal: 0,
-          recordsFiltered: 0,
-          data: [],
-        };
-
-        mytable.recordsTotal = await brandModel.countDocuments();
-        mytable.recordsFiltered = await brandModel.countDocuments(query);
-
-        if (result.length > 0) {
-          for (const [key, element] of Object.entries(result)) {
-            let checked = element.status ? "checked" : "";
-            let thumb = await helper.getThumb(element.brand_image);
-            mytable.data[key] = [
-              ++start,
-              '<img width="50px" src="/uploads/brands/' + thumb + '">',
-              element.brand_name,
-              `<div class="toggle-wrap">
-                                           <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateBrandStatus">
-                                           <label class="toggle-label" for="${element._id}"></label>
-                                           </div>`,
-              `<a href="javascript:void(0);" title="Edit" class="editBrand" data-brand-id="${element._id}" data-brand-name="${element.brand_name}" style="margin-right: 10px;"><i class="fas fa-edit"></i></a> 
-              <a href="javascript:void(0);" title="Delete" class="deleteBrand" data-brand-id="${element._id}"><i class="fas fa-trash"></i></a>`,
-              
-            ];
+      await brandModel.find(query).skip(start).limit(dataLimit).sort({ _id : 'desc' }).then(async (result)=>{
+          var mytable = {
+              draw:req.query.draw,
+              recordsTotal:0,
+              recordsFiltered:0,
+              data:[],
           }
 
-          res.status(200).json(mytable);
-        } else {
-          res.status(200).json(mytable);
-        }
+          mytable.recordsTotal    = await brandModel.countDocuments();
+          mytable.recordsFiltered = await brandModel.countDocuments(query);
+
+         if(result.length > 0){
+              for(const [key ,element] of Object.entries(result)){
+                  let checked =  (element.status) ? 'checked' : '';
+                  let thumb = await helper.getThumb(element.brand_image);
+                  mytable.data[key] = [ ++start,
+                                          '<img width="50px" src="/uploads/brands/'+ thumb +'">',
+                                          element.brand_name,
+                                          `<div class="toggle-wrap">
+                                         <input class="toggle-input d-none changeStatus" id="${element._id}" type="checkbox" ${checked} url="products/updateBrandStatus">
+                                         <label class="toggle-label" for="${element._id}"></label>
+                                         </div>`,
+                                          `<a href="javascript:void(0);" title="Edit" class="editBrand" data-brand-id="${element._id}" data-brand-name="${element.brand_name}"><i class="fas fa-edit"></i></a>`
+                                      ];
+              }; 
+
+              res.status(200).json(mytable);
+                
+          } else {
+              res.status(200).json(mytable);
+          }
       });
-  } catch (err) {
-    res.status(401).json({ status: 0, message: "error " + err });
-  }
+    } catch (err) {
+          res.status(401).json({ status : 0, message : 'error '+ err });
+    }
 };
 // PRODUCTS.deleteBrand = async (req, res) => {
 //   try {
@@ -1568,8 +1554,8 @@ PRODUCTS.attributesList = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }
@@ -1928,8 +1914,8 @@ PRODUCTS.reviewsList = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }
@@ -2002,8 +1988,8 @@ PRODUCTS.wishList_old = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }
@@ -2068,8 +2054,8 @@ PRODUCTS.wishList = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }
@@ -2167,8 +2153,8 @@ PRODUCTS.bannersList = async (req, res) => {
         // if search is enabled for that particular field then create query
         if (requestColumn.searchable == "true") {
           query[column] = {
-            $regex: text,
-          };
+            $regex: text, $options : 'i'
+        };
         }
       }
     }

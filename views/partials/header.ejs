@@ -58,6 +58,22 @@
                               </a>
                           </div>
                       </div>
+                      <div style="display: flex; justify-content: center; position: relative;margin-left: 130px;">
+                        <% if (locals.user && user.role == 1) { %>
+                          <h3 class="text-center mt-3">Admin DashBoard</h3>
+                        <% } %>
+                        <% if (locals.user && user.role == 2) { %>
+                          <h3 class="text-center mt-3">User DashBoard</h3>
+                        <% } %>
+                        <% if (locals.user && user.loginAS === 'COURIER_SERVICE') { %>
+                          <h3 class="text-center mt-3">Courier Service DashBoard</h3>
+                        <% } %>
+                        <% if (locals.user && user.loginAS === 'COURIER_BOY') { %>
+                          <h3 class="text-center mt-3">Courier Boy DashBoard</h3>
+                        <% } %>
+                      </div>
+                      
+                      <h3 class="text-center mt-3"></h3>
                       <div class="header-controls">
                           <div class="setting-wrapper header-links" style="display:none;">
                               <a href="javascript:void(0);" class="setting-info">
@@ -68,7 +84,7 @@
                                   </span>
                               </a>
                           </div>
-    
+                               
                           <div class="notification-wrapper header-links">
                               <a href="javascript:void(0);" class="" id="notiBell">
                                   <span class="header-icon">
@@ -224,7 +240,7 @@
                             </span>
                         </a>
                         <ul class="sub-menu">
-                            <li>
+                            <!-- <li>
                                 <a href="<%=config.APP_URL; %>dashboard/attributes">
                                     <span class="icon-dash">
                                     </span>
@@ -232,7 +248,7 @@
                                         Attributes
                                     </span>
                                 </a>
-                            </li>
+                            </li> -->
                             <li>
                                 <a href="<%=config.APP_URL; %>dashboard/brands">
                                     <span class="icon-dash">
@@ -269,6 +285,15 @@
                                     </span>
                                     <span class="menu-text">
                                         All
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<%=config.APP_URL; %>dashboard/getAllOrder_transactions">
+                                    <span class="icon-dash">
+                                    </span>
+                                    <span class="menu-text">
+                                        Orders Transactions
                                     </span>
                                 </a>
                             </li>

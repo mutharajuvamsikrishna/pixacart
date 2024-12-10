@@ -105,9 +105,9 @@ ADMIN.withdrawRequestList = async (req, res) => {
 
                 // if search is enabled for that particular field then create query
                 if (requestColumn.searchable == 'true') {
-                    query[column] = {
-                        $regex: text,
-                    };
+                     query[column] = {
+                      $regex: text, $options : 'i'
+                  };
                 }
             }
         }

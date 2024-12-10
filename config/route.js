@@ -771,11 +771,19 @@ router.get(
   controllers.orders.orderTransactions
 );
 router.get(
+  "/dashboard/getAllOrder_transactions",
+  controllers.orders.getAllOrderTransactions
+);
+router.get(
   "/orders/Transactions_list",
   controllers.middleware.authenticate,
   controllers.orders.transactionsList
 );
-
+router.get(
+  "/orders/getAllTransactions_list",
+ 
+  controllers.orders.getAllTransactionsList
+);
 //GET Request SETTINGS Controller
 router.get(
   "/settings/terms-condition",
